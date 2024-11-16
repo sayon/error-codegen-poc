@@ -1,0 +1,49 @@
+{
+    "types": [],
+    "domains": [
+        {
+            "domain_name": "core",
+            "domain_code": 2,
+            "identifier_encoding": "core",
+            "bindings": {
+                "rust": "Core"
+            },
+            "components" : [
+                {
+                    "component_name": "Sequencer",
+                    "component_code": 1,
+                    "identifier_encoding": "seq",
+
+                    "bindings": {
+                        "rust": "Sequencer"
+                    },
+                    "errors": [
+
+                        {
+                            "name": "OtherCoreError",
+                            "code": 2,
+                            "message": "Tratata {path}",
+                            "bindings": {
+                                "rust":
+                                {
+                                    "name": "SomeCoreError"
+                                }
+                            },
+                            "fields": [
+                                {
+                                    "name": "path",
+                                    "type": "string"
+                                },
+                                {
+                                    "name": "payload",
+                                    "type": "uint"
+                                }
+
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,33 +1,53 @@
+#[derive(Clone, Eq, PartialEq, Default)]
+pub struct Indent {
+    value: usize,
+}
+
+impl Indent {
+    pub fn get_value(&self) -> usize {
+        self.value
+    }
+    pub fn increase(&mut self) {
+        self.increase_by(1);
+    }
+    pub fn increase_by(&mut self, offset: usize) {
+        self.value += offset;
+    }
+    pub fn decrease_by(&mut self, offset: usize) {
+        self.value -= offset;
+    }
+    pub fn decrease(&mut self) {
+        self.decrease_by(1);
+    }
+}
+
 pub struct PrettyPrinter {
-    indent: usize,
+    pub indentation: Indent,
     buffer: String,
 }
 impl PrettyPrinter {
     pub fn new(capacity: usize) -> Self {
         let buffer = String::with_capacity(capacity);
-        let indent = 0;
-        Self { indent, buffer }
+        Self {
+            indentation: Default::default(),
+            buffer,
+        }
     }
     pub fn get_buffer(self) -> String {
         self.buffer
     }
-    pub fn indent_increase(&mut self) {
-        self.indent_increase_by(1);
-    }
-    pub fn indent_increase_by(&mut self, offset: usize) {
-        self.indent += offset;
-    }
-    pub fn indent_decrease_by(&mut self, offset: usize) {
-        self.indent -= offset;
-    }
-    pub fn indent_decrease(&mut self) {
-        self.indent_decrease_by(1);
-    }
 
     pub fn indent(&mut self) {
-        for _ in 0..self.indent {
+        for _ in 0..self.indentation.get_value() {
             self.buffer.push_str("   ");
         }
+    }
+
+    pub fn indent_more(&mut self) {
+        self.indentation.increase();
+    }
+    pub fn indent_less(&mut self) {
+        self.indentation.decrease();
     }
 
     pub fn push_str(&mut self, string: &str) {
@@ -44,6 +64,14 @@ impl PrettyPrinter {
         for line in string.lines() {
             self.push_line(line);
         }
+    }
+
+    pub fn indent_more_by(&mut self, offset: usize) {
+        self.indentation.increase_by(offset)
+    }
+
+    pub fn indent_less_by(&mut self, offset: usize) {
+        self.indentation.decrease_by(offset)
     }
 }
 

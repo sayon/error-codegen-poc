@@ -2,7 +2,6 @@
 members = [
     "zksync-error-codegen-cli",
     "zksync-error-codegen",
-    "zksync-error-common",
 ]
 resolver = "2"
 

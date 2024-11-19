@@ -1,3 +1,14 @@
+use crate::codegen::printer::PrettyPrinter;
+use crate::codegen::rust::error::GenerationError;
+use crate::codegen::rust::RustBackend;
+use crate::codegen::File;
+
+impl RustBackend {
+    pub fn generate_file_packed(&mut self) -> Result<File, GenerationError> {
+        let mut gen = PrettyPrinter::default();
+        Self::preamble(&mut gen);
+        gen.push_line(
+            r##"
 use std::fmt::Debug;
 
 use crate::{
@@ -91,7 +102,17 @@ where
         let data = value_pretty;
         f.write_fmt(format_args!(
             r#"{{ code: {code} ; message: "{message}"; data: {data} }}"#,
+
         ))
     }
 }
 impl<T> std::error::Error for PackedError<T> where T: serde::Serialize + Debug + Clone {}
+"##,
+        );
+
+        Ok(File {
+            content: gen.get_buffer(),
+            relative_path: vec!["packed.rs".into()],
+        })
+    }
+}

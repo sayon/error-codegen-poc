@@ -8,7 +8,7 @@ use crate::{
 };
 
 impl RustBackend {
-    fn component_errors(
+    fn define_errors_of_component(
         &self,
         component: &ComponentDescription,
     ) -> Result<String, GenerationError> {
@@ -23,7 +23,7 @@ impl RustBackend {
 #[non_exhaustive]
 pub enum {error_name} {{"#
         ));
-        result.indent_increase();
+        result.indentation.increase();
         for error in &component.errors {
             result.push_block(&self.error_kind(&error)?);
         }
@@ -32,7 +32,7 @@ pub enum {error_name} {{"#
 }} // end of {error_name}
 "#
         ));
-        result.indent_decrease();
+        result.indentation.decrease();
 
         result.push_line(&format!(
             r#"
@@ -40,7 +40,7 @@ impl CustomErrorMessage for {error_name} {{
     fn get_message(&self) -> String {{
         match self {{"#,
         ));
-        result.indent_increase_by(3);
+        result.indentation.increase_by(3);
 
         for error in &component.errors {
             result.push_block(&self.error_kind_match(component, &error)?);
@@ -48,13 +48,13 @@ impl CustomErrorMessage for {error_name} {{
             result.push_line(&format!(" => {{ format!(\"{message}\") }},"));
         }
         for _ in 0..3 {
-            result.indent_decrease();
+            result.indentation.decrease();
             result.push_line("}");
         }
         Ok(result.get_buffer())
     }
 
-    pub fn generate_error_definitions(&mut self) -> Result<File, GenerationError> {
+    pub fn generate_file_error_definitions(&mut self) -> Result<File, GenerationError> {
         let mut gen = PrettyPrinter::default();
 
         Self::preamble(&mut gen);
@@ -72,7 +72,7 @@ use strum_macros::EnumDiscriminants;
             .values()
             .flat_map(|domain| domain.components.values())
         {
-            gen.push_str(&self.component_errors(component)?)
+            gen.push_str(&self.define_errors_of_component(component)?)
         }
 
         Ok(File {

@@ -25,7 +25,7 @@ pub enum {error_name} {{"#
         ));
         result.indentation.increase();
         for error in &component.errors {
-            result.push_block(&self.error_kind(&error)?);
+            result.push_block(&self.error_kind(error)?);
         }
         result.push_line(&format!(
             r#"
@@ -43,7 +43,7 @@ impl CustomErrorMessage for {error_name} {{
         result.indentation.increase_by(3);
 
         for error in &component.errors {
-            result.push_block(&self.error_kind_match(component, &error)?);
+            result.push_block(&self.error_kind_match(component, error)?);
             let message = &error.message;
             result.push_line(&format!(" => {{ format!(\"{message}\") }},"));
         }
@@ -76,7 +76,7 @@ use strum_macros::EnumDiscriminants;
         }
 
         Ok(File {
-            relative_path: vec!["error".into(), "definitions.rs".into()],
+            relative_path: vec!["src".into(), "error".into(), "definitions.rs".into()],
             content: gen.get_buffer(),
         })
     }

@@ -29,7 +29,7 @@ impl Backend<RustBackendConfig> for RustBackend {
     }
 
     fn generate(&mut self, _config: &RustBackendConfig) -> Result<Vec<File>, Self::Error> {
-        Ok(vec![
+        let vec = vec![
             self.generate_file_error_definitions()?,
             self.generate_file_error_domains()?,
             self.generate_file_error_mod()?,
@@ -39,7 +39,23 @@ impl Backend<RustBackendConfig> for RustBackend {
             self.generate_file_packed()?,
             self.generate_file_serialized()?,
             self.generate_file_untyped()?,
-        ])
+            File { relative_path: vec!["Cargo.toml".into()],
+                   content: r#"
+[package]
+name = "zksync_error"
+version = "0.1.0"
+edition = "2021"
+[lib]
+[dependencies]
+serde = "1.0.213"
+serde_json = "1.0.132"
+strum = "0.26.3"
+strum_macros = "0.26.4"
+typify = "0.2.0"
+"#.into(),
+            }
+        ];
+        Ok(vec)
     }
 
     fn get_language_name() -> &'static str {
@@ -64,7 +80,7 @@ impl RustBackend {
     fn type_as_rust(typ: &FullyQualifiedTargetLanguageType) -> String {
         let FullyQualifiedTargetLanguageType { name, path } = typ;
         if path.is_empty() {
-            format!("{name}")
+            name.to_string()
         } else {
             format!("{path}.{name}")
         }
@@ -75,14 +91,14 @@ impl RustBackend {
         Ok(Self::type_as_rust(typ))
     }
 
-    fn error_field<'a>(&self, field: &FieldDescription) -> Result<String, GenerationError> {
+    fn error_field(&self, field: &FieldDescription) -> Result<String, GenerationError> {
         let FieldDescription { name, r#type } = field;
         let rust_type = self.get_rust_type(r#type)?;
 
         Ok(format!("{name} : {rust_type},"))
     }
 
-    fn error_kind<'a>(&self, error: &ErrorDescription) -> Result<String, GenerationError> {
+    fn error_kind(&self, error: &ErrorDescription) -> Result<String, GenerationError> {
         let ErrorDescription {
             name, code, fields, ..
         } = error;
@@ -98,7 +114,7 @@ impl RustBackend {
         Ok(result.get_buffer())
     }
 
-    fn error_kind_match<'a>(
+    fn error_kind_match(
         &self,
         component: &ComponentDescription,
         error: &ErrorDescription,
@@ -116,7 +132,7 @@ impl RustBackend {
         }
         result.indentation.decrease();
 
-        result.push_line(&format!("}}"));
+        result.push_line("}");
         Ok(result.get_buffer())
     }
 
@@ -126,7 +142,7 @@ impl RustBackend {
             .get(Self::get_language_name())
             .ok_or(ModelError::UnmappedName(component.name.clone()))?;
 
-        Ok(format!("{name}"))
+        Ok(name.to_string())
     }
     fn component_code_type_name(
         component: &ComponentDescription,
@@ -139,24 +155,13 @@ impl RustBackend {
         Ok(format!("{name}Code"))
     }
 
-    fn error_type_name(error: &ErrorDescription) -> Result<String, GenerationError> {
-        let name = &error
-            .bindings
-            .bindings
-            .get(Self::get_language_name())
-            .ok_or(ModelError::UnmappedName(error.name.clone()))?
-            .name;
-
-        Ok(format!("{name}"))
-    }
-
     fn domain_type_name(domain: &DomainDescription) -> Result<String, GenerationError> {
         let name = domain
             .bindings
             .get(Self::get_language_name())
             .ok_or(ModelError::UnmappedName(domain.name.clone()))?;
 
-        Ok(format!("{name}"))
+        Ok(name.to_string())
     }
 
     fn domain_code_type_name(domain: &DomainDescription) -> Result<String, GenerationError> {

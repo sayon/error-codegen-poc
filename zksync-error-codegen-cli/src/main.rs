@@ -1,8 +1,14 @@
+pub mod arguments;
+pub mod error;
+
 use std::fs;
 use std::io::Write as _;
 use std::path::{Path, PathBuf};
 
-use serde_json;
+use arguments::Arguments;
+use error::ProgramError;
+
+use structopt::StructOpt as _;
 use zksync_error_codegen::codegen::rust::config::RustBackendConfig;
 use zksync_error_codegen::codegen::rust::RustBackend;
 use zksync_error_codegen::codegen::{Backend as _, File};
@@ -10,53 +16,51 @@ use zksync_error_codegen::json::Config;
 use zksync_error_codegen::model::validator::validate;
 use zksync_error_codegen::model::Model;
 
-fn main() {
-    // Specify the file path
-    let file_path = "example.json";
-    // Read the entire file contents into a string
-    let content = fs::read_to_string(file_path).unwrap();
+fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
+    let json_path = &arguments.definitions;
+    let verbose = arguments.verbose;
+    let backend_type = arguments.backend;
 
-    let config: Config = serde_json::from_str(&content).unwrap();
+    let content = fs::read_to_string(json_path)?;
 
-    //println!("{config:#?}");
+    let config: Config = serde_json::from_str(&content)?;
 
-    let model = Model::try_from(&config).unwrap();
-
-    validate(&model).unwrap();
-
-    //println!("{model:#?}");
-    let mut backend = RustBackend::new(model);
-
-    let result = backend.generate(&RustBackendConfig {}).unwrap();
-
-    write_to_file("zksync-error/Cargo.toml",
-        r#"
-[package]
-name = "zksync_error"
-version = "0.1.0"
-edition = "2021"
-[lib]
-[dependencies]
-serde = "1.0.213"
-serde_json = "1.0.132"
-strum = "0.26.3"
-strum_macros = "0.26.4"
-typify = "0.2.0"
-"#,
-    );
-    let _ = create_files_in_result_directory("zksync-error/src", result);
-}
-
-fn write_to_file(filename:&str, content: &str) -> std::io::Result<()> {
-    let path = Path::new(filename);
-
-    if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent)?;
+    if verbose {
+        eprintln!("Read config from \"{json_path}\":\n{config:#?}");
+        eprintln!("Building model...");
     }
 
-    let mut file = fs::File::create(path)?;
-    file.write_all(content.as_bytes())?;
+    let model = Model::try_from(&config)?;
+    if verbose {
+        eprintln!("Model: {model:#?}");
+        eprintln!("Model validation...");
+    }
+    validate(&model).unwrap();
+    if verbose {
+        eprintln!("Model validation successful.");
+    }
 
+    if verbose {
+        eprintln!("Selected backend: {backend_type:?}. \nGenerating files...");
+    }
+    let result = match backend_type {
+        arguments::Backend::Doc => todo!(),
+        arguments::Backend::Rust => {
+            let mut backend = RustBackend::new(model);
+            backend.generate(&RustBackendConfig {})?
+        }
+    };
+
+    if verbose {
+        eprintln!("Generation successful.");
+        eprintln!("Writing files to disk...");
+    }
+
+
+    create_files_in_result_directory("zksync-error", result)?;
+    if verbose {
+        eprintln!("Writing successful.");
+    }
     Ok(())
 }
 
@@ -64,10 +68,10 @@ fn create_files_in_result_directory(result_dir: &str, files: Vec<File>) -> std::
     let result_dir = Path::new(result_dir);
 
     if result_dir.exists() {
-        fs::remove_dir_all(&result_dir)?;
+        fs::remove_dir_all(result_dir)?;
     }
 
-    fs::create_dir(&result_dir)?;
+    fs::create_dir(result_dir)?;
 
     for file in files {
         let mut path = PathBuf::from(&result_dir);
@@ -84,4 +88,13 @@ fn create_files_in_result_directory(result_dir: &str, files: Vec<File>) -> std::
     }
 
     Ok(())
+}
+
+
+fn main() {
+    let arguments = Arguments::from_args();
+
+    if let Err(error) = main_inner(arguments) {
+        eprintln!("{error:?}")
+    }
 }

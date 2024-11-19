@@ -112,7 +112,7 @@ impl<T> std::error::Error for PackedError<T> where T: serde::Serialize + Debug +
 
         Ok(File {
             content: gen.get_buffer(),
-            relative_path: vec!["packed.rs".into()],
+            relative_path: vec!["src".into(), "packed.rs".into()],
         })
     }
 }

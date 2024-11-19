@@ -116,12 +116,12 @@ impl TryFrom<&crate::json::Error> for ErrorDescription {
         } = value;
         let transformed_fields: Result<_, _> = fields
             .iter()
-            .map(|f| TryInto::<FieldDescription>::try_into(f))
+            .map(TryInto::<FieldDescription>::try_into)
             .collect();
         let transformed_mappings: TypeBindings<TargetLanguageType> = codegen.try_into()?;
         Ok(ErrorDescription {
             name: name.clone(),
-            code: code.clone(),
+            code: *code,
             message: message.clone(),
             fields: transformed_fields?,
             documentation: None, //FIXME
@@ -150,7 +150,7 @@ fn translate_component(
     let domain_name = ctx.domain_name.clone();
     let mut transformed_errors: Vec<ErrorDescription> = errors
         .iter()
-        .map(|e| TryInto::<ErrorDescription>::try_into(e))
+        .map(TryInto::<ErrorDescription>::try_into)
         .collect::<Result<Vec<_>, _>>()?;
 
     for take_from_address in takeFrom {
@@ -158,10 +158,10 @@ fn translate_component(
             Ok(fetched_file_contents) => {
                 //fixme dirty
                 let config: Config = serde_json::from_str(&fetched_file_contents)
-                    .expect(&format!("Error fetching the file {take_from_address} "));
+                    .unwrap_or_else(|_| panic!("Error fetching the file {take_from_address} "));
 
                 let fetched_component: &crate::json::Component = config
-                    .get_component(&domain_name, &component_name)
+                    .get_component(&domain_name, component_name)
                     .ok_or(ModelBuildingError::TakeFrom {
                         address: take_from_address.clone(),
                         inner: TakeFromError::MissingComponent {
@@ -183,7 +183,7 @@ fn translate_component(
 
     Ok(ComponentDescription {
         name: component_name.clone(),
-        code: component_code.clone(),
+        code: *component_code,
         bindings: maplit::hashmap! {
             "rust".into() => bindings.rust.clone(),
         },

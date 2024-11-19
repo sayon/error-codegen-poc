@@ -21,7 +21,7 @@ use crate::error::domains::ZksyncError;
         );
 
         for domain_description in domains() {
-            let domain = Self::domain_type_name(&domain_description)?;
+            let domain = Self::domain_type_name(domain_description)?;
             gen.push_line(&format!("use crate::error::domains::{domain};"));
         }
 
@@ -73,7 +73,7 @@ impl IError<ZksyncError> for ZksyncError {
 
         for domain_description in domains() {
             for component_description in domain_description.components.values() {
-                let domain = Self::domain_type_name(&domain_description)?;
+                let domain = Self::domain_type_name(domain_description)?;
                 let component = Self::component_type_name(component_description)?;
                 gen.push_line(&format!(
                     "ZksyncError::{domain}({domain}::{component}(error)) => error.get_message(),"
@@ -93,7 +93,7 @@ impl IError<ZksyncError> for ZksyncError {
         );
         Ok(File {
             content: gen.get_buffer(),
-            relative_path: vec!["error".into(), "mod.rs".into()],
+            relative_path: vec!["src".into(), "error".into(), "mod.rs".into()],
         })
     }
 }

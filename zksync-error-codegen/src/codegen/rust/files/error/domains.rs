@@ -29,7 +29,7 @@ use strum_macros::FromRepr;
         };
 
         for component in components() {
-            let component_error_type = Self::component_type_name(&component)?;
+            let component_error_type = Self::component_type_name(component)?;
             gen.push_line(&format!(
                 "use crate::error::definitions::{component_error_type};"
             ));
@@ -47,7 +47,7 @@ pub enum ZksyncError {"#,
 
         gen.indent_more();
         for domain in domains() {
-            let constructor = Self::domain_type_name(&domain)?;
+            let constructor = Self::domain_type_name(domain)?;
             let domain_type = &constructor;
             gen.push_line(&format!("{constructor}({domain_type}), "));
         }
@@ -67,9 +67,9 @@ impl ZksyncError {
 
         for domain_description in domains() {
             for component_description in domain_description.components.values() {
-                let domain = Self::domain_type_name(&domain_description)?;
+                let domain = Self::domain_type_name(domain_description)?;
                 let component = Self::component_type_name(component_description)?;
-                let component_code = Self::component_code_type_name(component_description)?;
+                let _component_code = Self::component_code_type_name(component_description)?;
                 let domain_code = Self::domain_code_type_name(domain_description)?;
 
                 gen.push_line(&format!(
@@ -92,7 +92,7 @@ impl ZksyncError {
         gen.indent_more_by(2);
         for domain_description in domains() {
             for component_description in domain_description.components.values() {
-                let domain = Self::domain_type_name(&domain_description)?;
+                let domain = Self::domain_type_name(domain_description)?;
                 let component = Self::component_type_name(component_description)?;
                 let component_code = Self::component_code_type_name(component_description)?;
                 gen.push_line(&format!("ZksyncError::{domain}({domain}::{component}(error)) => {{ Into::<{component_code}>::into(error) as i32 }},"));
@@ -121,7 +121,7 @@ impl std::error::Error for ZksyncError {}
 
         for domain_description in domains() {
             for component_description in domain_description.components.values() {
-                let domain = Self::domain_type_name(&domain_description)?;
+                let domain = Self::domain_type_name(domain_description)?;
                 let component = Self::component_type_name(component_description)?;
                 gen.push_line(&format!(
                     r#"
@@ -136,7 +136,7 @@ impl ICustomError<ZksyncError, ZksyncError> for {component} {{
         }
 
         Ok(File {
-            relative_path: vec!["error".into(), "domains.rs".into()],
+            relative_path: vec!["src".into(), "error".into(), "domains.rs".into()],
             content: gen.get_buffer(),
         })
     }
@@ -144,7 +144,7 @@ impl ICustomError<ZksyncError, ZksyncError> for {component} {{
         domain_description: &DomainDescription,
     ) -> Result<String, GenerationError> {
         let mut gen = PrettyPrinter::default();
-        let domain = Self::domain_type_name(&domain_description)?;
+        let domain = Self::domain_type_name(domain_description)?;
         let domain_code = Self::domain_code_type_name(domain_description)?;
 
         gen.push_line(&format!(
@@ -170,109 +170,3 @@ pub enum {domain} {{"#
     }
 }
 
-/*
-
-#[repr(i32)]
-#[derive(Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-#[strum_discriminants(name(CompilerCode))]
-#[strum_discriminants(derive(serde::Serialize, serde::Deserialize, FromRepr))]
-#[strum_discriminants(vis(pub))]
-pub enum Compiler {
-    Zksolc(Zksolc),
-    Solc(Solc),
-}
-
-#[repr(i32)]
-#[derive(Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
-#[strum_discriminants(name(ToolingCode))]
-#[strum_discriminants(derive(serde::Serialize, serde::Deserialize, FromRepr))]
-#[strum_discriminants(vis(pub))]
-pub enum Tooling {
-    RustSDK(RustSDK),
-}
-
-impl ICustomError<ZksyncError, ZksyncError> for Zksolc {
-    fn to_unified(&self) -> ZksyncError {
-        ZksyncError::Compiler(Compiler::Zksolc(self.clone()))
-    }
-}
-impl ICustomError<ZksyncError, ZksyncError> for Solc {
-    fn to_unified(&self) -> ZksyncError {
-        ZksyncError::Compiler(Compiler::Solc(self.clone()))
-    }
-}
-impl ICustomError<ZksyncError, ZksyncError> for RustSDK {
-    fn to_unified(&self) -> ZksyncError {
-        ZksyncError::Tooling(Tooling::RustSDK(self.clone()))
-    }
-}
-
-impl std::fmt::Display for ZksyncError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("{:#?}", self))
-    }
-}
-impl std::error::Error for ZksyncError {}
-*/
-/*
-
-    pub fn get_code(&self) -> i32 {
-        match self {
-            ZksyncError::CompilerError(compiler_error) => match compiler_error {
-                CompilerError::Zksolc(zksolc_error) => {
-                    Into::<ZksolcErrorCode>::into(zksolc_error) as i32
-                }
-                CompilerError::Solc(solc_error) => Into::<SolcErrorCode>::into(solc_error) as i32,
-            },
-            ZksyncError::ToolingError(tooling_error) => match tooling_error {
-                ToolingError::RustSDK(rust_sdkerror) => {
-                    Into::<RustSDKErrorCode>::into(rust_sdkerror) as i32
-                }
-            },
-        }
-    }
-}
-impl IUnifiedError<ZksyncError> for ZksyncError {}
-
-#[repr(i32)]
-#[derive(Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-#[strum_discriminants(name(CompilerComponentCode))]
-#[strum_discriminants(derive(serde::Serialize, serde::Deserialize, FromRepr))]
-#[strum_discriminants(vis(pub))]
-pub enum CompilerError {
-    Zksolc(ZksolcError),
-    Solc(SolcError),
-}
-
-#[repr(i32)]
-#[derive(Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
-#[strum_discriminants(name(ToolingComponentCode))]
-#[strum_discriminants(derive(serde::Serialize, serde::Deserialize, FromRepr))]
-#[strum_discriminants(vis(pub))]
-pub enum ToolingError {
-    RustSDK(RustSDKError),
-}
-
-impl ICustomError<ZksyncError, ZksyncError> for ZksolcError {
-    fn to_unified(&self) -> ZksyncError {
-        ZksyncError::CompilerError(CompilerError::Zksolc(self.clone()))
-    }
-}
-impl ICustomError<ZksyncError, ZksyncError> for SolcError {
-    fn to_unified(&self) -> ZksyncError {
-        ZksyncError::CompilerError(CompilerError::Solc(self.clone()))
-    }
-}
-impl ICustomError<ZksyncError, ZksyncError> for RustSDKError {
-    fn to_unified(&self) -> ZksyncError {
-        ZksyncError::ToolingError(ToolingError::RustSDK(self.clone()))
-    }
-}
-
-impl std::fmt::Display for ZksyncError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("{:#?}", self))
-    }
-}
-impl std::error::Error for ZksyncError {}
-*/

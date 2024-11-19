@@ -16,7 +16,7 @@ use strum_macros::{EnumDiscriminants, FromRepr};
         );
 
         for domain_description in domains() {
-            let domain_code_type = Self::domain_code_type_name(&domain_description)?;
+            let domain_code_type = Self::domain_code_type_name(domain_description)?;
             gen.push_line(&format!("use crate::error::domains::{domain_code_type};"));
         }
 
@@ -32,8 +32,8 @@ pub enum Kind {"#,
         gen.indent_more();
 
         for domain_description in domains() {
-            let domain = Self::domain_type_name(&domain_description)?;
-            let domain_code_type = Self::domain_code_type_name(&domain_description)?;
+            let domain = Self::domain_type_name(domain_description)?;
+            let domain_code_type = Self::domain_code_type_name(domain_description)?;
             let domain_code_value = domain_description.code;
             gen.push_line(&format!(
                 "{domain}({domain_code_type}) = {domain_code_value},"
@@ -59,7 +59,7 @@ impl Kind {
         gen.indent_more_by(3);
 
         for domain_description in domains() {
-            let domain = Self::domain_type_name(&domain_description)?;
+            let domain = Self::domain_type_name(domain_description)?;
             gen.push_line(&format!(
                 "Kind::{domain}(component) => component.clone() as i32,"
             ));
@@ -73,7 +73,7 @@ impl Kind {
         );
 
         Ok(File {
-            relative_path: vec!["kind.rs".into()],
+            relative_path: vec!["src".into(), "kind.rs".into()],
             content: gen.get_buffer(),
         })
     }

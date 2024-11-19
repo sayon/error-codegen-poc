@@ -57,7 +57,7 @@ impl PrettyPrinter {
     pub fn push_line(&mut self, string: &str) {
         self.indent();
         self.buffer.push_str(string);
-        self.buffer.push_str("\n");
+        self.buffer.push('\n');
     }
 
     pub fn push_block(&mut self, string: &str) {

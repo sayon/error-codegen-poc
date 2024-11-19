@@ -20,7 +20,7 @@ pub mod untyped;
 
         Ok(File {
             content: gen.get_buffer(),
-            relative_path: vec!["lib.rs".into()],
+            relative_path: vec!["src".into(), "lib.rs".into()],
         })
     }
 }

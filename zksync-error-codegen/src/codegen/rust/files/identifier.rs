@@ -10,7 +10,7 @@ impl RustBackend {
         Self::preamble(&mut gen);
 
         for domain_description in domains() {
-            let domain_code = Self::domain_code_type_name(&domain_description)?;
+            let domain_code = Self::domain_code_type_name(domain_description)?;
             gen.push_line(&format!("use crate::error::domains::{domain_code};"));
         }
 
@@ -48,14 +48,14 @@ impl Identifier {
         let domains = || self.model.domains.values();
 
         for domain_description in domains() {
-            let domain = Self::domain_type_name(&domain_description)?;
-            let domain_code = Self::domain_code_type_name(&domain_description)?;
+            let domain = Self::domain_type_name(domain_description)?;
+            let domain_code = Self::domain_code_type_name(domain_description)?;
 
             gen.push_line(&format!("DomainCode::{domain} => {{"));
             gen.indent_more();
 
             for component_description in domain_description.components.values() {
-                let component = Self::component_type_name(component_description)?;
+                let _component = Self::component_type_name(component_description)?;
                 gen.push_line(&format!(
                     "Kind::{domain}({domain_code}::from_repr(component_code)?)"
                 ));
@@ -75,7 +75,7 @@ impl Identifier {
 
         Ok(File {
             content: gen.get_buffer(),
-            relative_path: vec!["identifier.rs".into()],
+            relative_path: vec!["src".into(), "identifier.rs".into()],
         })
     }
 }

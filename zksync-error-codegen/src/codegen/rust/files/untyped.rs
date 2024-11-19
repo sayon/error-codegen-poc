@@ -23,7 +23,7 @@ pub struct UntypedErrorObject {
 
         Ok(File {
             content: gen.get_buffer(),
-            relative_path: vec!["untyped.rs".into()],
+            relative_path: vec!["src".into(), "untyped.rs".into()],
         })
     }
 }

@@ -2,6 +2,8 @@ pub mod config;
 pub mod error;
 pub mod files;
 
+use std::path::PathBuf;
+
 use config::RustBackendConfig;
 use error::GenerationError;
 
@@ -39,8 +41,9 @@ impl Backend<RustBackendConfig> for RustBackend {
             self.generate_file_packed()?,
             self.generate_file_serialized()?,
             self.generate_file_untyped()?,
-            File { relative_path: vec!["Cargo.toml".into()],
-                   content: r#"
+            File {
+                relative_path: PathBuf::from("Cargo.toml"),
+                content: r#"
 [package]
 name = "zksync_error"
 version = "0.1.0"
@@ -52,8 +55,9 @@ serde_json = "1.0.132"
 strum = "0.26.3"
 strum_macros = "0.26.4"
 typify = "0.2.0"
-"#.into(),
-            }
+"#
+                .into(),
+            },
         ];
         Ok(vec)
     }

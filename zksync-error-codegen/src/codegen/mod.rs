@@ -1,9 +1,11 @@
+use std::path::PathBuf;
+
 pub mod printer;
 pub mod rust;
 
 #[derive(Debug, Clone)]
 pub struct File {
-    pub relative_path: Vec<String>,
+    pub relative_path: PathBuf,
     pub content: String,
 }
 

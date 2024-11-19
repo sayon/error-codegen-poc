@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::codegen::printer::PrettyPrinter;
 use crate::codegen::rust::error::GenerationError;
 use crate::codegen::rust::RustBackend;
@@ -20,7 +22,7 @@ pub mod untyped;
 
         Ok(File {
             content: gen.get_buffer(),
-            relative_path: vec!["src".into(), "lib.rs".into()],
+            relative_path: PathBuf::from("src/lib.rs"),
         })
     }
 }

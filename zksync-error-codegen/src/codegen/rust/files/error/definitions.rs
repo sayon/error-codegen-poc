@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::{
     codegen::{
         printer::PrettyPrinter,
@@ -76,7 +78,7 @@ use strum_macros::EnumDiscriminants;
         }
 
         Ok(File {
-            relative_path: vec!["src".into(), "error".into(), "definitions.rs".into()],
+            relative_path: PathBuf::from("src/error/definitions.rs"),
             content: gen.get_buffer(),
         })
     }

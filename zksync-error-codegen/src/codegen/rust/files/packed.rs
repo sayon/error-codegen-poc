@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::codegen::printer::PrettyPrinter;
 use crate::codegen::rust::error::GenerationError;
 use crate::codegen::rust::RustBackend;
@@ -112,7 +114,7 @@ impl<T> std::error::Error for PackedError<T> where T: serde::Serialize + Debug +
 
         Ok(File {
             content: gen.get_buffer(),
-            relative_path: vec!["src".into(), "packed.rs".into()],
+            relative_path: PathBuf::from("src/packed.rs"),
         })
     }
 }

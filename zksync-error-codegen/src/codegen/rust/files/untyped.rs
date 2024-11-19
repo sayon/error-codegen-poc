@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::codegen::printer::PrettyPrinter;
 use crate::codegen::rust::error::GenerationError;
 use crate::codegen::rust::RustBackend;
@@ -23,7 +25,7 @@ pub struct UntypedErrorObject {
 
         Ok(File {
             content: gen.get_buffer(),
-            relative_path: vec!["src".into(), "untyped.rs".into()],
+            relative_path: PathBuf::from("src/untyped.rs"),
         })
     }
 }

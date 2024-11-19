@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::codegen::printer::PrettyPrinter;
 use crate::codegen::rust::error::GenerationError;
 use crate::codegen::rust::RustBackend;
@@ -73,7 +75,7 @@ impl Kind {
         );
 
         Ok(File {
-            relative_path: vec!["src".into(), "kind.rs".into()],
+            relative_path: PathBuf::from("src/kind.rs"),
             content: gen.get_buffer(),
         })
     }

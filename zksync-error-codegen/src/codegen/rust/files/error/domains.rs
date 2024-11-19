@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::codegen::printer::PrettyPrinter;
 use crate::codegen::rust::error::GenerationError;
 use crate::codegen::rust::RustBackend;
@@ -136,7 +138,7 @@ impl ICustomError<ZksyncError, ZksyncError> for {component} {{
         }
 
         Ok(File {
-            relative_path: vec!["src".into(), "error".into(), "domains.rs".into()],
+            relative_path: PathBuf::from("src/error/domains.rs"),
             content: gen.get_buffer(),
         })
     }
@@ -169,4 +171,3 @@ pub enum {domain} {{"#
         Ok(gen.get_buffer())
     }
 }
-

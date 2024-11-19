@@ -3,7 +3,7 @@ pub mod error;
 
 use std::fs;
 use std::io::Write as _;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use arguments::Arguments;
 use error::ProgramError;
@@ -52,10 +52,12 @@ fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
     };
 
     if verbose {
-        eprintln!("Generation successful.");
+        eprintln!("Generation successful. Files: ");
+        for file in &result {
+            eprintln!("- {}", file.relative_path.to_str().unwrap());
+        }
         eprintln!("Writing files to disk...");
     }
-
 
     create_files_in_result_directory("zksync-error", result)?;
     if verbose {
@@ -74,10 +76,7 @@ fn create_files_in_result_directory(result_dir: &str, files: Vec<File>) -> std::
     fs::create_dir(result_dir)?;
 
     for file in files {
-        let mut path = PathBuf::from(&result_dir);
-        for part in &file.relative_path {
-            path.push(part);
-        }
+        let path = result_dir.join(file.relative_path);
 
         if let Some(parent_dir) = path.parent() {
             fs::create_dir_all(parent_dir)?;
@@ -89,7 +88,6 @@ fn create_files_in_result_directory(result_dir: &str, files: Vec<File>) -> std::
 
     Ok(())
 }
-
 
 fn main() {
     let arguments = Arguments::from_args();

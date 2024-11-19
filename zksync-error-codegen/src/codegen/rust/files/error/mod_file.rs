@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::codegen::printer::PrettyPrinter;
 use crate::codegen::rust::error::GenerationError;
 use crate::codegen::rust::RustBackend;
@@ -93,7 +95,7 @@ impl IError<ZksyncError> for ZksyncError {
         );
         Ok(File {
             content: gen.get_buffer(),
-            relative_path: vec!["src".into(), "error".into(), "mod.rs".into()],
+            relative_path: PathBuf::from("src/error/mod.rs"),
         })
     }
 }

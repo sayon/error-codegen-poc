@@ -1,4 +1,5 @@
-use zksync_error_codegen::codegen::rust::error::GenerationError;
+use zksync_error_codegen::codegen::html::error::GenerationError as HtmlGenerationError;
+use zksync_error_codegen::codegen::rust::error::GenerationError as RustGenerationError;
 use zksync_error_codegen::model::builder::error::ModelBuildingError;
 use zksync_error_codegen::model::error::ModelError;
 
@@ -7,8 +8,15 @@ pub enum ProgramError {
     ModelError(ModelError),
     ModelBuildingError(ModelBuildingError),
     JsonDeserializationError(serde_json::Error),
-    RustGenerationError(GenerationError),
+    RustGenerationError(RustGenerationError),
+    HtmlGenerationError(HtmlGenerationError),
     IOError(std::io::Error),
+}
+
+impl From<HtmlGenerationError> for ProgramError {
+    fn from(v: HtmlGenerationError) -> Self {
+        Self::HtmlGenerationError(v)
+    }
 }
 
 impl From<ModelBuildingError> for ProgramError {
@@ -29,8 +37,8 @@ impl From<ModelError> for ProgramError {
     }
 }
 
-impl From<GenerationError> for ProgramError {
-    fn from(v: GenerationError) -> Self {
+impl From<RustGenerationError> for ProgramError {
+    fn from(v: RustGenerationError) -> Self {
         Self::RustGenerationError(v)
     }
 }

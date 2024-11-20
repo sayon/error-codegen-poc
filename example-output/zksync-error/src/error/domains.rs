@@ -8,30 +8,30 @@ use crate::error::IUnifiedError;
 use crate::kind::Kind;
 use strum_macros::EnumDiscriminants;
 use strum_macros::FromRepr;
-use crate::error::definitions::Sequencer;
-use crate::error::definitions::SequencerCode;
 use crate::error::definitions::Zksolc;
 use crate::error::definitions::ZksolcCode;
+use crate::error::definitions::Sequencer;
+use crate::error::definitions::SequencerCode;
 
 #[repr(i32)]
 #[derive(Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum ZksyncError {
-   Core(Core), 
    Compiler(Compiler), 
+   Core(Core), 
 }
 
 impl ZksyncError {
     pub fn get_kind(&self) -> crate::kind::Kind {
         match self {
-         ZksyncError::Core(Core::Sequencer(_)) => { Kind::Core(CoreCode::Sequencer) },
          ZksyncError::Compiler(Compiler::Zksolc(_)) => { Kind::Compiler(CompilerCode::Zksolc) },
+         ZksyncError::Core(Core::Sequencer(_)) => { Kind::Core(CoreCode::Sequencer) },
       }
    }
    
     pub fn get_code(&self) -> i32 {
         match self {
-         ZksyncError::Core(Core::Sequencer(error)) => { Into::<SequencerCode>::into(error) as i32 },
          ZksyncError::Compiler(Compiler::Zksolc(error)) => { Into::<ZksolcCode>::into(error) as i32 },
+         ZksyncError::Core(Core::Sequencer(error)) => { Into::<SequencerCode>::into(error) as i32 },
       }
    }
 }
@@ -47,16 +47,6 @@ impl std::error::Error for ZksyncError {}
 
 #[repr(i32)]
 #[derive(Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-#[strum_discriminants(name(CoreCode))]
-#[strum_discriminants(derive(serde::Serialize, serde::Deserialize, FromRepr))]
-#[strum_discriminants(vis(pub))]
-pub enum Core {
-   Sequencer(Sequencer),
-}
-
-
-#[repr(i32)]
-#[derive(Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[strum_discriminants(name(CompilerCode))]
 #[strum_discriminants(derive(serde::Serialize, serde::Deserialize, FromRepr))]
 #[strum_discriminants(vis(pub))]
@@ -65,16 +55,26 @@ pub enum Compiler {
 }
 
 
-impl ICustomError<ZksyncError, ZksyncError> for Sequencer {
-    fn to_unified(&self) -> ZksyncError {
-        ZksyncError::Core(Core::Sequencer(self.clone()))
-    }
+#[repr(i32)]
+#[derive(Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[strum_discriminants(name(CoreCode))]
+#[strum_discriminants(derive(serde::Serialize, serde::Deserialize, FromRepr))]
+#[strum_discriminants(vis(pub))]
+pub enum Core {
+   Sequencer(Sequencer),
 }
 
 
 impl ICustomError<ZksyncError, ZksyncError> for Zksolc {
     fn to_unified(&self) -> ZksyncError {
         ZksyncError::Compiler(Compiler::Zksolc(self.clone()))
+    }
+}
+
+
+impl ICustomError<ZksyncError, ZksyncError> for Sequencer {
+    fn to_unified(&self) -> ZksyncError {
+        ZksyncError::Core(Core::Sequencer(self.clone()))
     }
 }
 

@@ -37,4 +37,8 @@ pub struct Arguments {
     /// Be verbose and produce debug output.
     #[structopt(long = "verbose")]
     pub verbose: bool,
+
+    /// Output files in this directory.
+    #[structopt(long = "output", default_value="zksync-error")]
+    pub output_directory: String,
 }

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FileNotFound - Error Documentation</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        table { border-collapse: collapse; width: 50%; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>FileNotFound</h1>
+
+        
+            <h3>Short Description</h3>
+            <p>No input file</p>
+        
+
+    <p><strong>Error Code:</strong> 2</p>
+    <p><strong>Message:</strong> Can&#x27;t find the file {path} to compile.</p>
+
+    
+        <h2>Fields</h2>
+        <table>
+            <tr>
+                <th>Field Name</th>
+                <th>Type</th>
+            </tr>
+            
+                <tr>
+                    <td>path</td>
+                    <td>string</td>
+                </tr>
+            
+                <tr>
+                    <td>file_index</td>
+                    <td>uint</td>
+                </tr>
+            
+        </table>
+    
+    
+        <h2>Description</h2>
+
+
+        <p>The compiler is unable to find the file with the source code that it needs</p>
+
+        
+            <h2>Likely Causes</h2>
+            
+                <h3>You did not provide a file to compile</h3>
+                <p><strong>Fixes:</strong></p>
+                <ul>
+                    
+                        <li>Check if you have provided a correct Solidity or YUL file to compile.</li>
+                    
+                </ul>
+                <p><strong>Report:</strong> </p>
+                <p><strong>Owner:</strong> solc (Version &gt; 1.0.0)</p>
+                
+            
+        
+    
+
+</body>
+</html>

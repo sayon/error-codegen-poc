@@ -9,6 +9,8 @@ use error::ProgramError;
 
 use structopt::StructOpt as _;
 use zksync_error_codegen::codegen::file::File;
+use zksync_error_codegen::codegen::html::config::HtmlBackendConfig;
+use zksync_error_codegen::codegen::html::HtmlBackend;
 use zksync_error_codegen::codegen::rust::config::RustBackendConfig;
 use zksync_error_codegen::codegen::rust::RustBackend;
 use zksync_error_codegen::codegen::Backend as _;
@@ -51,7 +53,10 @@ fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
         eprintln!("Selected backend: {backend_type:?}. \nGenerating files...");
     }
     let result = match backend_type {
-        arguments::Backend::Doc => todo!(),
+        arguments::Backend::Doc => {
+            let mut backend = HtmlBackend::new(model);
+            backend.generate(&HtmlBackendConfig {})?
+        }
         arguments::Backend::Rust => {
             let mut backend = RustBackend::new(model);
             backend.generate(&RustBackendConfig {})?
@@ -66,7 +71,7 @@ fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
         eprintln!("Writing files to disk...");
     }
 
-    create_files_in_result_directory("zksync-error", result)?;
+    create_files_in_result_directory(&arguments.output_directory, result)?;
     if verbose {
         eprintln!("Writing successful.");
     }

@@ -10,26 +10,26 @@ use super::loader::fetch_file;
 use super::ComponentDescription;
 use super::DomainDescription;
 use super::ErrorDescription;
+use super::ErrorDocumentation;
 use super::FieldDescription;
 use super::FullyQualifiedTargetLanguageType;
+use super::LikelyCause;
 use super::Model;
 use super::TargetLanguageType;
 use super::TypeBindings;
 use super::TypeDescription;
 use super::TypeMetadata;
+use super::VersionedOwner;
 
-impl TryFrom<&crate::json::ErrorNameMapping> for TypeBindings<TargetLanguageType> {
-    type Error = ModelBuildingError;
 
-    fn try_from(value: &crate::json::ErrorNameMapping) -> Result<Self, Self::Error> {
-        let mut result: Self = Default::default();
-        if let Some(crate::json::ErrorType { name }) = &value.rust {
-            result
-                .bindings
-                .insert("rust".into(), TargetLanguageType { name: name.clone() });
-        }
-        Ok(result)
+fn translate_type_bindings(value: &crate::json::ErrorNameMapping) -> Result<TypeBindings<TargetLanguageType>, ModelBuildingError> {
+    let mut result = TypeBindings::<TargetLanguageType>::default();
+    if let Some(crate::json::ErrorType { name }) = &value.rust {
+        result
+            .bindings
+            .insert("rust".into(), TargetLanguageType { name: name.clone() });
     }
+    Ok(result)
 }
 
 impl TryFrom<&crate::json::TypeMappings> for TypeBindings<FullyQualifiedTargetLanguageType> {
@@ -102,34 +102,68 @@ impl TryFrom<&crate::json::Field> for FieldDescription {
     }
 }
 
-impl TryFrom<&crate::json::Error> for ErrorDescription {
-    type Error = ModelBuildingError;
-
-    fn try_from(value: &crate::json::Error) -> Result<Self, Self::Error> {
-        let crate::json::Error {
-            name,
-            code,
-            message,
-            bindings: codegen,
-            fields,
-            doc: _,
-        } = value;
-        let transformed_fields: Result<_, _> = fields
-            .iter()
-            .map(TryInto::<FieldDescription>::try_into)
-            .collect();
-        let transformed_mappings: TypeBindings<TargetLanguageType> = codegen.try_into()?;
-        Ok(ErrorDescription {
-            name: name.clone(),
-            code: *code,
-            message: message.clone(),
-            fields: transformed_fields?,
-            documentation: None, //FIXME
-            bindings: transformed_mappings,
-        })
-    }
+struct ErrorTranslationContext {
+    component_context: ComponentTranslationContext,
+    component_name: String,
 }
 
+fn translate_likely_cause(lc: &crate::json::LikelyCause) -> Result<LikelyCause, ModelBuildingError> {
+    let crate::json::LikelyCause { cause, fixes, report, owner: crate::json::VersionedOwner { name, version } , references } = lc;
+
+    let owner = VersionedOwner { name: name.clone(), version: version.clone() };
+    Ok(LikelyCause {
+        cause: cause.clone(),
+        fixes: fixes.clone(),
+        report: report.clone(),
+        owner,
+        references: references.clone(),
+    } )
+
+
+}
+fn translate_error_documentation(doc:&crate::json::ErrorDocumentation) -> Result<ErrorDocumentation, ModelBuildingError> {
+
+    let &crate::json::ErrorDocumentation { description, short_description, likely_causes } = &doc;
+
+    let likely_causes : Vec<_> = likely_causes.iter().flat_map(|lc| translate_likely_cause(lc)).collect();
+
+    Ok(
+    ErrorDocumentation { description: description.clone(), short_description: short_description.clone(), likely_causes })
+}
+fn translate_error(
+    error: &crate::json::Error,
+    ctx: &ErrorTranslationContext,
+) -> Result<ErrorDescription, ModelBuildingError> {
+    let crate::json::Error {
+        name,
+        code,
+        message,
+        bindings: codegen,
+        fields,
+        doc,
+    } = error;
+    let transformed_fields: Result<_, _> = fields
+        .iter()
+        .map(TryInto::<FieldDescription>::try_into)
+        .collect();
+    let transformed_mappings: TypeBindings<TargetLanguageType> = translate_type_bindings(codegen)?;
+
+    let documentation = if let Some(doc) = doc {
+        Some(translate_error_documentation(&doc)?) }
+    else { None };
+    Ok(ErrorDescription {
+        name: name.clone(),
+        code: *code,
+        message: message.clone(),
+        fields: transformed_fields?,
+        documentation,
+        bindings: transformed_mappings,
+        domain: ctx.component_context.domain_name.clone(),
+        component: ctx.component_name.clone(),
+    })
+}
+
+#[derive(Clone)]
 struct ComponentTranslationContext {
     domain_name: String,
 }
@@ -150,7 +184,15 @@ fn translate_component(
     let domain_name = ctx.domain_name.clone();
     let mut transformed_errors: Vec<ErrorDescription> = errors
         .iter()
-        .map(TryInto::<ErrorDescription>::try_into)
+        .map(|e| {
+            translate_error(
+                e,
+                &ErrorTranslationContext {
+                    component_context: ctx.clone(),
+                    component_name: component_name.clone(),
+                },
+            )
+        })
         .collect::<Result<Vec<_>, _>>()?;
 
     for take_from_address in takeFrom {

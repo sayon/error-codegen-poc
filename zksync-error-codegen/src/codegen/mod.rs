@@ -1,13 +1,9 @@
-use std::path::PathBuf;
+use file::File;
 
 pub mod printer;
 pub mod rust;
+pub mod file;
 
-#[derive(Debug, Clone)]
-pub struct File {
-    pub relative_path: PathBuf,
-    pub content: String,
-}
 
 pub trait IBackendConfig {}
 

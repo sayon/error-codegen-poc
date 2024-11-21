@@ -8,41 +8,6 @@ use strum_macros::EnumDiscriminants;
 
 #[repr(i32)]
 #[derive(Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
-#[strum_discriminants(name(ZksolcCode))]
-#[strum_discriminants(vis(pub))]
-#[non_exhaustive]
-pub enum Zksolc {
-   SolcNotFound { 
-      path : String,
-      payload : u32,
-   } = 1, 
-   FileNotFound { 
-      path : String,
-      file_index : u32,
-   } = 2, 
-   
-} // end of Zksolc
-
-
-impl CustomErrorMessage for Zksolc {
-    fn get_message(&self) -> String {
-        match self {
-         Zksolc::SolcNotFound { 
-            path,
-            payload,
-         }
-          => { format!("I just can't find solc!") },
-         Zksolc::FileNotFound { 
-            path,
-            file_index,
-         }
-          => { format!("Can't find the file {path} to compile.") },
-      }
-   }
-}
-
-#[repr(i32)]
-#[derive(Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
 #[strum_discriminants(name(SequencerCode))]
 #[strum_discriminants(vis(pub))]
 #[non_exhaustive]
@@ -72,6 +37,41 @@ impl CustomErrorMessage for Sequencer {
             payload,
          }
           => { format!("Tratata {path}") },
+      }
+   }
+}
+
+#[repr(i32)]
+#[derive(Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
+#[strum_discriminants(name(ZksolcCode))]
+#[strum_discriminants(vis(pub))]
+#[non_exhaustive]
+pub enum Zksolc {
+   SolcNotFound { 
+      path : String,
+      payload : u32,
+   } = 1, 
+   FileNotFound { 
+      path : String,
+      file_index : u32,
+   } = 2, 
+   
+} // end of Zksolc
+
+
+impl CustomErrorMessage for Zksolc {
+    fn get_message(&self) -> String {
+        match self {
+         Zksolc::SolcNotFound { 
+            path,
+            payload,
+         }
+          => { format!("I just can't find solc!") },
+         Zksolc::FileNotFound { 
+            path,
+            file_index,
+         }
+          => { format!("Can't find the file {path} to compile.") },
       }
    }
 }

@@ -4,7 +4,7 @@ use structopt::StructOpt;
 
 #[derive(Debug)]
 pub enum Backend {
-    Doc,
+    DocHtml,
     Rust,
 }
 
@@ -13,7 +13,7 @@ impl FromStr for Backend {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "doc" => Ok(Backend::Doc),
+            "doc-html" => Ok(Backend::DocHtml),
             "rust" => Ok(Backend::Rust),
             _ => Err("Unrecognized backend".into()),
         }
@@ -22,7 +22,7 @@ impl FromStr for Backend {
 
 #[derive(Debug, StructOpt)]
 #[structopt(
-    name = "Generator of the error handling code in ZKsync components",
+    name = "Generator of the error handling code in ZKsync components.",
     global_settings = &[structopt::clap::AppSettings::ArgRequiredElseHelp],
 )]
 pub struct Arguments {
@@ -31,7 +31,7 @@ pub struct Arguments {
     pub definitions: String,
 
     /// Selected backend.
-    #[structopt(long = "backend", possible_values=&["rust", "doc"])]
+    #[structopt(long = "backend", possible_values=&["rust", "doc-html"])]
     pub backend: Backend,
 
     /// Be verbose and produce debug output.
@@ -39,6 +39,6 @@ pub struct Arguments {
     pub verbose: bool,
 
     /// Output files in this directory.
-    #[structopt(long = "output", default_value="zksync-error")]
+    #[structopt(long = "output", default_value = "zksync-error")]
     pub output_directory: String,
 }

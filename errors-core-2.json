@@ -10,7 +10,7 @@
             },
             "components" : [
                 {
-                    "component_name": "Sequencer",
+                    "component_name": "sequencer",
                     "component_code": 1,
                     "identifier_encoding": "seq",
 

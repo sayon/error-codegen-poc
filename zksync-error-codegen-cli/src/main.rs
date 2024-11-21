@@ -52,8 +52,9 @@ fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
     if verbose {
         eprintln!("Selected backend: {backend_type:?}. \nGenerating files...");
     }
+
     let result = match backend_type {
-        arguments::Backend::Doc => {
+        arguments::Backend::DocHtml => {
             let mut backend = HtmlBackend::new(model);
             backend.generate(&HtmlBackendConfig {})?
         }

@@ -11,7 +11,7 @@ use tera::Tera;
 use super::Backend;
 use super::File;
 
-use crate::model::Model;
+use crate::model::structure::Model;
 use include_dir::include_dir;
 
 pub struct HtmlBackend {

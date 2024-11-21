@@ -7,19 +7,19 @@ use maplit::hashmap;
 use crate::json::Config;
 use crate::loader::fetch_file;
 
-use super::ComponentDescription;
-use super::DomainDescription;
-use super::ErrorDescription;
-use super::ErrorDocumentation;
-use super::FieldDescription;
-use super::FullyQualifiedTargetLanguageType;
-use super::LikelyCause;
-use super::Model;
-use super::TargetLanguageType;
-use super::TypeBindings;
-use super::TypeDescription;
-use super::TypeMetadata;
-use super::VersionedOwner;
+use super::structure::ComponentDescription;
+use super::structure::DomainDescription;
+use super::structure::ErrorDescription;
+use super::structure::ErrorDocumentation;
+use super::structure::FieldDescription;
+use super::structure::FullyQualifiedTargetLanguageType;
+use super::structure::LikelyCause;
+use super::structure::Model;
+use super::structure::TargetLanguageType;
+use super::structure::TypeBindings;
+use super::structure::TypeDescription;
+use super::structure::TypeMetadata;
+use super::structure::VersionedOwner;
 
 fn translate_type_bindings(
     value: &crate::json::ErrorNameMapping,

@@ -9,12 +9,12 @@ use error::GenerationError;
 
 use crate::codegen::printer::PrettyPrinter;
 use crate::model::error::ModelError;
-use crate::model::ComponentDescription;
-use crate::model::DomainDescription;
-use crate::model::ErrorDescription;
-use crate::model::FieldDescription;
-use crate::model::FullyQualifiedTargetLanguageType;
-use crate::model::Model;
+use crate::model::structure::ComponentDescription;
+use crate::model::structure::DomainDescription;
+use crate::model::structure::ErrorDescription;
+use crate::model::structure::FieldDescription;
+use crate::model::structure::FullyQualifiedTargetLanguageType;
+use crate::model::structure::Model;
 
 use super::Backend;
 use super::File;

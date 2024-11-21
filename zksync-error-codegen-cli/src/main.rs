@@ -15,8 +15,8 @@ use zksync_error_codegen::codegen::rust::config::RustBackendConfig;
 use zksync_error_codegen::codegen::rust::RustBackend;
 use zksync_error_codegen::codegen::Backend as _;
 use zksync_error_codegen::json::Config;
+use zksync_error_codegen::model::builder::translate_model;
 use zksync_error_codegen::model::validator::validate;
-use zksync_error_codegen::model::Model;
 
 fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
     let json_path = &arguments.definitions;
@@ -39,7 +39,7 @@ fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
         eprintln!("Building model...");
     }
 
-    let model = Model::try_from(&config)?;
+    let model = translate_model(&config)?;
     if verbose {
         eprintln!("Model: {model:#?}");
         eprintln!("Model validation...");

@@ -33,74 +33,60 @@ fn translate_type_bindings(
     Ok(result)
 }
 
-impl TryFrom<&crate::json::TypeMappings> for TypeBindings<FullyQualifiedTargetLanguageType> {
-    type Error = ModelBuildingError;
-
-    fn try_from(value: &crate::json::TypeMappings) -> Result<Self, Self::Error> {
-        let mut result: Self = Default::default();
-        if let Some(crate::json::FullyQualifiedType { name, path }) = &value.rust {
-            result.bindings.insert(
-                "rust".into(),
-                FullyQualifiedTargetLanguageType {
-                    name: name.clone(),
-                    path: path.clone(),
-                },
-            );
-        }
-        Ok(result)
-    }
-}
-
-impl TryFrom<&crate::json::Type> for TypeDescription {
-    type Error = ModelBuildingError;
-
-    fn try_from(value: &crate::json::Type) -> Result<Self, Self::Error> {
-        let crate::json::Type {
-            name,
-            description,
-            bindings: codegen,
-        } = value;
-        Ok(TypeDescription {
-            name: name.clone(),
-            meta: TypeMetadata {
-                description: description.clone(),
+fn translate_type_mappings(
+    value: &crate::json::TypeMappings,
+) -> Result<TypeBindings<FullyQualifiedTargetLanguageType>, ModelBuildingError> {
+    let mut result: TypeBindings<FullyQualifiedTargetLanguageType> = Default::default();
+    if let Some(crate::json::FullyQualifiedType { name, path }) = &value.rust {
+        result.bindings.insert(
+            "rust".into(),
+            FullyQualifiedTargetLanguageType {
+                name: name.clone(),
+                path: path.clone(),
             },
-            bindings: codegen.try_into()?,
-        })
+        );
     }
+    Ok(result)
 }
 
-impl TryFrom<&crate::json::Config> for Model {
-    type Error = ModelBuildingError;
-
-    fn try_from(value: &crate::json::Config) -> Result<Self, Self::Error> {
-        let mut result = Model::default();
-        let crate::json::Config { types, domains } = value;
-        for t in types {
-            result.types.insert(t.name.clone(), t.try_into()?);
-        }
-
-        for domain in domains {
-            let transformed_domain: DomainDescription = domain.try_into()?;
-            result
-                .domains
-                .insert(transformed_domain.name.clone(), transformed_domain);
-        }
-
-        Ok(result)
-    }
+fn translate_type(value: &crate::json::Type) -> Result<TypeDescription, ModelBuildingError> {
+    let crate::json::Type {
+        name,
+        description,
+        bindings: codegen,
+    } = value;
+    Ok(TypeDescription {
+        name: name.clone(),
+        meta: TypeMetadata {
+            description: description.clone(),
+        },
+        bindings: translate_type_mappings(codegen)?,
+    })
 }
 
-impl TryFrom<&crate::json::Field> for FieldDescription {
-    type Error = ModelBuildingError;
-
-    fn try_from(value: &crate::json::Field) -> Result<Self, Self::Error> {
-        let crate::json::Field { name, r#type } = value;
-        Ok(FieldDescription {
-            name: name.clone(),
-            r#type: r#type.clone(),
-        })
+pub fn translate_model(model: &crate::json::Config) -> Result<Model, ModelBuildingError> {
+    let mut result = Model::default();
+    let crate::json::Config { types, domains } = model;
+    for t in types {
+        result.types.insert(t.name.clone(), translate_type(t)?);
     }
+
+    for domain in domains {
+        let transformed_domain: DomainDescription = translate_domain(domain)?;
+        result
+            .domains
+            .insert(transformed_domain.name.clone(), transformed_domain);
+    }
+
+    Ok(result)
+}
+
+fn translate_field(value: &crate::json::Field) -> Result<FieldDescription, ModelBuildingError> {
+    let crate::json::Field { name, r#type } = value;
+    Ok(FieldDescription {
+        name: name.clone(),
+        r#type: r#type.clone(),
+    })
 }
 
 struct ErrorTranslationContext {
@@ -163,10 +149,7 @@ fn translate_error(
         fields,
         doc,
     } = error;
-    let transformed_fields: Result<_, _> = fields
-        .iter()
-        .map(TryInto::<FieldDescription>::try_into)
-        .collect();
+    let transformed_fields: Result<_, _> = fields.iter().map(translate_field).collect();
     let transformed_mappings: TypeBindings<TargetLanguageType> = translate_type_bindings(codegen)?;
 
     let documentation = if let Some(doc) = doc {
@@ -258,38 +241,34 @@ fn translate_component(
     })
 }
 
-impl TryFrom<&crate::json::Domain> for DomainDescription {
-    type Error = ModelBuildingError;
-
-    fn try_from(value: &crate::json::Domain) -> Result<Self, Self::Error> {
-        let crate::json::Domain {
-            domain_name,
-            domain_code,
-            identifier_encoding,
-            description,
-            components,
-            bindings,
-        } = value;
-        let ctx = ComponentTranslationContext {
-            domain_name: domain_name.clone(),
-        };
-        let transformed_components: Result<Vec<ComponentDescription>, _> = components
+fn translate_domain(value: &crate::json::Domain) -> Result<DomainDescription, ModelBuildingError> {
+    let crate::json::Domain {
+        domain_name,
+        domain_code,
+        identifier_encoding,
+        description,
+        components,
+        bindings,
+    } = value;
+    let ctx = ComponentTranslationContext {
+        domain_name: domain_name.clone(),
+    };
+    let transformed_components: Result<Vec<ComponentDescription>, _> = components
+        .iter()
+        .map(|c| translate_component(c, &ctx))
+        .collect();
+    Ok(DomainDescription {
+        name: domain_name.clone(),
+        code: *domain_code,
+        identifier: identifier_encoding.clone(),
+        description: description.clone().unwrap_or_default(),
+        bindings: hashmap! {
+            "rust".into() => bindings.rust.clone(),
+        },
+        components: transformed_components?
             .iter()
-            .map(|c| translate_component(c, &ctx))
-            .collect();
-        Ok(DomainDescription {
-            name: domain_name.clone(),
-            code: *domain_code,
-            identifier: identifier_encoding.clone(),
-            description: description.clone().unwrap_or_default(),
-            bindings: hashmap! {
-                "rust".into() => bindings.rust.clone(),
-            },
-            components: transformed_components?
-                .iter()
-                .cloned()
-                .map(|c| (c.name.clone(), c))
-                .collect(),
-        })
-    }
+            .cloned()
+            .map(|c| (c.name.clone(), c))
+            .collect(),
+    })
 }

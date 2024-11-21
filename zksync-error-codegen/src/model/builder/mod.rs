@@ -5,8 +5,8 @@ use error::TakeFromError;
 use maplit::hashmap;
 
 use crate::json::Config;
+use crate::loader::fetch_file;
 
-use super::loader::fetch_file;
 use super::ComponentDescription;
 use super::DomainDescription;
 use super::ErrorDescription;

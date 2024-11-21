@@ -1,8 +1,8 @@
-use std::error::Error;
+use crate::loader::LoadError;
 
 #[derive(Debug)]
 pub enum TakeFromError {
-    IOError(Box<dyn Error>),
+    IOError(LoadError),
     MissingComponent {
         domain_name: String,
         component_name: String,

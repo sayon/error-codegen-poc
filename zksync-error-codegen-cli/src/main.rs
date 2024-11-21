@@ -26,7 +26,7 @@ fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
     if verbose {
         eprintln!("Reading config from \"{json_path}\"");
     }
-    let content = std::fs::read_to_string(json_path)?;
+    let content = zksync_error_codegen::loader::fetch_file(json_path)?;
 
     if verbose {
         eprintln!("Parsing config from \"{json_path}\"");

@@ -10,8 +10,8 @@ use std::error::Error;
 use crate::identifier::Identifier;
 use crate::error::domains::ZksyncError;
 
-use crate::error::domains::Core;
 use crate::error::domains::Compiler;
+use crate::error::domains::Core;
 
 pub trait IError<ContainedType>: Error
 where
@@ -51,8 +51,8 @@ impl IError<ZksyncError> for ZksyncError {
 
     fn get_message(&self) -> String {
         match self {
-         ZksyncError::Core(Core::Sequencer(error)) => error.get_message(),
          ZksyncError::Compiler(Compiler::Zksolc(error)) => error.get_message(),
+         ZksyncError::Core(Core::Sequencer(error)) => error.get_message(),
 
         }
     }

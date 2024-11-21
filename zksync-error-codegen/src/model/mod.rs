@@ -1,6 +1,5 @@
 pub mod builder;
 pub mod error;
-pub mod loader;
 pub mod validator;
 
 use std::collections::HashMap;

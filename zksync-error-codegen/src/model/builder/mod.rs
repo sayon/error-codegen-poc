@@ -21,8 +21,9 @@ use super::TypeDescription;
 use super::TypeMetadata;
 use super::VersionedOwner;
 
-
-fn translate_type_bindings(value: &crate::json::ErrorNameMapping) -> Result<TypeBindings<TargetLanguageType>, ModelBuildingError> {
+fn translate_type_bindings(
+    value: &crate::json::ErrorNameMapping,
+) -> Result<TypeBindings<TargetLanguageType>, ModelBuildingError> {
     let mut result = TypeBindings::<TargetLanguageType>::default();
     if let Some(crate::json::ErrorType { name }) = &value.rust {
         result
@@ -107,28 +108,48 @@ struct ErrorTranslationContext {
     component_name: String,
 }
 
-fn translate_likely_cause(lc: &crate::json::LikelyCause) -> Result<LikelyCause, ModelBuildingError> {
-    let crate::json::LikelyCause { cause, fixes, report, owner: crate::json::VersionedOwner { name, version } , references } = lc;
+fn translate_likely_cause(
+    lc: &crate::json::LikelyCause,
+) -> Result<LikelyCause, ModelBuildingError> {
+    let crate::json::LikelyCause {
+        cause,
+        fixes,
+        report,
+        owner: crate::json::VersionedOwner { name, version },
+        references,
+    } = lc;
 
-    let owner = VersionedOwner { name: name.clone(), version: version.clone() };
+    let owner = VersionedOwner {
+        name: name.clone(),
+        version: version.clone(),
+    };
     Ok(LikelyCause {
         cause: cause.clone(),
         fixes: fixes.clone(),
         report: report.clone(),
         owner,
         references: references.clone(),
-    } )
-
-
+    })
 }
-fn translate_error_documentation(doc:&crate::json::ErrorDocumentation) -> Result<ErrorDocumentation, ModelBuildingError> {
+fn translate_error_documentation(
+    doc: &crate::json::ErrorDocumentation,
+) -> Result<ErrorDocumentation, ModelBuildingError> {
+    let &crate::json::ErrorDocumentation {
+        description,
+        short_description,
+        likely_causes,
+    } = &doc;
 
-    let &crate::json::ErrorDocumentation { description, short_description, likely_causes } = &doc;
+    let likely_causes: Vec<_> = likely_causes
+        .iter()
+        .flat_map(translate_likely_cause)
+        .collect();
 
-    let likely_causes : Vec<_> = likely_causes.iter().flat_map(|lc| translate_likely_cause(lc)).collect();
-
-    Ok(
-    ErrorDocumentation { description: description.clone(), short_description: short_description.clone(), likely_causes })
+    Ok(ErrorDocumentation {
+        description: description.clone(),
+        short_description: short_description.clone(),
+        likely_causes,
+    })
 }
 fn translate_error(
     error: &crate::json::Error,
@@ -149,8 +170,10 @@ fn translate_error(
     let transformed_mappings: TypeBindings<TargetLanguageType> = translate_type_bindings(codegen)?;
 
     let documentation = if let Some(doc) = doc {
-        Some(translate_error_documentation(&doc)?) }
-    else { None };
+        Some(translate_error_documentation(doc)?)
+    } else {
+        None
+    };
     Ok(ErrorDescription {
         name: name.clone(),
         code: *code,

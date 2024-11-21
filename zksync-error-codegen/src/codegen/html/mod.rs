@@ -1,6 +1,5 @@
 pub mod config;
 pub mod error;
-pub mod files;
 
 use std::path::PathBuf;
 
@@ -69,19 +68,21 @@ impl Backend<HtmlBackendConfig> for HtmlBackend {
 
         results.push({
             let mut context = tera::Context::new();
-            let errors: Vec<_> = self
+            let components: Vec<_> = self
                 .model
                 .domains
                 .values()
-                .flat_map(|domain| {
-                    domain
-                        .components
-                        .values()
-                        .flat_map(|component| &component.errors)
-                })
+                .flat_map(|domain| domain.components.values())
+                .collect();
+
+            let errors: Vec<_> = components
+                .iter()
+                .flat_map(|component| &component.errors)
                 .collect();
 
             context.insert("errors", &errors);
+            context.insert("components", &components);
+            context.insert("domains", &components);
 
             let content = tera.render("index.html", &context)?;
             File {

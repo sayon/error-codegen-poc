@@ -12,6 +12,9 @@ use strum_macros::EnumDiscriminants;
 #[strum_discriminants(vis(pub))]
 #[non_exhaustive]
 pub enum Zksolc {
+   Umbrella { 
+      inner : Box<dyn std::error::Error>,
+   } = 42, 
    SolcNotFound { 
       path : String,
       payload : u32,
@@ -27,6 +30,10 @@ pub enum Zksolc {
 impl CustomErrorMessage for Zksolc {
     fn get_message(&self) -> String {
         match self {
+         Zksolc::Umbrella { 
+            inner,
+         }
+          => { format!("Any error!") },
          Zksolc::SolcNotFound { 
             path,
             payload,

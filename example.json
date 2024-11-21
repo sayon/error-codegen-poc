@@ -20,6 +20,16 @@
                     "path": ""
                 }
             }
+        },
+        {
+            "name": "WrappedError",
+            "description": "Any wrapped error",
+            "bindings": {
+                "rust": {
+                    "name": "serde_json::Value",
+                    "path": ""
+                }
+            }
         }
     ],
     "domains": [
@@ -42,6 +52,23 @@
                     },
                     "errors" :
                     [
+                        {
+                            "name": "Umbrella",
+                            "code": 42,
+                            "message": "Any error!",
+                            "bindings": {
+                                "rust":
+                                {
+                                    "name": "Umbrella"
+                                }
+                            },
+                            "fields": [
+                                {
+                                    "name": "inner",
+                                    "type": "WrappedError"
+                                }
+                            ]
+                        },
                         {
                             "name": "SolcNotFound",
                             "code": 1,

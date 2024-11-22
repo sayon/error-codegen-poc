@@ -13,7 +13,7 @@ use strum_macros::EnumDiscriminants;
 #[non_exhaustive]
 pub enum Zksolc {
    Umbrella { 
-      inner : Box<dyn std::error::Error>,
+      inner : serde_json::Value,
    } = 42, 
    SolcNotFound { 
       path : String,

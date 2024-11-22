@@ -204,21 +204,28 @@ fn translate_component(
     for take_from_address in takeFrom {
         match fetch_file(take_from_address) {
             Ok(fetched_file_contents) => {
-                //fixme dirty
-                let config: Config = serde_json::from_str(&fetched_file_contents)
-                    .unwrap_or_else(|_| panic!("Error fetching the file {take_from_address} "));
-
-                let fetched_component: &crate::json::Component = config
-                    .get_component(&domain_name, component_name)
-                    .ok_or(ModelBuildingError::TakeFrom {
-                        address: take_from_address.clone(),
-                        inner: TakeFromError::MissingComponent {
-                            domain_name: domain_name.clone(),
-                            component_name: component_name.clone(),
-                        },
-                    })?;
-                let translated_fetched_component = translate_component(fetched_component, ctx)?;
-                transformed_errors.extend(translated_fetched_component.errors);
+                match serde_json::from_str::<Config>(&fetched_file_contents) {
+                    Ok(config) => {
+                        let fetched_component: &crate::json::Component = config
+                            .get_component(&domain_name, component_name)
+                            .ok_or(ModelBuildingError::TakeFrom {
+                                address: take_from_address.clone(),
+                                inner: TakeFromError::MissingComponent {
+                                    domain_name: domain_name.clone(),
+                                    component_name: component_name.clone(),
+                                },
+                            })?;
+                        let translated_fetched_component =
+                            translate_component(fetched_component, ctx)?;
+                        transformed_errors.extend(translated_fetched_component.errors);
+                    }
+                    Err(e) => {
+                        return Err(ModelBuildingError::TakeFrom {
+                            address: take_from_address.clone(),
+                            inner: e.into(),
+                        })
+                    }
+                }
             }
             Err(e) => {
                 return Err(ModelBuildingError::TakeFrom {

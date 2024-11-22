@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
-use crate::codegen::File;
-use crate::codegen::rust::RustBackend;
-use crate::codegen::rust::error::GenerationError;
 use crate::codegen::printer::PrettyPrinter;
+use crate::codegen::rust::error::GenerationError;
+use crate::codegen::rust::RustBackend;
+use crate::codegen::File;
 use crate::model::structure::ComponentDescription;
 
 impl RustBackend {

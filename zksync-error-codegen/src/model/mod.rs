@@ -1,4 +1,5 @@
 pub mod builder;
 pub mod error;
-pub mod validator;
+pub mod merger;
 pub mod structure;
+pub mod validator;

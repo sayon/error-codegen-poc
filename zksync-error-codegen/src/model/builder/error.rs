@@ -3,10 +3,17 @@ use crate::loader::LoadError;
 #[derive(Debug)]
 pub enum TakeFromError {
     IOError(LoadError),
+    ParsingError(serde_json::Error),
     MissingComponent {
         domain_name: String,
         component_name: String,
     },
+}
+
+impl From<serde_json::Error> for TakeFromError {
+    fn from(v: serde_json::Error) -> Self {
+        Self::ParsingError(v)
+    }
 }
 #[derive(Debug)]
 pub enum ModelBuildingError {
@@ -26,6 +33,9 @@ impl std::fmt::Display for TakeFromError {
             } => f.write_fmt(format_args!(
                 "Unable to find a matching component {component_name} in the domain {domain_name}."
             )),
+            TakeFromError::ParsingError(error) => {
+                f.write_fmt(format_args!("Unable to parse errors: {error}."))
+            }
         }
     }
 }

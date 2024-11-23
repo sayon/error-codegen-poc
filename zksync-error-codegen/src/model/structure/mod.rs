@@ -1,4 +1,8 @@
-use std::collections::HashMap;
+pub mod identifier;
+
+use std::{collections::HashMap, rc::Rc};
+
+use identifier::ErrorIdentifier;
 
 use super::error::ModelError;
 
@@ -58,39 +62,41 @@ impl Model {
         Self { types, domains }
     }
 }
+
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
-pub struct DomainDescription {
+pub struct DomainMetadata {
     pub name: DomainName,
     pub code: DomainCode,
     pub bindings: HashMap<LanguageName, String>,
     pub identifier: String,
     pub description: String,
+}
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+pub struct DomainDescription {
+    pub meta: Rc<DomainMetadata>,
     pub components: HashMap<ComponentName, ComponentDescription>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
-pub struct ComponentDescription {
+pub struct ComponentMetadata {
     pub name: ComponentName,
     pub code: ComponentCode,
     pub bindings: HashMap<LanguageName, String>,
     pub identifier: String,
     pub description: String,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+pub struct ComponentDescription {
+    pub meta: Rc<ComponentMetadata>,
     pub errors: Vec<ErrorDescription>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
-pub struct ErrorIdentifier {
-
-    pub domain: String,
-    pub component: String,
-    pub code: ErrorCode,
-}
-
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct ErrorDescription {
+    pub domain: Rc<DomainMetadata>,
+    pub component: Rc<ComponentMetadata>,
     pub name: ErrorName,
-    pub domain: DomainName,
-    pub component: ComponentName,
     pub code: ErrorCode,
     pub message: ErrorMessageTemplate,
     pub fields: Vec<FieldDescription>,

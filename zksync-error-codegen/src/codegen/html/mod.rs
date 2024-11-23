@@ -78,6 +78,7 @@ impl Backend<HtmlBackendConfig> for HtmlBackend {
             let errors: Vec<_> = components
                 .iter()
                 .flat_map(|component| &component.errors)
+                .map(|e| (e.get_identifier().to_string(),e))
                 .collect();
 
             context.insert("errors", &errors);

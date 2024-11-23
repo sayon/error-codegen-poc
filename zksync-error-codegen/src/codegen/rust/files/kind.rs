@@ -36,7 +36,7 @@ pub enum Kind {"#,
         for domain_description in domains() {
             let domain = Self::domain_type_name(domain_description)?;
             let domain_code_type = Self::domain_code_type_name(domain_description)?;
-            let domain_code_value = domain_description.code;
+            let domain_code_value = domain_description.meta.code;
             gen.push_line(&format!(
                 "{domain}({domain_code_type}) = {domain_code_value},"
             ));

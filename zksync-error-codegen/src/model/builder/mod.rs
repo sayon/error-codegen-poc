@@ -1,6 +1,7 @@
 pub mod error;
 
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use error::MissingComponent;
 use error::ModelBuildingError;
@@ -12,7 +13,9 @@ use crate::loader::ErrorBasePart;
 
 use super::merger::Merge as _;
 use super::structure::ComponentDescription;
+use super::structure::ComponentMetadata;
 use super::structure::DomainDescription;
+use super::structure::DomainMetadata;
 use super::structure::ErrorDescription;
 use super::structure::ErrorDocumentation;
 use super::structure::FieldDescription;
@@ -33,42 +36,30 @@ struct TypeTranslationContext<'a> {
     pub parent: &'a ModelTranslationContext<'a>,
 }
 struct DomainTranslationContext<'a> {
-    pub domain_name: &'a str,
     pub parent: &'a ModelTranslationContext<'a>,
 }
 
-impl<'a> DomainTranslationContext<'a> {
-    fn get_domain(&self) -> String {
-        self.domain_name.to_string()
-    }
-}
 struct ComponentTranslationContext<'a> {
-    pub component_name: &'a str,
+    pub domain: Rc<DomainMetadata>,
     pub parent: &'a DomainTranslationContext<'a>,
 }
 
 impl<'a> ComponentTranslationContext<'a> {
-    fn get_component(&self) -> String {
-        self.component_name.to_string()
-    }
     fn get_domain(&self) -> String {
-        self.parent.get_domain()
+        self.domain.name.to_string()
     }
 }
 
 struct ErrorTranslationContext<'a> {
-    pub error_name: &'a str,
+    pub component: Rc<ComponentMetadata>,
     pub parent: &'a ComponentTranslationContext<'a>,
 }
 impl<'a> ErrorTranslationContext<'a> {
     fn get_component(&self) -> String {
-        self.parent.get_component()
+        self.component.name.to_string()
     }
     fn get_domain(&self) -> String {
         self.parent.get_domain()
-    }
-    fn get_name(&self) -> String {
-        self.error_name.to_string()
     }
 }
 
@@ -135,14 +126,11 @@ pub fn translate_model(
     }
 
     for domain in domains {
-        let ctx = DomainTranslationContext {
-            domain_name: &domain.domain_name,
-            parent: &ctx,
-        };
+        let ctx = DomainTranslationContext { parent: &ctx };
         let transformed_domain: DomainDescription = translate_domain(domain, &ctx)?;
         result
             .domains
-            .insert(transformed_domain.name.clone(), transformed_domain);
+            .insert(transformed_domain.meta.name.clone(), transformed_domain);
     }
 
     Ok(result)
@@ -227,8 +215,8 @@ fn translate_error(
         fields: transformed_fields?,
         documentation,
         bindings: transformed_bindings,
-        domain: ctx.get_domain(),
-        component: ctx.get_component(),
+        domain: ctx.parent.domain.clone(),
+        component: ctx.component.clone(),
     })
 }
 
@@ -264,19 +252,21 @@ fn translate_error(
 //     }
 // }
 
-fn fetch_component<'a>(
+fn fetch_named_component<'a>(
     address: &str,
+    name: &str,
     ctx: &'a ComponentTranslationContext<'a>,
 ) -> Result<ComponentDescription, TakeFromError> {
     let error_base = load(address)?;
     let component: crate::json::Component = match error_base {
-        ErrorBasePart::Root(root) => root
-            .get_component(ctx.parent.domain_name, ctx.component_name)
-            .cloned()
-            .ok_or(MissingComponent {
-                domain_name: ctx.get_domain(),
-                component_name: ctx.get_component(),
-            })?,
+        ErrorBasePart::Root(root) => {
+            root.get_component(&ctx.domain.name, name)
+                .cloned()
+                .ok_or(MissingComponent {
+                    domain_name: ctx.get_domain(),
+                    component_name: name.to_string(),
+                })?
+        }
         ErrorBasePart::Domain(_domain) => todo!(),
         ErrorBasePart::Component(component) => component,
     };
@@ -296,16 +286,7 @@ fn translate_component<'a>(
         bindings,
     } = component;
 
-    let mut transformed_errors = Vec::default();
-    for error in errors {
-        let ctx = ErrorTranslationContext {
-            error_name: &error.name,
-            parent: ctx,
-        };
-        transformed_errors.push(translate_error(error, &ctx)?);
-    }
-
-    let mut result = ComponentDescription {
+    let component_meta: Rc<ComponentMetadata> = Rc::new(ComponentMetadata {
         name: component_name.clone(),
         code: *component_code,
         bindings: maplit::hashmap! {
@@ -313,10 +294,22 @@ fn translate_component<'a>(
         },
         identifier: identifier_encoding.clone(),
         description: description.clone().unwrap_or_default(),
+    });
+    let mut transformed_errors = Vec::default();
+    for error in errors {
+        let ctx = ErrorTranslationContext {
+            parent: ctx,
+            component: component_meta.clone(),
+        };
+        transformed_errors.push(translate_error(error, &ctx)?);
+    }
+
+    let mut result = ComponentDescription {
+        meta: component_meta,
         errors: transformed_errors,
     };
     for take_from_address in takeFrom {
-        let component = fetch_component(take_from_address, ctx)
+        let component = fetch_named_component(take_from_address, component_name, ctx)
             .map_err(|e| e.from_address(take_from_address))?;
         result
             .merge(&component)
@@ -339,17 +332,7 @@ fn translate_domain<'a>(
         bindings,
     } = value;
     let mut new_components: HashMap<_, _> = HashMap::default();
-
-    for component in components {
-        let ctx = ComponentTranslationContext {
-            component_name: &component.component_name,
-            parent: ctx,
-        };
-
-        let translated_component = translate_component(component, &ctx)?;
-        new_components.insert(translated_component.name.clone(), translated_component);
-    }
-    Ok(DomainDescription {
+    let metadata = Rc::new(DomainMetadata {
         name: domain_name.clone(),
         code: *domain_code,
         identifier: identifier_encoding.clone(),
@@ -357,6 +340,18 @@ fn translate_domain<'a>(
         bindings: hashmap! {
             "rust".into() => bindings.rust.clone(),
         },
+    });
+    for component in components {
+        let ctx = ComponentTranslationContext {
+            domain: metadata.clone(),
+            parent: ctx,
+        };
+
+        let translated_component = translate_component(component, &ctx)?;
+        new_components.insert(translated_component.meta.name.clone(), translated_component);
+    }
+    Ok(DomainDescription {
+        meta: metadata,
         components: new_components,
     })
 }

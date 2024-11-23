@@ -99,30 +99,32 @@ impl Merge for Model {
 
 impl Merge for DomainDescription {
     fn merge(&mut self, other: &DomainDescription) -> Result<(), MergeError> {
-        if self.name != other.name || self.code != other.code {
-            return Err(MergeError::ConflictingDomainDefinitions(self.name.clone()));
+        if self.meta.name != other.meta.name || self.meta.code != other.meta.code {
+            return Err(MergeError::ConflictingDomainDefinitions(
+                self.meta.name.clone(),
+            ));
         }
-        merge_maps(&mut self.bindings, &other.bindings)?;
-        if !other.identifier.is_empty() {
-            self.identifier = other.identifier.clone();
-        }
-        if !other.description.is_empty() {
-            self.description = other.description.clone();
-        }
+        // merge_maps(&mut self.meta.bindings, &other.meta.bindings)?;
+        // if !other.meta.identifier.is_empty() {
+        //     self.meta.identifier = other.meta.identifier.clone();
+        // }
+        // if !other.meta.description.is_empty() {
+        //     self.meta.description = other.meta.description.clone();
+        // }
         merge_maps(&mut self.components, &other.components)
     }
 }
 
 impl Merge for ComponentDescription {
     fn merge(&mut self, other: &ComponentDescription) -> Result<(), MergeError> {
-        if self.name != other.name || self.code != other.code {
+        if self.meta.name != other.meta.name || self.meta.code != other.meta.code {
             return Err(MergeError::ConflictingComponentDefinitions(
-                self.name.clone(),
+                self.meta.name.clone(),
             ));
         }
-        merge_maps(&mut self.bindings, &other.bindings)?;
-        self.identifier.merge(&other.identifier)?;
-        self.description.merge(&other.description)?;
+        // merge_maps(&mut self.meta.bindings, &other.meta.bindings)?;
+        // self.meta.identifier.merge(&other.meta.identifier)?;
+        // self.meta.description.merge(&other.meta.description)?;
         for error in &other.errors {
             if let Some(existing_error) = self.errors.iter_mut().find(|e| e.code == error.code) {
                 existing_error.merge(error)?;

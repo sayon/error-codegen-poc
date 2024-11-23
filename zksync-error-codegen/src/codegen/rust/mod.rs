@@ -142,9 +142,10 @@ impl RustBackend {
 
     fn component_type_name(component: &ComponentDescription) -> Result<String, GenerationError> {
         let name = component
+            .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelError::UnmappedName(component.name.clone()))?;
+            .ok_or(ModelError::UnmappedName(component.meta.name.clone()))?;
 
         Ok(name.to_string())
     }
@@ -152,27 +153,30 @@ impl RustBackend {
         component: &ComponentDescription,
     ) -> Result<String, GenerationError> {
         let name = component
+            .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelError::UnmappedName(component.name.clone()))?;
+            .ok_or(ModelError::UnmappedName(component.meta.name.clone()))?;
 
         Ok(format!("{name}Code"))
     }
 
     fn domain_type_name(domain: &DomainDescription) -> Result<String, GenerationError> {
         let name = domain
+            .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelError::UnmappedName(domain.name.clone()))?;
+            .ok_or(ModelError::UnmappedName(domain.meta.name.clone()))?;
 
         Ok(name.to_string())
     }
 
     fn domain_code_type_name(domain: &DomainDescription) -> Result<String, GenerationError> {
         let name = domain
+            .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelError::UnmappedName(domain.name.clone()))?;
+            .ok_or(ModelError::UnmappedName(domain.meta.name.clone()))?;
 
         Ok(format!("{name}Code"))
     }

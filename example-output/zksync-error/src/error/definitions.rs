@@ -8,6 +8,41 @@ use strum_macros::EnumDiscriminants;
 
 #[repr(i32)]
 #[derive(Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
+#[strum_discriminants(name(SequencerCode))]
+#[strum_discriminants(vis(pub))]
+#[non_exhaustive]
+pub enum Sequencer {
+   SomeCoreError { 
+      path : String,
+      payload : u32,
+   } = 1, 
+   OtherCoreError { 
+      path : String,
+      payload : u32,
+   } = 2, 
+   
+} // end of Sequencer
+
+
+impl CustomErrorMessage for Sequencer {
+    fn get_message(&self) -> String {
+        match self {
+         Sequencer::SomeCoreError { 
+            path,
+            payload,
+         }
+          => { format!("Hahaha") },
+         Sequencer::OtherCoreError { 
+            path,
+            payload,
+         }
+          => { format!("Tratata {path}") },
+      }
+   }
+}
+
+#[repr(i32)]
+#[derive(Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
 #[strum_discriminants(name(ZksolcCode))]
 #[strum_discriminants(vis(pub))]
 #[non_exhaustive]
@@ -44,41 +79,6 @@ impl CustomErrorMessage for Zksolc {
             file_index,
          }
           => { format!("Can't find the file {path} to compile.") },
-      }
-   }
-}
-
-#[repr(i32)]
-#[derive(Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
-#[strum_discriminants(name(SequencerCode))]
-#[strum_discriminants(vis(pub))]
-#[non_exhaustive]
-pub enum Sequencer {
-   SomeCoreError { 
-      path : String,
-      payload : u32,
-   } = 1, 
-   OtherCoreError { 
-      path : String,
-      payload : u32,
-   } = 2, 
-   
-} // end of Sequencer
-
-
-impl CustomErrorMessage for Sequencer {
-    fn get_message(&self) -> String {
-        match self {
-         Sequencer::SomeCoreError { 
-            path,
-            payload,
-         }
-          => { format!("Hahaha") },
-         Sequencer::OtherCoreError { 
-            path,
-            payload,
-         }
-          => { format!("Tratata {path}") },
       }
    }
 }

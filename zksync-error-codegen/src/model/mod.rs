@@ -1,5 +1,9 @@
+use structure::{ComponentDescription, DomainDescription, ErrorCode, ErrorDescription};
+
 pub mod builder;
 pub mod error;
 pub mod merger;
 pub mod structure;
 pub mod validator;
+
+

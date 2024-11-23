@@ -23,7 +23,7 @@
                 <th>Message</th>
                 <th>Short Description</th>
             </tr>
-            {% for error in errors %}
+            {% for error in errors | sort(attribute="name") %}
 
             <tr>
                 <td>

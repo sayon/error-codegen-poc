@@ -1,12 +1,16 @@
 pub mod error;
 
+use std::collections::HashMap;
+
+use error::MissingComponent;
 use error::ModelBuildingError;
 use error::TakeFromError;
 use maplit::hashmap;
 
-use crate::json::Config;
-use crate::loader::fetch_file;
+use crate::loader::load;
+use crate::loader::ErrorBasePart;
 
+use super::merger::Merge as _;
 use super::structure::ComponentDescription;
 use super::structure::DomainDescription;
 use super::structure::ErrorDescription;
@@ -20,6 +24,53 @@ use super::structure::TypeBindings;
 use super::structure::TypeDescription;
 use super::structure::TypeMetadata;
 use super::structure::VersionedOwner;
+
+pub struct ModelTranslationContext<'a> {
+    pub origin: &'a str,
+}
+struct TypeTranslationContext<'a> {
+    pub type_name: &'a str,
+    pub parent: &'a ModelTranslationContext<'a>,
+}
+struct DomainTranslationContext<'a> {
+    pub domain_name: &'a str,
+    pub parent: &'a ModelTranslationContext<'a>,
+}
+
+impl<'a> DomainTranslationContext<'a> {
+    fn get_domain(&self) -> String {
+        self.domain_name.to_string()
+    }
+}
+struct ComponentTranslationContext<'a> {
+    pub component_name: &'a str,
+    pub parent: &'a DomainTranslationContext<'a>,
+}
+
+impl<'a> ComponentTranslationContext<'a> {
+    fn get_component(&self) -> String {
+        self.component_name.to_string()
+    }
+    fn get_domain(&self) -> String {
+        self.parent.get_domain()
+    }
+}
+
+struct ErrorTranslationContext<'a> {
+    pub error_name: &'a str,
+    pub parent: &'a ComponentTranslationContext<'a>,
+}
+impl<'a> ErrorTranslationContext<'a> {
+    fn get_component(&self) -> String {
+        self.parent.get_component()
+    }
+    fn get_domain(&self) -> String {
+        self.parent.get_domain()
+    }
+    fn get_name(&self) -> String {
+        self.error_name.to_string()
+    }
+}
 
 fn translate_type_bindings(
     value: &crate::json::ErrorNameMapping,
@@ -49,7 +100,10 @@ fn translate_type_mappings(
     Ok(result)
 }
 
-fn translate_type(value: &crate::json::Type) -> Result<TypeDescription, ModelBuildingError> {
+fn translate_type(
+    value: &crate::json::Type,
+    _ctx: &TypeTranslationContext,
+) -> Result<TypeDescription, ModelBuildingError> {
     let crate::json::Type {
         name,
         description,
@@ -64,15 +118,28 @@ fn translate_type(value: &crate::json::Type) -> Result<TypeDescription, ModelBui
     })
 }
 
-pub fn translate_model(model: &crate::json::Config) -> Result<Model, ModelBuildingError> {
+pub fn translate_model(
+    model: &crate::json::Root,
+    ctx: ModelTranslationContext<'_>,
+) -> Result<Model, ModelBuildingError> {
     let mut result = Model::default();
-    let crate::json::Config { types, domains } = model;
+    let crate::json::Root { types, domains } = model;
     for t in types {
-        result.types.insert(t.name.clone(), translate_type(t)?);
+        let ctx = TypeTranslationContext {
+            type_name: &t.name,
+            parent: &ctx,
+        };
+        result
+            .types
+            .insert(t.name.clone(), translate_type(t, &ctx)?);
     }
 
     for domain in domains {
-        let transformed_domain: DomainDescription = translate_domain(domain)?;
+        let ctx = DomainTranslationContext {
+            domain_name: &domain.domain_name,
+            parent: &ctx,
+        };
+        let transformed_domain: DomainDescription = translate_domain(domain, &ctx)?;
         result
             .domains
             .insert(transformed_domain.name.clone(), transformed_domain);
@@ -87,11 +154,6 @@ fn translate_field(value: &crate::json::Field) -> Result<FieldDescription, Model
         name: name.clone(),
         r#type: r#type.clone(),
     })
-}
-
-struct ErrorTranslationContext {
-    component_context: ComponentTranslationContext,
-    component_name: String,
 }
 
 fn translate_likely_cause(
@@ -137,6 +199,7 @@ fn translate_error_documentation(
         likely_causes,
     })
 }
+
 fn translate_error(
     error: &crate::json::Error,
     ctx: &ErrorTranslationContext,
@@ -145,12 +208,12 @@ fn translate_error(
         name,
         code,
         message,
-        bindings: codegen,
+        bindings,
         fields,
         doc,
     } = error;
     let transformed_fields: Result<_, _> = fields.iter().map(translate_field).collect();
-    let transformed_mappings: TypeBindings<TargetLanguageType> = translate_type_bindings(codegen)?;
+    let transformed_bindings: TypeBindings<TargetLanguageType> = translate_type_bindings(bindings)?;
 
     let documentation = if let Some(doc) = doc {
         Some(translate_error_documentation(doc)?)
@@ -163,20 +226,65 @@ fn translate_error(
         message: message.clone(),
         fields: transformed_fields?,
         documentation,
-        bindings: transformed_mappings,
-        domain: ctx.component_context.domain_name.clone(),
-        component: ctx.component_name.clone(),
+        bindings: transformed_bindings,
+        domain: ctx.get_domain(),
+        component: ctx.get_component(),
     })
 }
 
-#[derive(Clone)]
-struct ComponentTranslationContext {
-    domain_name: String,
-}
+// match serde_json::from_str::<Config>(&fetched_file_contents) {
+//     Ok(config) => {
+//         let fetched_component: &crate::json::Component = config
+//             .get_component(&domain_name, component_name)
+//             .ok_or(ModelBuildingError::TakeFrom {
+//                 address: take_from_address.clone(),
+//                 inner: TakeFromError::MissingComponent {
+//                     domain_name: domain_name.clone(),
+//                     component_name: component_name.clone(),
+//                 },
+//             })?;
+//         let translated_fetched_component =
+//             translate_component(fetched_component, ctx)?;
+//         transformed_errors.extend(translated_fetched_component.errors);
+//     }
+//     Err(e) => {
+//         return Err(ModelBuildingError::TakeFrom {
+//             address: take_from_address.clone(),
+//             inner: e.into(),
+//         })
+//     }
+// }
+//         }
+//         Err(e) => {
+//             return Err(ModelBuildingError::TakeFrom {
+//                 address: take_from_address.clone(),
+//                 inner: TakeFromError::IOError(e),
+//             })
+//         }
+//     }
+// }
 
-fn translate_component(
+fn fetch_component<'a>(
+    address: &str,
+    ctx: &'a ComponentTranslationContext<'a>,
+) -> Result<ComponentDescription, TakeFromError> {
+    let error_base = load(address)?;
+    let component: crate::json::Component = match error_base {
+        ErrorBasePart::Root(root) => root
+            .get_component(ctx.parent.domain_name, ctx.component_name)
+            .cloned()
+            .ok_or(MissingComponent {
+                domain_name: ctx.get_domain(),
+                component_name: ctx.get_component(),
+            })?,
+        ErrorBasePart::Domain(_domain) => todo!(),
+        ErrorBasePart::Component(component) => component,
+    };
+    translate_component(&component, ctx).map_err(Into::<TakeFromError>::into)
+}
+fn translate_component<'a>(
     component: &crate::json::Component,
-    ctx: &ComponentTranslationContext,
+    ctx: &'a ComponentTranslationContext<'a>,
 ) -> Result<ComponentDescription, ModelBuildingError> {
     let crate::json::Component {
         component_name,
@@ -187,56 +295,17 @@ fn translate_component(
         errors,
         bindings,
     } = component;
-    let domain_name = ctx.domain_name.clone();
-    let mut transformed_errors: Vec<ErrorDescription> = errors
-        .iter()
-        .map(|e| {
-            translate_error(
-                e,
-                &ErrorTranslationContext {
-                    component_context: ctx.clone(),
-                    component_name: component_name.clone(),
-                },
-            )
-        })
-        .collect::<Result<Vec<_>, _>>()?;
 
-    for take_from_address in takeFrom {
-        match fetch_file(take_from_address) {
-            Ok(fetched_file_contents) => {
-                match serde_json::from_str::<Config>(&fetched_file_contents) {
-                    Ok(config) => {
-                        let fetched_component: &crate::json::Component = config
-                            .get_component(&domain_name, component_name)
-                            .ok_or(ModelBuildingError::TakeFrom {
-                                address: take_from_address.clone(),
-                                inner: TakeFromError::MissingComponent {
-                                    domain_name: domain_name.clone(),
-                                    component_name: component_name.clone(),
-                                },
-                            })?;
-                        let translated_fetched_component =
-                            translate_component(fetched_component, ctx)?;
-                        transformed_errors.extend(translated_fetched_component.errors);
-                    }
-                    Err(e) => {
-                        return Err(ModelBuildingError::TakeFrom {
-                            address: take_from_address.clone(),
-                            inner: e.into(),
-                        })
-                    }
-                }
-            }
-            Err(e) => {
-                return Err(ModelBuildingError::TakeFrom {
-                    address: take_from_address.clone(),
-                    inner: TakeFromError::IOError(e),
-                })
-            }
-        }
+    let mut transformed_errors = Vec::default();
+    for error in errors {
+        let ctx = ErrorTranslationContext {
+            error_name: &error.name,
+            parent: ctx,
+        };
+        transformed_errors.push(translate_error(error, &ctx)?);
     }
 
-    Ok(ComponentDescription {
+    let mut result = ComponentDescription {
         name: component_name.clone(),
         code: *component_code,
         bindings: maplit::hashmap! {
@@ -245,10 +314,22 @@ fn translate_component(
         identifier: identifier_encoding.clone(),
         description: description.clone().unwrap_or_default(),
         errors: transformed_errors,
-    })
+    };
+    for take_from_address in takeFrom {
+        let component = fetch_component(take_from_address, ctx)
+            .map_err(|e| e.from_address(take_from_address))?;
+        result
+            .merge(&component)
+            .map_err(|e| TakeFromError::MergeError(e).from_address(take_from_address))?;
+    }
+
+    Ok(result)
 }
 
-fn translate_domain(value: &crate::json::Domain) -> Result<DomainDescription, ModelBuildingError> {
+fn translate_domain<'a>(
+    value: &crate::json::Domain,
+    ctx: &'a DomainTranslationContext<'a>,
+) -> Result<DomainDescription, ModelBuildingError> {
     let crate::json::Domain {
         domain_name,
         domain_code,
@@ -257,13 +338,17 @@ fn translate_domain(value: &crate::json::Domain) -> Result<DomainDescription, Mo
         components,
         bindings,
     } = value;
-    let ctx = ComponentTranslationContext {
-        domain_name: domain_name.clone(),
-    };
-    let transformed_components: Result<Vec<ComponentDescription>, _> = components
-        .iter()
-        .map(|c| translate_component(c, &ctx))
-        .collect();
+    let mut new_components: HashMap<_, _> = HashMap::default();
+
+    for component in components {
+        let ctx = ComponentTranslationContext {
+            component_name: &component.component_name,
+            parent: ctx,
+        };
+
+        let translated_component = translate_component(component, &ctx)?;
+        new_components.insert(translated_component.name.clone(), translated_component);
+    }
     Ok(DomainDescription {
         name: domain_name.clone(),
         code: *domain_code,
@@ -272,10 +357,6 @@ fn translate_domain(value: &crate::json::Domain) -> Result<DomainDescription, Mo
         bindings: hashmap! {
             "rust".into() => bindings.rust.clone(),
         },
-        components: transformed_components?
-            .iter()
-            .cloned()
-            .map(|c| (c.name.clone(), c))
-            .collect(),
+        components: new_components,
     })
 }

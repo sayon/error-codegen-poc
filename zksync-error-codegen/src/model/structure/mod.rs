@@ -79,11 +79,19 @@ pub struct ComponentDescription {
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+pub struct ErrorIdentifier {
+
+    pub domain: String,
+    pub component: String,
+    pub code: ErrorCode,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct ErrorDescription {
     pub name: ErrorName,
-    pub code: ErrorCode,
     pub domain: DomainName,
     pub component: ComponentName,
+    pub code: ErrorCode,
     pub message: ErrorMessageTemplate,
     pub fields: Vec<FieldDescription>,
     pub documentation: Option<ErrorDocumentation>,

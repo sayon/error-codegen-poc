@@ -1,7 +1,7 @@
 pub mod error;
 
-use std::collections::HashMap;
 use error::MergeError;
+use std::collections::HashMap;
 
 use super::structure::{
     ComponentDescription, DomainDescription, ErrorDescription, ErrorDocumentation, Model,
@@ -81,15 +81,11 @@ impl Merge for TypeDescription {
             if self.meta.description.is_empty() && !other.meta.description.is_empty() {
                 self.meta.description = other.meta.description.clone();
             } else if !self.meta.description.is_empty() && !other.meta.description.is_empty() {
-                return Err(MergeError::ConflictingTypeDescriptions(
-                    self.name.clone(),
-                ));
+                return Err(MergeError::ConflictingTypeDescriptions(self.name.clone()));
             }
             merge_maps(&mut self.bindings.bindings, &other.bindings.bindings)
         } else {
-            Err(MergeError::ConflictingTypeDescriptions(
-                self.name.clone(),
-            ))
+            Err(MergeError::ConflictingTypeDescriptions(self.name.clone()))
         }
     }
 }
@@ -124,12 +120,12 @@ impl Merge for ComponentDescription {
                 self.name.clone(),
             ));
         }
-        merge_maps(&mut self.bindings, &other.bindings);
+        merge_maps(&mut self.bindings, &other.bindings)?;
         self.identifier.merge(&other.identifier)?;
         self.description.merge(&other.description)?;
         for error in &other.errors {
             if let Some(existing_error) = self.errors.iter_mut().find(|e| e.code == error.code) {
-                existing_error.merge(error);
+                existing_error.merge(error)?;
             } else {
                 self.errors.push(error.clone());
             }

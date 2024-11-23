@@ -14,8 +14,11 @@ use zksync_error_codegen::codegen::html::HtmlBackend;
 use zksync_error_codegen::codegen::rust::config::RustBackendConfig;
 use zksync_error_codegen::codegen::rust::RustBackend;
 use zksync_error_codegen::codegen::Backend as _;
-use zksync_error_codegen::json::Config;
-use zksync_error_codegen::model::builder::translate_model;
+use zksync_error_codegen::loader::load;
+use zksync_error_codegen::loader::ErrorBasePart;
+use zksync_error_codegen::loader::FileFormatError;
+use zksync_error_codegen::loader::LoadError;
+use zksync_error_codegen::model::builder::{translate_model, ModelTranslationContext};
 use zksync_error_codegen::model::validator::validate;
 
 fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
@@ -26,57 +29,61 @@ fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
     if verbose {
         eprintln!("Reading config from \"{json_path}\"");
     }
-    let content = zksync_error_codegen::loader::fetch_file(json_path)?;
+    match load(json_path)? {
+        ErrorBasePart::Domain(_) => Err(LoadError::FileFormatError(
+            FileFormatError::ExpectedFullGotDomain(json_path.to_string()),
+        )
+        .into()),
+        ErrorBasePart::Component(_) => Err(LoadError::FileFormatError(
+            FileFormatError::ExpectedFullGotComponent(json_path.to_string()),
+        )
+        .into()),
+        ErrorBasePart::Root(config) => {
+            if verbose {
+                eprintln!("Successfully parsed config from \"{json_path}\":\n{config:#?}");
+                eprintln!("Building model...");
+            }
 
-    if verbose {
-        eprintln!("Parsing config from \"{json_path}\"");
-    }
+            let model = translate_model(&config, ModelTranslationContext { origin: json_path })?;
+            if verbose {
+                eprintln!("Model: {model:#?}");
+                eprintln!("Model validation...");
+            }
+            validate(&model).unwrap();
+            if verbose {
+                eprintln!("Model validation successful.");
+            }
 
-    let config: Config = serde_json::from_str(&content)?;
+            if verbose {
+                eprintln!("Selected backend: {backend_type:?}. \nGenerating files...");
+            }
 
-    if verbose {
-        eprintln!("Successfully parsed config from \"{json_path}\":\n{config:#?}");
-        eprintln!("Building model...");
-    }
+            let result = match backend_type {
+                arguments::Backend::DocHtml => {
+                    let mut backend = HtmlBackend::new(model);
+                    backend.generate(&HtmlBackendConfig {})?
+                }
+                arguments::Backend::Rust => {
+                    let mut backend = RustBackend::new(model);
+                    backend.generate(&RustBackendConfig {})?
+                }
+            };
 
-    let model = translate_model(&config)?;
-    if verbose {
-        eprintln!("Model: {model:#?}");
-        eprintln!("Model validation...");
-    }
-    validate(&model).unwrap();
-    if verbose {
-        eprintln!("Model validation successful.");
-    }
+            if verbose {
+                eprintln!("Generation successful. Files: ");
+                for file in &result {
+                    eprintln!("- {}", file.relative_path.to_str().unwrap());
+                }
+                eprintln!("Writing files to disk...");
+            }
 
-    if verbose {
-        eprintln!("Selected backend: {backend_type:?}. \nGenerating files...");
-    }
-
-    let result = match backend_type {
-        arguments::Backend::DocHtml => {
-            let mut backend = HtmlBackend::new(model);
-            backend.generate(&HtmlBackendConfig {})?
+            create_files_in_result_directory(&arguments.output_directory, result)?;
+            if verbose {
+                eprintln!("Writing successful.");
+            }
+            Ok(())
         }
-        arguments::Backend::Rust => {
-            let mut backend = RustBackend::new(model);
-            backend.generate(&RustBackendConfig {})?
-        }
-    };
-
-    if verbose {
-        eprintln!("Generation successful. Files: ");
-        for file in &result {
-            eprintln!("- {}", file.relative_path.to_str().unwrap());
-        }
-        eprintln!("Writing files to disk...");
     }
-
-    create_files_in_result_directory(&arguments.output_directory, result)?;
-    if verbose {
-        eprintln!("Writing successful.");
-    }
-    Ok(())
 }
 
 fn create_files_in_result_directory(result_dir: &str, files: Vec<File>) -> std::io::Result<()> {

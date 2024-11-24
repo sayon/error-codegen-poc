@@ -6,7 +6,7 @@ use std::fs;
 pub enum FileFormatError {
     ExpectedFullGotDomain(String),
     ExpectedFullGotComponent(String),
-    ParseJsonError(String, serde_json::Error),
+    ParseError(String, Box<dyn std::error::Error>),
 }
 
 impl std::fmt::Display for FileFormatError {
@@ -17,7 +17,7 @@ f.write_fmt(format_args!("File `{path}` contains just an error domain descriptio
 
             FileFormatError::ExpectedFullGotComponent(path) =>
                 f.write_fmt(format_args!("File `{path}` contains just an error component description, but a master error database should describe at least one domain and one component.")),
-            FileFormatError::ParseJsonError(path, error) => f.write_fmt(format_args!("Error parsing file `{path}`: {error}")),
+            FileFormatError::ParseError(path, error) => f.write_fmt(format_args!("Error parsing file `{path}`: {error}")),
         }
     }
 }
@@ -75,7 +75,8 @@ pub fn load(path: &str) -> Result<ErrorBasePart, LoadError> {
     let contents = fetch_file(path)?;
     eprintln!("Trying to load component from {path}");
 
-    match serde_json::from_str::<crate::error_database::Component>(&contents) {
+    match serde_json::from_str::<crate::error_database::Component>(&contents)
+        .or(toml::from_str::<crate::error_database::Component>(&contents)) {
         Ok(contents) => {
             eprintln!("Loaded Component from {path}");
             Ok(ErrorBasePart::Component(contents))
@@ -83,20 +84,26 @@ pub fn load(path: &str) -> Result<ErrorBasePart, LoadError> {
 
         Err(e) => {
             eprintln!("Error: {e}");
-            if let Ok(contents) = serde_json::from_str::<crate::error_database::Domain>(&contents) {
-                eprintln!("Loaded Domain from {path}");
-                Ok(ErrorBasePart::Domain(contents))
-            } else {
-                match serde_json::from_str::<crate::error_database::Root>(&contents) {
-                    Ok(contents) => {
-                        eprintln!("Loaded Database from {path}");
-                        Ok(ErrorBasePart::Root(contents))
-                    }
-                    Err(error) => Err(LoadError::FileFormatError(FileFormatError::ParseJsonError(
-                        path.to_string(),
-                        error,
-                    ))),
+            match serde_json::from_str::<crate::error_database::Domain>(&contents).or(toml::from_str::<crate::error_database::Domain>(&contents)) {
+                Ok(contents) => {
+                    eprintln!("Loaded Domain from {path}");
+                    Ok(ErrorBasePart::Domain(contents))
                 }
+                Err(e) => {
+            eprintln!("Error: {e}");
+                            match serde_json::from_str::<crate::error_database::Root>(&contents).or(
+                                toml::from_str::<crate::error_database::Root>(&contents)
+                            ) {
+                                Ok(contents) => {
+                                    eprintln!("Loaded Database from {path}");
+                                    Ok(ErrorBasePart::Root(contents))
+                                }
+                                Err(error) => Err(LoadError::FileFormatError(FileFormatError::ParseError(
+                                    path.to_string(),
+                                    Box::new(error),
+                                ))),
+                            }
+                        }
             }
         }
     }

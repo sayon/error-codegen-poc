@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>[core-sequencer-3] ErrorDefinedExternally - Error Documentation</title>
+    <title>[core-sequencer-4] AnotherErrorDefinedExternally - Error Documentation</title>
     <meta charset="UTF-8">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -12,14 +12,17 @@
     </style>
 </head>
 <body>
-    <h1>[core-sequencer-3] ErrorDefinedExternally</h1>
+    <h1>[core-sequencer-4] AnotherErrorDefinedExternally</h1>
 
+        
+            <h3>Short Description</h3>
+            <p>No input file</p>
         
 
     <p><strong>Domain:</strong> core</p>
     <p><strong>Component:</strong> sequencer</p>
-    <p><strong>Error Code:</strong> 3</p>
-    <p><strong>Message:</strong> [core-sequencer-3] It&#x27;s wrong! {index}</p>
+    <p><strong>Error Code:</strong> 4</p>
+    <p><strong>Message:</strong> [core-sequencer-4] It&#x27;s so wrong! {index}</p>
 
     
         <h2>Fields</h2>
@@ -34,14 +37,33 @@
                     <td><code>uint</code></td>
                 </tr>
             
+                <tr>
+                    <td><code>two</code></td>
+                    <td><code>uint</code></td>
+                </tr>
+            
         </table>
     
     
         <h2>Description</h2>
 
 
-        <p>This error is defined in a small, non-intimidating file.</p>
+        <p>The compiler is unable to find the file with the source code that it needs</p>
 
+        
+            <h2>Likely Causes</h2>
+            
+                <h3>You did not provide a file to compile</h3>
+                <p><strong>Fixes:</strong></p>
+                <ul>
+                    
+                        <li>Check if you have provided a correct Solidity or YUL file to compile.</li>
+                    
+                </ul>
+                <p><strong>Report:</strong> https:&#x2F;&#x2F;matter-labs.io</p>
+                <p><strong>Owner:</strong> solc (Version &gt; 1.0.0)</p>
+                
+            
         
     
 
@@ -56,7 +78,7 @@
             Rust
             </td>
             <td>
-                <code> ErrorDefinedExternally</code>
+                <code> AnotherErrorDefinedExternally</code>
             </td>
             </tr>
             <tr>
@@ -64,7 +86,7 @@
             Typescript
             </td>
             <td>
-            <code>ErrorDefinedExternally</code>
+            <code>AnotherErrorDefinedExternally</code>
             </td>
             </tr>
         </table>

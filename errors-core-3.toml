@@ -30,7 +30,17 @@ message = "It's so wrong! {index}"
   type = "uint"
 
   [errors.doc]
-  short_description = "This error is also defined in a small, non-intimidating file."
-  description = ""
-  likely_causes = [ ]
+  description = "The compiler is unable to find the file with the source code that it needs"
+  short_description = "No input file"
   references = [ "https://matter-labs.io", "https://github.com" ]
+
+    [[errors.doc.likely_causes]]
+    cause = "You did not provide a file to compile"
+    fixes = [
+  "Check if you have provided a correct Solidity or YUL file to compile."
+]
+    report = "https://matter-labs.io"
+
+      [errors.doc.likely_causes.owner]
+      name = "solc"
+      version = "> 1.0.0"

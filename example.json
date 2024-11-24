@@ -98,7 +98,11 @@
                             "bindings": {
                                 "rust":
                                 {
-                                    "name": "SolcNotFound"
+                                    "name": "FileNotFound"
+                                },
+                                "typescript":
+                                {
+                                    "name": "TSFileNotFound"
                                 }
                             },
                             "fields": [
@@ -121,6 +125,7 @@
                                         "fixes": [
                                             "Check if you have provided a correct Solidity or YUL file to compile."
                                         ],
+                                        "report": "https://matter-labs.io",
                                         "owner": {
                                             "name": "solc",
                                             "version": "> 1.0.0"
@@ -155,7 +160,9 @@
                     "description": "Errors in core components such as sequencer",
                     "takeFrom": [
                         "errors-core-1.json",
-                        "https://raw.githubusercontent.com/sayon/error-codegen-poc/refs/heads/main/errors-core-2.json"]
+                        "https://raw.githubusercontent.com/sayon/error-codegen-poc/refs/heads/main/errors-core-2.json",
+                        "errors-core-3.json"
+                    ]
                 }
 
             ]

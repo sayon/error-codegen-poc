@@ -1,0 +1,36 @@
+component_name = "sequencer"
+component_code = 1
+
+[[errors]]
+name = "ErrorDefinedExternally"
+code = 3
+message = "It's wrong! {index}"
+
+  [[errors.fields]]
+  name = "index"
+  type = "uint"
+
+  [errors.doc]
+  description = "This error is defined in a small, non-intimidating file."
+  short_description = ""
+  likely_causes = [ ]
+  references = [ "https://matter-labs.io", "https://github.com" ]
+
+[[errors]]
+name = "AnotherErrorDefinedExternally"
+code = 4
+message = "It's so wrong! {index}"
+
+  [[errors.fields]]
+  name = "index"
+  type = "uint"
+
+  [[errors.fields]]
+  name = "two"
+  type = "uint"
+
+  [errors.doc]
+  short_description = "This error is also defined in a small, non-intimidating file."
+  description = ""
+  likely_causes = [ ]
+  references = [ "https://matter-labs.io", "https://github.com" ]

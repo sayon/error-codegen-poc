@@ -67,23 +67,37 @@ pub fn fetch_file(path: &str) -> Result<String, LoadError> {
 }
 
 pub enum ErrorBasePart {
-    Root(crate::json::Root),
-    Domain(crate::json::Domain),
-    Component(crate::json::Component),
+    Root(crate::error_database::Root),
+    Domain(crate::error_database::Domain),
+    Component(crate::error_database::Component),
 }
 pub fn load(path: &str) -> Result<ErrorBasePart, LoadError> {
     let contents = fetch_file(path)?;
-    if let Ok(contents) = serde_json::from_str::<crate::json::Component>(&contents) {
-        Ok(ErrorBasePart::Component(contents))
-    } else if let Ok(contents) = serde_json::from_str::<crate::json::Domain>(&contents) {
-        Ok(ErrorBasePart::Domain(contents))
-    } else {
-        match serde_json::from_str::<crate::json::Root>(&contents) {
-            Ok(contents) => Ok(ErrorBasePart::Root(contents)),
-            Err(error) => Err(LoadError::FileFormatError(FileFormatError::ParseJsonError(
-                path.to_string(),
-                error,
-            ))),
+    eprintln!("Trying to load component from {path}");
+
+    match serde_json::from_str::<crate::error_database::Component>(&contents) {
+        Ok(contents) => {
+            eprintln!("Loaded Component from {path}");
+            Ok(ErrorBasePart::Component(contents))
+        }
+
+        Err(e) => {
+            eprintln!("Error: {e}");
+            if let Ok(contents) = serde_json::from_str::<crate::error_database::Domain>(&contents) {
+                eprintln!("Loaded Domain from {path}");
+                Ok(ErrorBasePart::Domain(contents))
+            } else {
+                match serde_json::from_str::<crate::error_database::Root>(&contents) {
+                    Ok(contents) => {
+                        eprintln!("Loaded Database from {path}");
+                        Ok(ErrorBasePart::Root(contents))
+                    }
+                    Err(error) => Err(LoadError::FileFormatError(FileFormatError::ParseJsonError(
+                        path.to_string(),
+                        error,
+                    ))),
+                }
+            }
         }
     }
 }

@@ -1,0 +1,128 @@
+"domains": [
+    {
+        "domain_name": "compiler",
+        "domain_code": 1,
+        "identifier_encoding": "comp",
+        "description": "Errors in compilers: zksolc, solc, zkvyper, etc.",
+        "bindings": {
+            "rust": "Compiler"
+        }
+    },
+    {
+        "domain_name": "core",
+        "domain_code": 2,
+        "identifier_encoding": "core",
+        "description": "Errors in core components such as sequencer",
+        "bindings": {
+            "rust": "Core"
+        }
+    }
+],
+"components" : [
+    {
+        "component_name": "zksolc",
+        "domain" : "compiler"
+        "component_code": 1,
+        "identifier_encoding": "zksolc",
+        "description": "Errors in zksolc compiler",
+        "bindings": {
+            "rust" : "Zksolc"
+        },
+    },
+    {
+        "component_name": "sequencer",
+        "domain" : "core"
+        "component_code": 1,
+        "identifier_encoding": "seq",
+        "bindings": {
+            "rust": "Sequencer"
+        },
+        "description": "Errors in core components such as sequencer",
+        "takeFrom": [
+            "errors-core-1.json",
+            "https://raw.githubusercontent.com/sayon/error-codegen-poc/refs/heads/main/errors-core-2.json"]
+    }
+],
+"errors" : [
+    {
+        "name": "Umbrella",
+        "code": 42,
+        "domain" : "compiler",
+        "component" : "zksolc",
+        "message": "Any error!",
+        "bindings": {
+            "rust":
+            {
+                "name": "Umbrella"
+            }
+        },
+        "fields": [
+            {
+                "name": "inner",
+                "type": "WrappedError"
+            }
+        ]
+    },
+    {
+        "name": "SolcNotFound",
+        "code": 1,
+        "message": "I just can't find solc!",
+        "bindings": {
+            "rust":
+            {
+                "name": "SolcNotFound"
+            }
+        },
+        "fields": [
+            {
+                "name": "path",
+                "type": "string"
+            },
+            {
+                "name": "payload",
+                "type": "uint"
+            }
+
+        ]
+    },
+    {
+        "name": "FileNotFound",
+        "code": 2,
+        "message": "Can't find the file {path} to compile.",
+        "bindings": {
+            "rust":
+            {
+                "name": "SolcNotFound"
+            }
+        },
+        "fields": [
+            {
+                "name": "path",
+                "type": "string"
+            },
+            {
+                "name": "file_index",
+                "type": "uint"
+            }
+
+        ],
+        "doc" : {
+            "description": "The compiler is unable to find the file with the source code that it needs",
+            "short_description": "No input file",
+            "likely_causes": [
+                {
+                    "cause": "You did not provide a file to compile",
+                    "fixes": [
+                        "Check if you have provided a correct Solidity or YUL file to compile."
+                    ],
+                    "owner": {
+                        "name": "solc",
+                        "version": "> 1.0.0"
+                    }
+                }
+            ],
+            "references": ["https://matter-labs.io", "https://github.com"]
+        }
+    }
+
+]

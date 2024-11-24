@@ -22,7 +22,7 @@
     <p><strong>Domain:</strong> {{ error.domain }}</p>
     <p><strong>Component:</strong> {{ error.component }}</p>
     <p><strong>Error Code:</strong> {{ error.code }}</p>
-    <p><strong>Message:</strong> {{ error.message }}</p>
+    <p><strong>Message:</strong> {{ error.identifier }} {{ error.message }}</p>
 
     {% if error.fields | length > 0 %}
         <h2>Fields</h2>
@@ -33,8 +33,8 @@
             </tr>
             {% for field in error.fields %}
                 <tr>
-                    <td>{{ field.name }}</td>
-                    <td>{{ field.type }}</td>
+                    <td><code>{{ field.name }}</code></td>
+                    <td><code>{{ field.type }}</code></td>
                 </tr>
             {% endfor %}
         </table>
@@ -69,5 +69,28 @@
         {% endif %}
     {% endif %}
 
+        <h2>Bindings</h2>
+        <table>
+            <tr>
+                <th>Language</th>
+                <th>Type</th>
+            </tr>
+            <tr>
+            <td>
+            Rust
+            </td>
+            <td>
+                <code> {{ error.bindings.rust.name }}</code>
+            </td>
+            </tr>
+            <tr>
+            <td>
+            Typescript
+            </td>
+            <td>
+            <code>{{ error.bindings.typescript.name }}</code>
+            </td>
+            </tr>
+        </table>
 </body>
 </html>

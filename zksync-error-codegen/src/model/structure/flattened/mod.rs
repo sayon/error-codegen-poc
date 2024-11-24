@@ -142,8 +142,25 @@ fn translate_error(meta: &super::ErrorDescription) -> ErrorDescription {
         documentation,
         bindings,
     } = meta;
-    let new_bindings : HashMap<_,_> = bindings.bindings.iter().map(|(k,v)| (k.to_string(), TargetLanguageType {name: v.name.to_string(), path: String::default()})).collect();
-    let identifier = ErrorIdentifier {domain: domain.identifier.clone(), component: component.identifier.clone(), code: code.clone() }.to_string();
+    let new_bindings: HashMap<_, _> = bindings
+        .bindings
+        .iter()
+        .map(|(k, v)| {
+            (
+                k.to_string(),
+                TargetLanguageType {
+                    name: v.name.to_string(),
+                    path: String::default(),
+                },
+            )
+        })
+        .collect();
+    let identifier = ErrorIdentifier {
+        domain: domain.identifier.clone(),
+        component: component.identifier.clone(),
+        code: code.clone(),
+    }
+    .to_string();
     ErrorDescription {
         domain: domain.name.clone(),
         component: component.name.clone(),
@@ -152,7 +169,10 @@ fn translate_error(meta: &super::ErrorDescription) -> ErrorDescription {
         identifier,
         message: message.clone(),
         fields: fields.iter().map(translate_field).collect(),
-        documentation: documentation.clone().map(|d|translate_documentation(&d)).unwrap_or_default(),
+        documentation: documentation
+            .clone()
+            .map(|d| translate_documentation(&d))
+            .unwrap_or_default(),
         bindings: new_bindings,
     }
 }
@@ -162,21 +182,61 @@ fn translate_owner(doc: &super::VersionedOwner) -> VersionedOwner {
     VersionedOwner { name, version }
 }
 fn translate_likely_cause(doc: &super::LikelyCause) -> LikelyCause {
-    let super::LikelyCause { cause, fixes, report, owner, references } = doc.clone();
+    let super::LikelyCause {
+        cause,
+        fixes,
+        report,
+        owner,
+        references,
+    } = doc.clone();
 
-    LikelyCause { cause, fixes, report, owner: translate_owner(&owner), references }
+    LikelyCause {
+        cause,
+        fixes,
+        report,
+        owner: translate_owner(&owner),
+        references,
+    }
 }
 fn translate_documentation(doc: &super::ErrorDocumentation) -> ErrorDocumentation {
-    let super::ErrorDocumentation { description, short_description, likely_causes } = doc.clone();
+    let super::ErrorDocumentation {
+        description,
+        short_description,
+        likely_causes,
+    } = doc.clone();
 
-    ErrorDocumentation { description, short_description: short_description.unwrap_or_default(), likely_causes: likely_causes.iter().map(translate_likely_cause).collect() }
+    ErrorDocumentation {
+        description,
+        short_description: short_description.unwrap_or_default(),
+        likely_causes: likely_causes.iter().map(translate_likely_cause).collect(),
+    }
 }
 
 fn translate_type(typ: &super::TypeDescription) -> TypeDescription {
-    let super::TypeDescription { name, meta: super::TypeMetadata { description } , bindings } = typ.clone();
+    let super::TypeDescription {
+        name,
+        meta: super::TypeMetadata { description },
+        bindings,
+    } = typ.clone();
 
-    let new_bindings : HashMap<_,_> = bindings.bindings.iter().map(|(k,v)| (k.to_string(), TargetLanguageType {name: v.name.to_string(), path: String::default()})).collect();
-    TypeDescription { name, meta: TypeMetadata { description }, bindings: new_bindings }
+    let new_bindings: HashMap<_, _> = bindings
+        .bindings
+        .iter()
+        .map(|(k, v)| {
+            (
+                k.to_string(),
+                TargetLanguageType {
+                    name: v.name.to_string(),
+                    path: String::default(),
+                },
+            )
+        })
+        .collect();
+    TypeDescription {
+        name,
+        meta: TypeMetadata { description },
+        bindings: new_bindings,
+    }
 }
 pub fn flatten(model: &Model) -> FlatModel {
     let Model { types, domains } = model;
@@ -191,14 +251,19 @@ pub fn flatten(model: &Model) -> FlatModel {
             domain_name.to_string(),
             translate_domain_metadata(&meta, component_names),
         );
-        result
-            .components
-            .extend(components.iter().map(|(n,c)|(n.to_string(),translate_component_metadata(&c.meta))));
+        result.components.extend(
+            components
+                .iter()
+                .map(|(n, c)| (n.to_string(), translate_component_metadata(&c.meta))),
+        );
 
         for component in components.values() {
-            result
-                .errors
-                .extend(component.errors.iter().map(|e|(e.name.to_string(), translate_error(e))))
+            result.errors.extend(
+                component
+                    .errors
+                    .iter()
+                    .map(|e| (e.name.to_string(), translate_error(e))),
+            )
         }
     }
 

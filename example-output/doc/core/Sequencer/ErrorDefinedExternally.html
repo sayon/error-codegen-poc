@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>[comp-zksolc-1] SolcNotFound - Error Documentation</title>
+    <title>[core-sequencer-3] ErrorDefinedExternally - Error Documentation</title>
     <meta charset="UTF-8">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -12,14 +12,14 @@
     </style>
 </head>
 <body>
-    <h1>[comp-zksolc-1] SolcNotFound</h1>
+    <h1>[core-sequencer-3] ErrorDefinedExternally</h1>
 
         
 
-    <p><strong>Domain:</strong> compiler</p>
-    <p><strong>Component:</strong> zksolc</p>
-    <p><strong>Error Code:</strong> 1</p>
-    <p><strong>Message:</strong> [comp-zksolc-1] I just can&#x27;t find solc!</p>
+    <p><strong>Domain:</strong> core</p>
+    <p><strong>Component:</strong> sequencer</p>
+    <p><strong>Error Code:</strong> 3</p>
+    <p><strong>Message:</strong> [core-sequencer-3] It&#x27;s wrong! {index}</p>
 
     
         <h2>Fields</h2>
@@ -30,12 +30,7 @@
             </tr>
             
                 <tr>
-                    <td><code>path</code></td>
-                    <td><code>string</code></td>
-                </tr>
-            
-                <tr>
-                    <td><code>payload</code></td>
+                    <td><code>index</code></td>
                     <td><code>uint</code></td>
                 </tr>
             
@@ -45,7 +40,7 @@
         <h2>Description</h2>
 
 
-        <p></p>
+        <p>The compiler is unable to find the file with the source code that it needs.</p>
 
         
     
@@ -61,7 +56,7 @@
             Rust
             </td>
             <td>
-                <code> SolcNotFound</code>
+                <code> ErrorDefinedExternally</code>
             </td>
             </tr>
             <tr>
@@ -69,7 +64,7 @@
             Typescript
             </td>
             <td>
-            <code>SolcNotFound</code>
+            <code>ErrorDefinedExternally</code>
             </td>
             </tr>
         </table>

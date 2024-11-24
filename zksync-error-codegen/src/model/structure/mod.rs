@@ -1,8 +1,7 @@
+pub mod flattened;
 pub mod identifier;
 
 use std::{collections::HashMap, rc::Rc};
-
-use identifier::ErrorIdentifier;
 
 use super::error::ModelError;
 

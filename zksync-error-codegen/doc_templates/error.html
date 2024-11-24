@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ error.name }} - Error Documentation</title>
+    <title>{{ error.identifier }} {{ error.name }} - Error Documentation</title>
     <meta charset="UTF-8">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
@@ -12,13 +12,15 @@
     </style>
 </head>
 <body>
-    <h1>{{ error.name }}</h1>
+    <h1>{{ error.identifier }} {{ error.name }}</h1>
 
         {% if error.documentation.short_description %}
             <h3>Short Description</h3>
             <p>{{ error.documentation.short_description }}</p>
         {% endif %}
 
+    <p><strong>Domain:</strong> {{ error.domain }}</p>
+    <p><strong>Component:</strong> {{ error.component }}</p>
     <p><strong>Error Code:</strong> {{ error.code }}</p>
     <p><strong>Message:</strong> {{ error.message }}</p>
 

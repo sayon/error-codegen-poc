@@ -11,6 +11,7 @@ use tera::Tera;
 use super::Backend;
 use super::File;
 
+use crate::model::structure::flattened::flatten;
 use crate::model::structure::Model;
 use include_dir::include_dir;
 
@@ -44,46 +45,30 @@ impl Backend<HtmlBackendConfig> for HtmlBackend {
         }
 
         let mut results = vec![];
-        // Generate HTML files for each error
-        for (domain_name, domain) in &self.model.domains {
-            for (component_name, component) in &domain.components {
-                for error in &component.errors {
-                    // Create context for Tera
-                    let mut context = tera::Context::new();
-                    context.insert("domain", &domain);
-                    context.insert("component", &component);
-                    context.insert("error", &error);
+        let model = flatten(&self.model);
+        for error in model.errors.values() {
+            // Create context for Tera
+            let mut context = tera::Context::new();
+            context.insert("error", &error);
 
-                    let content = tera.render("error.html", &context)?;
-                    let error_name = &error.name;
-                    results.push(File {
-                        relative_path: PathBuf::from(format!(
-                            "{domain_name}/{component_name}/{error_name}.html"
-                        )),
-                        content,
-                    });
-                }
-            }
+            let content = tera.render("error.html", &context)?;
+            let domain_name = &error.domain;
+            let component_name = &error.component;
+            let error_name = &error.name;
+            results.push(File {
+                relative_path: PathBuf::from(format!(
+                    "{domain_name}/{component_name}/{error_name}.html"
+                )),
+                content,
+            });
         }
 
         results.push({
             let mut context = tera::Context::new();
-            let components: Vec<_> = self
-                .model
-                .domains
-                .values()
-                .flat_map(|domain| domain.components.values())
-                .collect();
 
-            let errors: Vec<_> = components
-                .iter()
-                .flat_map(|component| &component.errors)
-                .map(|e| (e.get_identifier().to_string(),e))
-                .collect();
-
-            context.insert("errors", &errors);
-            context.insert("components", &components);
-            context.insert("domains", &components);
+            context.insert("errors", &model.errors.values().collect::<Vec<_>>());
+            context.insert("components", &model.components.values().collect::<Vec<_>>());
+            context.insert("domains", &model.domains.values().collect::<Vec<_>>());
 
             let content = tera.render("index.html", &context)?;
             File {

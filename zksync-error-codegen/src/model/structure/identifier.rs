@@ -1,6 +1,5 @@
 use super::{ErrorCode, ErrorDescription};
 
-
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct ErrorIdentifier {
     pub domain: String,

@@ -31,12 +31,12 @@ impl CustomErrorMessage for Sequencer {
             path,
             payload,
          }
-          => { format!("Hahaha") },
+          => { format!("[core-seq-1] Hahaha") },
          Sequencer::OtherCoreError { 
             path,
             payload,
          }
-          => { format!("Tratata {path}") },
+          => { format!("[core-seq-2] Tratata {path}") },
       }
    }
 }
@@ -68,17 +68,17 @@ impl CustomErrorMessage for Zksolc {
          Zksolc::Umbrella { 
             inner,
          }
-          => { format!("Any error!") },
+          => { format!("[comp-zksolc-42] Any error!") },
          Zksolc::SolcNotFound { 
             path,
             payload,
          }
-          => { format!("I just can't find solc!") },
+          => { format!("[comp-zksolc-1] I just can't find solc!") },
          Zksolc::FileNotFound { 
             path,
             file_index,
          }
-          => { format!("Can't find the file {path} to compile.") },
+          => { format!("[comp-zksolc-2] Can't find the file {path} to compile.") },
       }
    }
 }

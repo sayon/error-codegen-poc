@@ -44,7 +44,8 @@ impl CustomErrorMessage for {error_name} {{
         for error in &component.errors {
             result.push_block(&self.error_kind_match(component, error)?);
             let message = &error.message;
-            result.push_line(&format!(" => {{ format!(\"{message}\") }},"));
+            let identifier = &error.get_identifier().to_string();
+            result.push_line(&format!(" => {{ format!(\"{identifier} {message}\") }},"));
         }
         for _ in 0..3 {
             result.indentation.decrease();

@@ -24,24 +24,21 @@
                 <th>Message</th>
                 <th>Short Description</th>
             </tr>
-            {% for error in errors | sort(attribute="0") %}
+            {% for error in errors | sort(attribute="identifier") %}
 
             <tr>
-                <td> {{ error.0}}</td>
+                <td> {{ error.identifier }}</td>
                 <td>
-                    <a href="{{error.1.domain.name}}/{{error.1.component.name}}/{{error.1.name}}.html">
-                        {{ error.1.name }}
+                    <a href="{{error.domain}}/{{error.component}}/{{error.name}}.html">
+                        {{ error.name }}
                     </a>
                 </td>
-                <td> {{ error.1.code }}</td>
-                <td> {{ error.1.domain.name }}</td>
-                <td> {{ error.1.component.name }}</td>
-                <td> {{ error.1.message }}</td>
+                <td> {{ error.code }}</td>
+                <td> {{ error.domain}}</td>
+                <td> {{ error.component}}</td>
+                <td> {{ error.message }}</td>
                 <td>
-
-                    {% if error.1.documentation.short_description %}
-                    {{ error.1.documentation.short_description }}
-                    {% endif %}
+                    {{ error.documentation.short_description }}
                 </td>
             </tr>
             {% endfor %}

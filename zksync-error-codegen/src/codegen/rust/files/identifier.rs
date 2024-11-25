@@ -56,12 +56,9 @@ impl Identifier {
             gen.push_line(&format!("DomainCode::{domain} => {{"));
             gen.indent_more();
 
-            for component_description in domain_description.components.values() {
-                let _component = Self::component_type_name(component_description)?;
-                gen.push_line(&format!(
-                    "Kind::{domain}({domain_code}::from_repr(component_code)?)"
-                ));
-            }
+            gen.push_line(&format!(
+                "Kind::{domain}({domain_code}::from_repr(component_code)?)"
+            ));
 
             gen.indent_less();
             gen.push_line("},");

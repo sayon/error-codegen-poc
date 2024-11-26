@@ -75,8 +75,10 @@ pub fn load(path: &str) -> Result<ErrorBasePart, LoadError> {
     let contents = fetch_file(path)?;
     eprintln!("Trying to load component from {path}");
 
-    match serde_json::from_str::<crate::error_database::Component>(&contents)
-        .or(toml::from_str::<crate::error_database::Component>(&contents)) {
+    match serde_json::from_str::<crate::error_database::Component>(&contents).or(toml::from_str::<
+        crate::error_database::Component,
+    >(&contents))
+    {
         Ok(contents) => {
             eprintln!("Loaded Component from {path}");
             Ok(ErrorBasePart::Component(contents))
@@ -84,26 +86,28 @@ pub fn load(path: &str) -> Result<ErrorBasePart, LoadError> {
 
         Err(e) => {
             eprintln!("Error: {e}");
-            match serde_json::from_str::<crate::error_database::Domain>(&contents).or(toml::from_str::<crate::error_database::Domain>(&contents)) {
+            match serde_json::from_str::<crate::error_database::Domain>(&contents)
+                .or(toml::from_str::<crate::error_database::Domain>(&contents))
+            {
                 Ok(contents) => {
                     eprintln!("Loaded Domain from {path}");
                     Ok(ErrorBasePart::Domain(contents))
                 }
                 Err(e) => {
-            eprintln!("Error: {e}");
-                            match serde_json::from_str::<crate::error_database::Root>(&contents).or(
-                                toml::from_str::<crate::error_database::Root>(&contents)
-                            ) {
-                                Ok(contents) => {
-                                    eprintln!("Loaded Database from {path}");
-                                    Ok(ErrorBasePart::Root(contents))
-                                }
-                                Err(error) => Err(LoadError::FileFormatError(FileFormatError::ParseError(
-                                    path.to_string(),
-                                    Box::new(error),
-                                ))),
-                            }
+                    eprintln!("Error: {e}");
+                    match serde_json::from_str::<crate::error_database::Root>(&contents)
+                        .or(toml::from_str::<crate::error_database::Root>(&contents))
+                    {
+                        Ok(contents) => {
+                            eprintln!("Loaded Database from {path}");
+                            Ok(ErrorBasePart::Root(contents))
                         }
+                        Err(error) => Err(LoadError::FileFormatError(FileFormatError::ParseError(
+                            path.to_string(),
+                            Box::new(error),
+                        ))),
+                    }
+                }
             }
         }
     }

@@ -44,6 +44,7 @@ pub struct FlatModel {
 pub struct ComponentMetadata {
     pub name: ComponentName,
     pub code: ComponentCode,
+    pub domain_name: DomainName,
     pub bindings: HashMap<LanguageName, String>,
     pub identifier: String,
     pub description: String,
@@ -111,7 +112,7 @@ fn translate_domain_metadata(
     }
 }
 
-fn translate_component_metadata(meta: &super::ComponentMetadata) -> ComponentMetadata {
+fn translate_component_metadata(meta: &super::ComponentMetadata, domain_name: &str) -> ComponentMetadata {
     let super::ComponentMetadata {
         name,
         code,
@@ -125,6 +126,7 @@ fn translate_component_metadata(meta: &super::ComponentMetadata) -> ComponentMet
         bindings,
         identifier,
         description,
+        domain_name: domain_name.to_string(),
     }
 }
 fn translate_field(field: &super::FieldDescription) -> FieldDescription {
@@ -254,7 +256,7 @@ pub fn flatten(model: &Model) -> FlatModel {
         result.components.extend(
             components
                 .iter()
-                .map(|(n, c)| (n.to_string(), translate_component_metadata(&c.meta))),
+                .map(|(n, c)| (n.to_string(), translate_component_metadata(&c.meta, domain_name.as_str()))),
         );
 
         for component in components.values() {

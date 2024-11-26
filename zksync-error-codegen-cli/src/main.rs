@@ -11,6 +11,8 @@ use structopt::StructOpt as _;
 use zksync_error_codegen::codegen::file::File;
 use zksync_error_codegen::codegen::html::config::HtmlBackendConfig;
 use zksync_error_codegen::codegen::html::HtmlBackend;
+use zksync_error_codegen::codegen::mdbook::config::MDBookBackendConfig;
+use zksync_error_codegen::codegen::mdbook::MDBookBackend;
 use zksync_error_codegen::codegen::rust::config::RustBackendConfig;
 use zksync_error_codegen::codegen::rust::RustBackend;
 use zksync_error_codegen::codegen::Backend as _;
@@ -60,13 +62,17 @@ fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
 
             let result = match backend_type {
                 arguments::Backend::DocHtml => {
-                    let mut backend = HtmlBackend::new(model);
+                    let mut backend = HtmlBackend::new(&model);
                     backend.generate(&HtmlBackendConfig {})?
                 }
                 arguments::Backend::Rust => {
                     let mut backend = RustBackend::new(model);
                     backend.generate(&RustBackendConfig {})?
                 }
+                arguments::Backend::MDBook => {
+                    let mut backend = MDBookBackend::new(model);
+                    backend.generate(&MDBookBackendConfig::default())?
+                },
             };
 
             if verbose {

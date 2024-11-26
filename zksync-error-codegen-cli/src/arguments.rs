@@ -6,6 +6,7 @@ use structopt::StructOpt;
 pub enum Backend {
     DocHtml,
     Rust,
+    MDBook,
 }
 
 impl FromStr for Backend {
@@ -15,6 +16,7 @@ impl FromStr for Backend {
         match s.to_lowercase().as_str() {
             "doc-html" => Ok(Backend::DocHtml),
             "rust" => Ok(Backend::Rust),
+            "markdown-mdbook" => Ok(Backend::MDBook),
             _ => Err("Unrecognized backend".into()),
         }
     }
@@ -31,7 +33,7 @@ pub struct Arguments {
     pub definitions: String,
 
     /// Selected backend.
-    #[structopt(long = "backend", possible_values=&["rust", "doc-html"])]
+    #[structopt(long = "backend", possible_values=&["rust", "doc-html", "markdown-mdbook"])]
     pub backend: Backend,
 
     /// Be verbose and produce debug output.

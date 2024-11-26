@@ -1,5 +1,6 @@
 pub mod file;
 pub mod html;
+pub mod mdbook;
 pub mod printer;
 pub mod rust;
 

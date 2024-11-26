@@ -153,7 +153,9 @@ pub fn translate_model(
     Ok(result)
 }
 
-fn translate_field(value: &crate::error_database::Field) -> Result<FieldDescription, ModelBuildingError> {
+fn translate_field(
+    value: &crate::error_database::Field,
+) -> Result<FieldDescription, ModelBuildingError> {
     let crate::error_database::Field { name, r#type } = value;
     Ok(FieldDescription {
         name: name.clone(),
@@ -297,7 +299,9 @@ fn translate_component<'a>(
             "rust".into() => bindings.rust.clone().unwrap_or(component_name.clone()),
             "typescript".into() => bindings.typescript.clone().unwrap_or(component_name.clone()),
         },
-        identifier: identifier_encoding.clone().unwrap_or(component_name.clone()),
+        identifier: identifier_encoding
+            .clone()
+            .unwrap_or(component_name.clone()),
         description: description.clone().unwrap_or_default(),
     });
     let mut transformed_errors = Vec::default();

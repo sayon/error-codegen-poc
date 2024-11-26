@@ -53,7 +53,7 @@ impl CustomErrorMessage for {error_name} {{
         }
 
         result.push_line(&format!(
-           r#"
+            r#"
 impl From<{error_name}> for crate::packed::PackedError<crate::error::domains::ZksyncError> {{
     fn from(value: {error_name}) -> Self {{
         crate::packed::pack(value)
@@ -65,7 +65,8 @@ impl From<{error_name}> for crate::serialized::SerializedError {{
         let packed = crate::packed::pack(value);
         crate::serialized::serialize(packed).expect("Internal serialization error.")
     }}
-}}"#));
+}}"#
+        ));
 
         Ok(result.get_buffer())
     }

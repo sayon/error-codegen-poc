@@ -12,20 +12,23 @@ use super::Backend;
 use super::File;
 
 use crate::model::structure::flattened::flatten;
+use crate::model::structure::flattened::FlatModel;
 use crate::model::structure::Model;
 use include_dir::include_dir;
 
 pub struct HtmlBackend {
-    model: Model,
+    model: FlatModel,
 }
 
 impl HtmlBackend {
-    pub fn new(model: Model) -> Self {
-        Self { model }
+    pub fn new(model: &Model) -> Self {
+        Self {
+            model: flatten(model),
+        }
     }
 }
 
-static TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/doc_templates");
+static TEMPLATES_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/doc_templates/html");
 
 impl Backend<HtmlBackendConfig> for HtmlBackend {
     type Error = GenerationError;
@@ -45,8 +48,7 @@ impl Backend<HtmlBackendConfig> for HtmlBackend {
         }
 
         let mut results = vec![];
-        let model = flatten(&self.model);
-        for error in model.errors.values() {
+        for error in (&self.model).errors.values() {
             // Create context for Tera
             let mut context = tera::Context::new();
             context.insert("error", &error);
@@ -66,9 +68,15 @@ impl Backend<HtmlBackendConfig> for HtmlBackend {
         results.push({
             let mut context = tera::Context::new();
 
-            context.insert("errors", &model.errors.values().collect::<Vec<_>>());
-            context.insert("components", &model.components.values().collect::<Vec<_>>());
-            context.insert("domains", &model.domains.values().collect::<Vec<_>>());
+            context.insert("errors", &(&self.model).errors.values().collect::<Vec<_>>());
+            context.insert(
+                "components",
+                &(&self.model).components.values().collect::<Vec<_>>(),
+            );
+            context.insert(
+                "domains",
+                &(&self.model).domains.values().collect::<Vec<_>>(),
+            );
 
             let content = tera.render("index.html", &context)?;
             File {

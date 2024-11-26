@@ -1,5 +1,6 @@
 use zksync_error_codegen::codegen::html::error::GenerationError as HtmlGenerationError;
 use zksync_error_codegen::codegen::rust::error::GenerationError as RustGenerationError;
+use zksync_error_codegen::codegen::mdbook::error::GenerationError as MarkdownGenerationError;
 use zksync_error_codegen::loader::LoadError;
 use zksync_error_codegen::model::builder::error::ModelBuildingError;
 use zksync_error_codegen::model::error::ModelError;
@@ -11,8 +12,15 @@ pub enum ProgramError {
     JsonDeserializationError(serde_json::Error),
     RustGenerationError(RustGenerationError),
     HtmlGenerationError(HtmlGenerationError),
+    MarkdownGenerationError(MarkdownGenerationError),
     IOError(std::io::Error),
     LoadError(LoadError),
+}
+
+impl From<MarkdownGenerationError> for ProgramError {
+    fn from(v: MarkdownGenerationError) -> Self {
+        Self::MarkdownGenerationError(v)
+    }
 }
 
 impl From<LoadError> for ProgramError {

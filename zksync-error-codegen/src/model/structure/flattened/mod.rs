@@ -112,7 +112,10 @@ fn translate_domain_metadata(
     }
 }
 
-fn translate_component_metadata(meta: &super::ComponentMetadata, domain_name: &str) -> ComponentMetadata {
+fn translate_component_metadata(
+    meta: &super::ComponentMetadata,
+    domain_name: &str,
+) -> ComponentMetadata {
     let super::ComponentMetadata {
         name,
         code,
@@ -160,14 +163,14 @@ fn translate_error(meta: &super::ErrorDescription) -> ErrorDescription {
     let identifier = ErrorIdentifier {
         domain: domain.identifier.clone(),
         component: component.identifier.clone(),
-        code: code.clone(),
+        code: *code,
     }
     .to_string();
     ErrorDescription {
         domain: domain.name.clone(),
         component: component.name.clone(),
         name: name.clone(),
-        code: code.clone(),
+        code: *code,
         identifier,
         message: message.clone(),
         fields: fields.iter().map(translate_field).collect(),
@@ -244,20 +247,21 @@ pub fn flatten(model: &Model) -> FlatModel {
     let Model { types, domains } = model;
     let mut result = FlatModel::default();
     for (name, typ) in types {
-        result.types.insert(name.clone(), translate_type(&typ));
+        result.types.insert(name.clone(), translate_type(typ));
     }
 
     for (domain_name, super::DomainDescription { meta, components }) in domains {
         let component_names: Vec<_> = components.keys().cloned().collect();
         result.domains.insert(
             domain_name.to_string(),
-            translate_domain_metadata(&meta, component_names),
+            translate_domain_metadata(meta, component_names),
         );
-        result.components.extend(
-            components
-                .iter()
-                .map(|(n, c)| (n.to_string(), translate_component_metadata(&c.meta, domain_name.as_str()))),
-        );
+        result.components.extend(components.iter().map(|(n, c)| {
+            (
+                n.to_string(),
+                translate_component_metadata(&c.meta, domain_name.as_str()),
+            )
+        }));
 
         for component in components.values() {
             result.errors.extend(

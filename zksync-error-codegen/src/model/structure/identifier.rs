@@ -27,7 +27,7 @@ impl ErrorDescription {
         ErrorIdentifier {
             domain: self.domain.identifier.clone(),
             component: self.component.identifier.clone(),
-            code: self.code.clone(),
+            code: self.code,
         }
     }
 }

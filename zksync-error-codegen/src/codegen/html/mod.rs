@@ -48,7 +48,7 @@ impl Backend<HtmlBackendConfig> for HtmlBackend {
         }
 
         let mut results = vec![];
-        for error in (&self.model).errors.values() {
+        for error in self.model.errors.values() {
             // Create context for Tera
             let mut context = tera::Context::new();
             context.insert("error", &error);
@@ -68,15 +68,12 @@ impl Backend<HtmlBackendConfig> for HtmlBackend {
         results.push({
             let mut context = tera::Context::new();
 
-            context.insert("errors", &(&self.model).errors.values().collect::<Vec<_>>());
+            context.insert("errors", &self.model.errors.values().collect::<Vec<_>>());
             context.insert(
                 "components",
-                &(&self.model).components.values().collect::<Vec<_>>(),
+                &self.model.components.values().collect::<Vec<_>>(),
             );
-            context.insert(
-                "domains",
-                &(&self.model).domains.values().collect::<Vec<_>>(),
-            );
+            context.insert("domains", &self.model.domains.values().collect::<Vec<_>>());
 
             let content = tera.render("index.html", &context)?;
             File {

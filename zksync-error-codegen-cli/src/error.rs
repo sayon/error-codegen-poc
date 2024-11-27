@@ -1,6 +1,6 @@
 use zksync_error_codegen::codegen::html::error::GenerationError as HtmlGenerationError;
-use zksync_error_codegen::codegen::rust::error::GenerationError as RustGenerationError;
 use zksync_error_codegen::codegen::mdbook::error::GenerationError as MarkdownGenerationError;
+use zksync_error_codegen::codegen::rust::error::GenerationError as RustGenerationError;
 use zksync_error_codegen::loader::LoadError;
 use zksync_error_codegen::model::builder::error::ModelBuildingError;
 use zksync_error_codegen::model::error::ModelError;

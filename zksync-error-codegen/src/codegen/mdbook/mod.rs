@@ -1,7 +1,6 @@
 pub mod config;
 pub mod error;
 
-
 use std::path::PathBuf;
 
 use config::MDBookBackendConfig;
@@ -42,20 +41,54 @@ fn initialize_tera() -> Result<Tera, <MDBookBackend as Backend<MDBookBackendConf
 }
 
 impl MDBookBackend {
-    fn generate_toml(&mut self, _config: &MDBookBackendConfig) -> Result<File, GenerationError> {
-        Ok(File {
-            relative_path: PathBuf::from("book.toml"),
-            content: r#"[book]
-authors = [
-    "Matter Labs",
-]
-language = "en"
-multilingual = false
-src = "src"
-title = "ZKsync public errors documentation"
+    fn copy_css(&mut self, _config: &MDBookBackendConfig) -> Result<File, GenerationError> {
+        let filename = "css/version-box.css";
+        let content = TEMPLATES_DIR
+            .get_file(filename)
+            .unwrap_or_else(|| panic!("Missing file `{filename}`"))
+            .contents_utf8()
+            .unwrap_or_else(|| {
+                panic!("Internal error: decoding utf-8 string from file {filename}.")
+            });
 
-"#
-                .into(),
+        Ok(File {
+            relative_path: PathBuf::from(filename),
+            content: content.into(),
+        })
+    }
+    fn copy_js(&mut self, _config: &MDBookBackendConfig) -> Result<File, GenerationError> {
+        let filename = "js/version-box.js";
+        let content = TEMPLATES_DIR
+            .get_file(filename)
+            .unwrap_or_else(|| panic!("Missing file `{filename}`"))
+            .contents_utf8()
+            .unwrap_or_else(|| {
+                panic!("Internal error: decoding utf-8 string from file {filename}.")
+            });
+
+        Ok(File {
+            relative_path: PathBuf::from(filename),
+            content: content.into(),
+        })
+    }
+
+    fn copy_as_is(
+        &mut self,
+        filename: &str,
+        _config: &MDBookBackendConfig,
+    ) -> Result<File, GenerationError> {
+        let content = TEMPLATES_DIR
+            .get_file(filename)
+            .unwrap_or_else(|| panic!("Missing file `{filename}`"))
+            .contents_utf8()
+            .unwrap_or_else(|| {
+                panic!("Internal error: decoding utf-8 string from file {filename}.")
+            });
+
+        eprintln!("Copy as is: {filename}: \n{content}");
+        Ok(File {
+            relative_path: PathBuf::from(filename),
+            content: content.into(),
         })
     }
 
@@ -93,7 +126,9 @@ title = "ZKsync public errors documentation"
         let component_name = &component.name;
 
         Ok(File {
-            relative_path: PathBuf::from(format!("src/domains/{domain_name}/{component_name}/README.md")),
+            relative_path: PathBuf::from(format!(
+                "src/domains/{domain_name}/{component_name}/README.md"
+            )),
             content,
         })
     }
@@ -137,7 +172,9 @@ title = "ZKsync public errors documentation"
         let error_name = &error.name;
 
         Ok(File {
-            relative_path: PathBuf::from(format!("src/domains/{domain_name}/{component_name}/{error_name}.md")),
+            relative_path: PathBuf::from(format!(
+                "src/domains/{domain_name}/{component_name}/{error_name}.md"
+            )),
             content,
         })
     }
@@ -155,64 +192,26 @@ impl Backend<MDBookBackendConfig> for MDBookBackend {
         let model = flatten(&self.model);
         let mut results = vec![
             self.generate_summary(&tera, &model, _config)?,
-            self.generate_toml(_config)?,
+            self.copy_as_is("book.toml", _config)?,
+            self.copy_as_is("css/version-box.css", _config)?,
+            self.copy_as_is("js/version-box.js", _config)?,
         ];
 
         for domain in model.domains.values() {
-            results.push(self.generate_domain(&tera, domain, &model,_config)? );
+            results.push(self.generate_domain(&tera, domain, &model, _config)?);
             for component in model.components.values() {
                 if component.domain_name == domain.name {
-                    results.push(self.generate_component(&tera, &component, &model, _config)?);
+                    results.push(self.generate_component(&tera, component, &model, _config)?);
                     for error in model.errors.values() {
                         if error.component == component.name {
-                            results.push(self.generate_error(&tera, &domain, &component, &error, &model, _config)?);
+                            results.push(self.generate_error(
+                                &tera, domain, component, error, &model, _config,
+                            )?);
                         }
                     }
                 }
             }
         }
-        // {
-        //      let mut context = tera::Context::new();
-        //      context.insert("domains", &model.domains.values().collect::<Vec<_>>());
-        //     let content = tera.render("SUMMARY.md", &context)?;
-
-        //      results.push(File {
-        //          relative_path: PathBuf::from(format!(
-        //              "domains/{domain_name}.md
-        //          )),
-        //          content,
-        //     });
-        // }
-        // for error in model.errors.values() {
-        //     // Create context for Tera
-        //     let mut context = tera::Context::new();
-        //     context.insert("error", &error);
-
-        //     let content = tera.render("error.md", &context)?;
-        //     let domain_name = &error.domain;
-        //     let component_name = &error.component;
-        //     let error_name = &error.name;
-        //     results.push(File {
-        //         relative_path: PathBuf::from(format!(
-        //             "{domain_name}/{component_name}/{error_name}.Markdown"
-        //         )),
-        //         content,
-        //     });
-        // }
-
-        // results.push({
-        //     let mut context = tera::Context::new();
-
-        //     context.insert("errors", &model.errors.values().collect::<Vec<_>>());
-        //     context.insert("components", &model.components.values().collect::<Vec<_>>());
-        //     context.insert("domains", &model.domains.values().collect::<Vec<_>>());
-
-        //     let content = tera.render("index.Markdown", &context)?;
-        //     File {
-        //         relative_path: PathBuf::from("index.Markdown"),
-        //         content,
-        //     }
-        // });
 
         Ok(results)
     }

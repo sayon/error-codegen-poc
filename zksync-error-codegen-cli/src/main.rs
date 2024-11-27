@@ -71,8 +71,8 @@ fn main_inner(arguments: Arguments) -> Result<(), ProgramError> {
                 }
                 arguments::Backend::MDBook => {
                     let mut backend = MDBookBackend::new(model);
-                    backend.generate(&MDBookBackendConfig::default())?
-                },
+                    backend.generate(&MDBookBackendConfig)?
+                }
             };
 
             if verbose {

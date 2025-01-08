@@ -68,8 +68,8 @@ typify = "0.2.0"
 }
 
 impl RustBackend {
-    pub fn new(model: Model) -> Self {
-        Self { model }
+    pub fn new(model: &Model) -> Self {
+        Self { model: model.clone() }
     }
 
     fn preamble(file: &mut PrettyPrinter) {

@@ -1,9 +1,9 @@
-use zksync_error_codegen::codegen::html::error::GenerationError as HtmlGenerationError;
-use zksync_error_codegen::codegen::mdbook::error::GenerationError as MarkdownGenerationError;
-use zksync_error_codegen::codegen::rust::error::GenerationError as RustGenerationError;
-use zksync_error_codegen::loader::LoadError;
-use zksync_error_codegen::model::builder::error::ModelBuildingError;
-use zksync_error_codegen::model::error::ModelError;
+use crate::codegen::html::error::GenerationError as HtmlGenerationError;
+use crate::codegen::mdbook::error::GenerationError as MarkdownGenerationError;
+use crate::codegen::rust::error::GenerationError as RustGenerationError;
+use crate::loader::error::LoadError;
+use crate::model::builder::error::ModelBuildingError;
+use crate::model::error::ModelError;
 
 #[derive(Debug)]
 pub enum ProgramError {

@@ -18,3 +18,5 @@ serde = { version = "=1.0.210", features = [ "derive", "rc" ] }
 serde_json = { version = "=1.0.128" }
 tera = "1.20.0"
 toml = "0.8.19"
+
+cargo_metadata = "=0.18"

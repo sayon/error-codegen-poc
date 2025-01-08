@@ -1,4 +1,4 @@
-use crate::{loader::LoadError, model::merger::error::MergeError};
+use crate::{loader::error::LoadError, model::merger::error::MergeError};
 
 #[derive(Debug)]
 pub struct MissingComponent {

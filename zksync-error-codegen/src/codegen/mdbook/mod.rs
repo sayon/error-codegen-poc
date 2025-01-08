@@ -21,8 +21,8 @@ pub struct MDBookBackend {
 }
 
 impl MDBookBackend {
-    pub fn new(model: Model) -> Self {
-        Self { model }
+    pub fn new(model: &Model) -> Self {
+        Self { model: model.clone() }
     }
 }
 

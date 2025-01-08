@@ -1,26 +1,4 @@
-use std::str::FromStr;
-
 use structopt::StructOpt;
-
-#[derive(Debug)]
-pub enum Backend {
-    DocHtml,
-    Rust,
-    MDBook,
-}
-
-impl FromStr for Backend {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "doc-html" => Ok(Backend::DocHtml),
-            "rust" => Ok(Backend::Rust),
-            "markdown-mdbook" => Ok(Backend::MDBook),
-            _ => Err("Unrecognized backend".into()),
-        }
-    }
-}
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -34,7 +12,7 @@ pub struct Arguments {
 
     /// Selected backend.
     #[structopt(long = "backend", possible_values=&["rust", "doc-html", "markdown-mdbook"])]
-    pub backend: Backend,
+    pub backend: zksync_error_codegen::arguments::Backend,
 
     /// Be verbose and produce debug output.
     #[structopt(long = "verbose")]

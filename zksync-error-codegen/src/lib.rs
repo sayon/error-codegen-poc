@@ -9,6 +9,7 @@ use std::io::Write as _;
 use std::path::Path;
 use std::path::PathBuf;
 
+use arguments::Backend;
 use arguments::GenerationArguments;
 use error::ProgramError;
 
@@ -27,6 +28,19 @@ use crate::loader::ErrorBasePart;
 use crate::model::builder::{translate_model, ModelTranslationContext};
 use crate::model::validator::validate;
 
+pub fn default_load_and_generate(root_error_package_name: &str) {
+
+    if let Err(e) = load_and_generate(GenerationArguments {
+        verbose: true,
+        root_link: format!("cargo://{root_error_package_name}@@errors.json").into(),
+        outputs: vec![
+            ("../zksync_error".into(), Backend::Rust),
+            ("../doc-mdbook".into(), Backend::MDBook),
+        ],
+    }) {
+        eprintln!("{e:#?}")
+    };
+}
 pub fn load_and_generate(arguments: GenerationArguments) -> Result<(), ProgramError> {
     let GenerationArguments {
         verbose,

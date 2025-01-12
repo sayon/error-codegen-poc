@@ -3,7 +3,6 @@ use error::FileFormatError;
 use error::LinkError;
 use error::LoadError;
 use error::ResolutionError;
-use fetch::fetch_file;
 use link::Link;
 use link::{link_matches, parse_link};
 use std::path::PathBuf;
@@ -38,6 +37,7 @@ impl ResolutionContext {
 
 enum ResolvedLink {
     DescriptionFile(DescriptionFile),
+    LocalPath(PathBuf),
     Url(String),
 }
 
@@ -58,6 +58,7 @@ fn resolve(
                 ))
             }
         }
+        Link::FileLink { path } => Ok(ResolvedLink::LocalPath(path.into())),
         Link::URL { url } => Ok(ResolvedLink::Url(url)),
     }
 }
@@ -69,17 +70,20 @@ pub fn load(link: impl Into<String>) -> Result<ErrorBasePart, LoadError> {
             let contents = std::fs::read_to_string(&description_file.absolute_path)?;
             load_resolved(&contents)
         }
+        ResolvedLink::LocalPath(path) => {
+            let contents = fetch::from_fs(&path)?;
+            load_resolved(&contents)
+        }
         ResolvedLink::Url(url) => {
-            let contents = fetch_file(&url)?;
+            let contents = fetch::from_network(&url)?;
             load_resolved(&contents)
         }
     }
 }
 
 pub fn load_resolved(contents: &str) -> Result<ErrorBasePart, LoadError> {
-    match serde_json::from_str::<crate::error_database::Component>(contents).or(toml::from_str::<
-        crate::error_database::Component,
-    >(&contents))
+    match serde_json::from_str::<crate::error_database::Component>(contents)
+        .or(toml::from_str::<crate::error_database::Component>(contents))
     {
         Ok(contents) => Ok(ErrorBasePart::Component(contents)),
 

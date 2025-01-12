@@ -45,7 +45,7 @@ struct ComponentTranslationContext<'a> {
     pub parent: &'a DomainTranslationContext<'a>,
 }
 
-impl<'a> ComponentTranslationContext<'a> {
+impl ComponentTranslationContext<'_> {
     fn get_domain(&self) -> String {
         self.domain.name.to_string()
     }
@@ -55,7 +55,7 @@ struct ErrorTranslationContext<'a> {
     pub component: Rc<ComponentMetadata>,
     pub parent: &'a ComponentTranslationContext<'a>,
 }
-impl<'a> ErrorTranslationContext<'a> {
+impl ErrorTranslationContext<'_> {
     fn get_component(&self) -> String {
         self.component.name.to_string()
     }

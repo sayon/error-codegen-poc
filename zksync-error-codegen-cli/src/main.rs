@@ -7,19 +7,18 @@ use zksync_error_codegen::load_and_generate;
 
 use structopt::StructOpt as _;
 
-impl Into<GenerationArguments> for Arguments {
-    fn into(self) -> GenerationArguments {
-        let Self {
+impl From<Arguments> for GenerationArguments {
+    fn from(val: Arguments) -> Self {
+        let Arguments {
             definitions,
             backend,
             verbose,
             output_directory,
-        } = self;
+        } = val;
         GenerationArguments {
             verbose,
             root_link: definitions,
             outputs: vec![(output_directory.into(), backend)],
-
         }
     }
 }

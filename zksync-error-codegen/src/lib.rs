@@ -29,10 +29,9 @@ use crate::model::builder::{translate_model, ModelTranslationContext};
 use crate::model::validator::validate;
 
 pub fn default_load_and_generate(root_error_package_name: &str) {
-
     if let Err(e) = load_and_generate(GenerationArguments {
         verbose: true,
-        root_link: format!("cargo://{root_error_package_name}@@errors.json").into(),
+        root_link: format!("cargo://{root_error_package_name}@@errors.json"),
         outputs: vec![
             ("../zksync_error".into(), Backend::Rust),
             ("../doc-mdbook".into(), Backend::MDBook),
@@ -75,7 +74,6 @@ pub fn load_and_generate(arguments: GenerationArguments) -> Result<(), ProgramEr
                 eprintln!("Model validation successful.");
             }
 
-
             for (output_directory, backend_type) in outputs {
                 if *verbose {
                     eprintln!("Selected backend: {backend_type:?}. \nGenerating files...");
@@ -103,7 +101,7 @@ pub fn load_and_generate(arguments: GenerationArguments) -> Result<(), ProgramEr
                     eprintln!("Writing files to disk...");
                 }
 
-                create_files_in_result_directory(&output_directory, result)?;
+                create_files_in_result_directory(output_directory, result)?;
                 if *verbose {
                     eprintln!("Writing successful.");
                 }

@@ -1,18 +1,18 @@
 use reqwest;
 use std::fs;
+use std::path::PathBuf;
 
-use super::error::LoadError;
-
-fn fetch_local_file(path: &str) -> std::io::Result<String> {
+pub fn from_fs(path: &PathBuf) -> std::io::Result<String> {
+    eprintln!(
+        "Trying to read local file: {}",
+        path.to_str().expect("Incorrect path")
+    );
     fs::read_to_string(path)
 }
 
-fn fetch_network_file(url: &str) -> Result<String, reqwest::Error> {
+pub fn from_network(url: &str) -> Result<String, reqwest::Error> {
+    eprintln!("Trying to fetch file from network: {url}");
     let response = reqwest::blocking::get(url)?;
     let content = response.text()?;
     Ok(content)
-}
-
-pub fn fetch_file(path: &str) -> Result<String, LoadError> {
-    Ok(fetch_local_file(path).or(fetch_network_file(path))?)
 }

@@ -159,9 +159,9 @@
                     },
                     "description": "Errors in core components such as sequencer",
                     "takeFrom": [
-                        "errors-core-1.json",
-                        "https://raw.githubusercontent.com/sayon/error-codegen-poc/refs/heads/main/errors-core-2.json",
-                        "errors-core-3.toml"
+                        "file://errors-core-1.json",
+                        "https://raw.githubusercontent.com/sayon/error-codegen-poc/refs/heads/cargo-dep-control/errors-core-2.json",
+                        "file://errors-core-3.toml"
                     ]
                 }
 

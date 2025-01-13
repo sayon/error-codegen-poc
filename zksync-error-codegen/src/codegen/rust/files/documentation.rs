@@ -12,8 +12,8 @@ impl RustBackend {
         gen.push_line(
             r#"
 use lazy_static::lazy_static;
-use std::fs;
 use zksync_error_model::ErrorModel;
+
 lazy_static! {
    pub static ref model : ErrorModel = get_model();
 }

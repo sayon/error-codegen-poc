@@ -1,8 +1,8 @@
 pub mod error;
 pub mod merger;
 pub mod inner;
-pub mod flattened;
+pub mod unpacked;
 pub mod identifier;
 pub mod validator;
 
-pub use flattened::FlatModel as ErrorModel;
+pub use unpacked::FlatModel as ErrorModel;

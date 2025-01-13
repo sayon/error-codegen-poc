@@ -11,8 +11,8 @@ use tera::Tera;
 use super::Backend;
 use super::File;
 
-use zksync_error_model::flattened::flatten;
-use zksync_error_model::flattened::FlatModel;
+use zksync_error_model::unpacked::flatten;
+use zksync_error_model::unpacked::FlatModel;
 use zksync_error_model::inner::Model;
 use include_dir::include_dir;
 

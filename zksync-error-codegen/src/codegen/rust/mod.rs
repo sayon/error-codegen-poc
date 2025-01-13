@@ -63,7 +63,7 @@ RustBackend::SHARED_MODEL_CRATE_URL
             },
             File {
                 relative_path: "resources/model.json".into(),
-                content: serde_json::to_string_pretty(&zksync_error_model::flattened::flatten(&self.model))?,
+                content: serde_json::to_string_pretty(&zksync_error_model::unpacked::flatten(&self.model))?,
             }
         ];
         let vec = vec;

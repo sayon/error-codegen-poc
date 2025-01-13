@@ -50,11 +50,10 @@ version = "0.1.0"
 edition = "2021"
 [lib]
 [dependencies]
-serde = "1.0.213"
-serde_json = "1.0.132"
+serde = { version = "1.0.210", features = [ "derive", "rc" ] }
+serde_json = { version = "1.0.128" }
 strum = "0.26.3"
 strum_macros = "0.26.4"
-typify = "0.2.0"
 "#
                 .into(),
             },

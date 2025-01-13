@@ -3,6 +3,13 @@ use zksync_error_model::error::ModelError;
 #[derive(Debug)]
 pub enum GenerationError {
     ModelError(ModelError),
+    ModelSerialization(serde_json::Error),
+}
+
+impl From<serde_json::Error> for GenerationError {
+    fn from(v: serde_json::Error) -> Self {
+        Self::ModelSerialization(v)
+    }
 }
 
 impl std::fmt::Display for GenerationError {

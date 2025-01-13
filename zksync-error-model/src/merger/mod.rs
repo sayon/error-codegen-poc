@@ -3,7 +3,7 @@ pub mod error;
 use error::MergeError;
 use std::collections::HashMap;
 
-use super::structure::{
+use super::inner::{
     ComponentDescription, DomainDescription, ErrorDescription, ErrorDocumentation, Model,
     TypeBindings, TypeDescription,
 };
@@ -63,13 +63,13 @@ impl Merge for String {
     }
 }
 
-impl Merge for super::structure::TargetLanguageType {
+impl Merge for super::inner::TargetLanguageType {
     fn merge(&mut self, other: &Self) -> Result<(), MergeError> {
         self.name.merge(&other.name)
     }
 }
 
-impl Merge for super::structure::FullyQualifiedTargetLanguageType {
+impl Merge for super::inner::FullyQualifiedTargetLanguageType {
     fn merge(&mut self, other: &Self) -> Result<(), MergeError> {
         self.name.merge(&other.name)?;
         self.path.merge(&other.path)

@@ -4,7 +4,7 @@ use crate::codegen::printer::PrettyPrinter;
 use crate::codegen::rust::error::GenerationError;
 use crate::codegen::rust::RustBackend;
 use crate::codegen::File;
-use zksync_error_model::structure::ComponentDescription;
+use zksync_error_model::inner::ComponentDescription;
 
 impl RustBackend {
     fn define_errors_of_component(

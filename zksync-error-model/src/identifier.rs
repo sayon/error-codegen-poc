@@ -1,4 +1,4 @@
-use super::{ErrorCode, ErrorDescription};
+use crate::inner::{ErrorCode, ErrorDescription};
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct ErrorIdentifier {

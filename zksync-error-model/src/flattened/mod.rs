@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-
-use super::{
-    identifier::ErrorIdentifier, ComponentCode, ComponentName, DomainCode, DomainName, ErrorCode,
+use crate::identifier::ErrorIdentifier;
+use crate::inner::{
+    ComponentCode, ComponentName, DomainCode, DomainName, ErrorCode,
     ErrorMessageTemplate, ErrorName, FieldName, LanguageName, Model, Semver, TypeName,
 };
 
@@ -92,10 +92,10 @@ pub struct VersionedOwner {
 }
 
 fn translate_domain_metadata(
-    meta: &super::DomainMetadata,
+    meta: &crate::inner::DomainMetadata,
     components: Vec<ComponentName>,
 ) -> DomainMetadata {
-    let super::DomainMetadata {
+    let crate::inner::DomainMetadata {
         name,
         code,
         bindings,
@@ -113,10 +113,10 @@ fn translate_domain_metadata(
 }
 
 fn translate_component_metadata(
-    meta: &super::ComponentMetadata,
+    meta: &crate::inner::ComponentMetadata,
     domain_name: &str,
 ) -> ComponentMetadata {
-    let super::ComponentMetadata {
+    let crate::inner::ComponentMetadata {
         name,
         code,
         bindings,
@@ -132,12 +132,12 @@ fn translate_component_metadata(
         domain_name: domain_name.to_string(),
     }
 }
-fn translate_field(field: &super::FieldDescription) -> FieldDescription {
-    let super::FieldDescription { name, r#type } = field.clone();
+fn translate_field(field: &crate::inner::FieldDescription) -> FieldDescription {
+    let crate::inner::FieldDescription { name, r#type } = field.clone();
     FieldDescription { name, r#type }
 }
-fn translate_error(meta: &super::ErrorDescription) -> ErrorDescription {
-    let super::ErrorDescription {
+fn translate_error(meta: &crate::inner::ErrorDescription) -> ErrorDescription {
+    let crate::inner::ErrorDescription {
         domain,
         component,
         name,
@@ -182,12 +182,12 @@ fn translate_error(meta: &super::ErrorDescription) -> ErrorDescription {
     }
 }
 
-fn translate_owner(doc: &super::VersionedOwner) -> VersionedOwner {
-    let super::VersionedOwner { name, version } = doc.clone();
+fn translate_owner(doc: &crate::inner::VersionedOwner) -> VersionedOwner {
+    let crate::inner::VersionedOwner { name, version } = doc.clone();
     VersionedOwner { name, version }
 }
-fn translate_likely_cause(doc: &super::LikelyCause) -> LikelyCause {
-    let super::LikelyCause {
+fn translate_likely_cause(doc: &crate::inner::LikelyCause) -> LikelyCause {
+    let crate::inner::LikelyCause {
         cause,
         fixes,
         report,
@@ -203,8 +203,8 @@ fn translate_likely_cause(doc: &super::LikelyCause) -> LikelyCause {
         references,
     }
 }
-fn translate_documentation(doc: &super::ErrorDocumentation) -> ErrorDocumentation {
-    let super::ErrorDocumentation {
+fn translate_documentation(doc: &crate::inner::ErrorDocumentation) -> ErrorDocumentation {
+    let crate::inner::ErrorDocumentation {
         description,
         short_description,
         likely_causes,
@@ -217,10 +217,10 @@ fn translate_documentation(doc: &super::ErrorDocumentation) -> ErrorDocumentatio
     }
 }
 
-fn translate_type(typ: &super::TypeDescription) -> TypeDescription {
-    let super::TypeDescription {
+fn translate_type(typ: &crate::inner::TypeDescription) -> TypeDescription {
+    let crate::inner::TypeDescription {
         name,
-        meta: super::TypeMetadata { description },
+        meta: crate::inner::TypeMetadata { description },
         bindings,
     } = typ.clone();
 
@@ -250,7 +250,7 @@ pub fn flatten(model: &Model) -> FlatModel {
         result.types.insert(name.clone(), translate_type(typ));
     }
 
-    for (domain_name, super::DomainDescription { meta, components }) in domains {
+    for (domain_name, crate::inner::DomainDescription { meta, components }) in domains {
         let component_names: Vec<_> = components.keys().cloned().collect();
         result.domains.insert(
             domain_name.to_string(),

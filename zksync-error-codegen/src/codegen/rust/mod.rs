@@ -9,12 +9,12 @@ use error::GenerationError;
 
 use crate::codegen::printer::PrettyPrinter;
 use zksync_error_model::error::ModelError;
-use zksync_error_model::structure::ComponentDescription;
-use zksync_error_model::structure::DomainDescription;
-use zksync_error_model::structure::ErrorDescription;
-use zksync_error_model::structure::FieldDescription;
-use zksync_error_model::structure::FullyQualifiedTargetLanguageType;
-use zksync_error_model::structure::Model;
+use zksync_error_model::inner::ComponentDescription;
+use zksync_error_model::inner::DomainDescription;
+use zksync_error_model::inner::ErrorDescription;
+use zksync_error_model::inner::FieldDescription;
+use zksync_error_model::inner::FullyQualifiedTargetLanguageType;
+use zksync_error_model::inner::Model;
 
 use super::Backend;
 use super::File;
@@ -34,6 +34,7 @@ impl Backend<RustBackendConfig> for RustBackend {
         let vec = vec![
             self.generate_file_error_definitions()?,
             self.generate_file_error_domains()?,
+            self.generate_file_documentation()?,
             self.generate_file_error_mod()?,
             self.generate_file_identifier()?,
             self.generate_file_kind()?,
@@ -43,21 +44,30 @@ impl Backend<RustBackendConfig> for RustBackend {
             self.generate_file_untyped()?,
             File {
                 relative_path: PathBuf::from("Cargo.toml"),
-                content: r#"
+                content: format!(r#"
 [package]
 name = "zksync_error"
 version = "0.1.0"
 edition = "2021"
 [lib]
 [dependencies]
-serde = { version = "1.0.210", features = [ "derive", "rc" ] }
-serde_json = { version = "1.0.128" }
+lazy_static = "1.5.0"
+serde = {{ version = "1.0.210", features = [ "derive", "rc" ] }}
+serde_json = {{ version = "1.0.128" }}
 strum = "0.26.3"
 strum_macros = "0.26.4"
-"#
-                .into(),
+zksync-error-model = {{ path = "../error-codegen-poc" }}
+#zksync-error-model = {{ git = "{}", branch = "main" }}" }}
+"#,
+RustBackend::SHARED_MODEL_CRATE_URL
+                ).into(),
             },
+            File {
+                relative_path: "resources/model.json".into(),
+                content: serde_json::to_string_pretty(&zksync_error_model::flattened::flatten(&self.model))?,
+            }
         ];
+        let vec = vec;
         Ok(vec)
     }
 
@@ -67,6 +77,9 @@ strum_macros = "0.26.4"
 }
 
 impl RustBackend {
+
+    pub const SHARED_MODEL_CRATE_URL : &str = r"https://github.com/sayon/error-codegen-poc";
+
     pub fn new(model: &Model) -> Self {
         Self {
             model: model.clone(),

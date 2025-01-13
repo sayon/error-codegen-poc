@@ -12,22 +12,22 @@ use crate::loader::load;
 use crate::loader::ErrorBasePart;
 
 use zksync_error_model::merger::Merge as _;
-use zksync_error_model::structure::ComponentDescription;
-use zksync_error_model::structure::ComponentMetadata;
-use zksync_error_model::structure::DomainDescription;
-use zksync_error_model::structure::DomainMetadata;
-use zksync_error_model::structure::ErrorDescription;
-use zksync_error_model::structure::ErrorDocumentation;
-use zksync_error_model::structure::ErrorName;
-use zksync_error_model::structure::FieldDescription;
-use zksync_error_model::structure::FullyQualifiedTargetLanguageType;
-use zksync_error_model::structure::LikelyCause;
-use zksync_error_model::structure::Model;
-use zksync_error_model::structure::TargetLanguageType;
-use zksync_error_model::structure::TypeBindings;
-use zksync_error_model::structure::TypeDescription;
-use zksync_error_model::structure::TypeMetadata;
-use zksync_error_model::structure::VersionedOwner;
+use zksync_error_model::inner::ComponentDescription;
+use zksync_error_model::inner::ComponentMetadata;
+use zksync_error_model::inner::DomainDescription;
+use zksync_error_model::inner::DomainMetadata;
+use zksync_error_model::inner::ErrorDescription;
+use zksync_error_model::inner::ErrorDocumentation;
+use zksync_error_model::inner::ErrorName;
+use zksync_error_model::inner::FieldDescription;
+use zksync_error_model::inner::FullyQualifiedTargetLanguageType;
+use zksync_error_model::inner::LikelyCause;
+use zksync_error_model::inner::Model;
+use zksync_error_model::inner::TargetLanguageType;
+use zksync_error_model::inner::TypeBindings;
+use zksync_error_model::inner::TypeDescription;
+use zksync_error_model::inner::TypeMetadata;
+use zksync_error_model::inner::VersionedOwner;
 
 pub struct ModelTranslationContext<'a> {
     pub origin: &'a str,

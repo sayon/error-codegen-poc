@@ -5,3 +5,4 @@ pub mod lib;
 pub mod packed;
 pub mod serialized;
 pub mod untyped;
+pub mod documentation;

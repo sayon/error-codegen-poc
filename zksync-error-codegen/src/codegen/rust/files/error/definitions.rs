@@ -78,6 +78,9 @@ impl From<{error_name}> for crate::serialized::SerializedError {{
 
         gen.push_str(
             r#"
+
+#![allow(unused)]
+
 use crate::error::CustomErrorMessage;
 use strum_macros::EnumDiscriminants;
 "#,

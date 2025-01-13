@@ -4,7 +4,7 @@ use crate::codegen::printer::PrettyPrinter;
 use crate::codegen::rust::error::GenerationError;
 use crate::codegen::rust::RustBackend;
 use crate::codegen::File;
-use crate::model::structure::DomainDescription;
+use zksync_error_model::structure::DomainDescription;
 
 impl RustBackend {
     pub fn generate_file_error_domains(&mut self) -> Result<File, GenerationError> {

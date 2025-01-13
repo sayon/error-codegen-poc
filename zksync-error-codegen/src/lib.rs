@@ -26,7 +26,7 @@ use crate::loader::error::LoadError;
 use crate::loader::load;
 use crate::loader::ErrorBasePart;
 use crate::model::builder::{translate_model, ModelTranslationContext};
-use crate::model::validator::validate;
+use zksync_error_model::validator::validate;
 
 pub fn default_load_and_generate(root_error_package_name: &str) {
     if let Err(e) = load_and_generate(GenerationArguments {

@@ -11,23 +11,23 @@ use maplit::hashmap;
 use crate::loader::load;
 use crate::loader::ErrorBasePart;
 
-use super::merger::Merge as _;
-use super::structure::ComponentDescription;
-use super::structure::ComponentMetadata;
-use super::structure::DomainDescription;
-use super::structure::DomainMetadata;
-use super::structure::ErrorDescription;
-use super::structure::ErrorDocumentation;
-use super::structure::ErrorName;
-use super::structure::FieldDescription;
-use super::structure::FullyQualifiedTargetLanguageType;
-use super::structure::LikelyCause;
-use super::structure::Model;
-use super::structure::TargetLanguageType;
-use super::structure::TypeBindings;
-use super::structure::TypeDescription;
-use super::structure::TypeMetadata;
-use super::structure::VersionedOwner;
+use zksync_error_model::merger::Merge as _;
+use zksync_error_model::structure::ComponentDescription;
+use zksync_error_model::structure::ComponentMetadata;
+use zksync_error_model::structure::DomainDescription;
+use zksync_error_model::structure::DomainMetadata;
+use zksync_error_model::structure::ErrorDescription;
+use zksync_error_model::structure::ErrorDocumentation;
+use zksync_error_model::structure::ErrorName;
+use zksync_error_model::structure::FieldDescription;
+use zksync_error_model::structure::FullyQualifiedTargetLanguageType;
+use zksync_error_model::structure::LikelyCause;
+use zksync_error_model::structure::Model;
+use zksync_error_model::structure::TargetLanguageType;
+use zksync_error_model::structure::TypeBindings;
+use zksync_error_model::structure::TypeDescription;
+use zksync_error_model::structure::TypeMetadata;
+use zksync_error_model::structure::VersionedOwner;
 
 pub struct ModelTranslationContext<'a> {
     pub origin: &'a str,

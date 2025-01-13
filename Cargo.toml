@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "zksync-error-codegen-cli",
-    "zksync-error-codegen",
+    "zksync-error-codegen", "zksync-error-model",
 ]
 resolver = "2"
 

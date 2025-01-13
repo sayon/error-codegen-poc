@@ -8,13 +8,13 @@ use config::RustBackendConfig;
 use error::GenerationError;
 
 use crate::codegen::printer::PrettyPrinter;
-use crate::model::error::ModelError;
-use crate::model::structure::ComponentDescription;
-use crate::model::structure::DomainDescription;
-use crate::model::structure::ErrorDescription;
-use crate::model::structure::FieldDescription;
-use crate::model::structure::FullyQualifiedTargetLanguageType;
-use crate::model::structure::Model;
+use zksync_error_model::error::ModelError;
+use zksync_error_model::structure::ComponentDescription;
+use zksync_error_model::structure::DomainDescription;
+use zksync_error_model::structure::ErrorDescription;
+use zksync_error_model::structure::FieldDescription;
+use zksync_error_model::structure::FullyQualifiedTargetLanguageType;
+use zksync_error_model::structure::Model;
 
 use super::Backend;
 use super::File;

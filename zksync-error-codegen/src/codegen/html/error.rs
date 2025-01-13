@@ -1,4 +1,4 @@
-use crate::model::error::ModelError;
+use zksync_error_model::error::ModelError;
 
 #[derive(Debug)]
 pub enum GenerationError {

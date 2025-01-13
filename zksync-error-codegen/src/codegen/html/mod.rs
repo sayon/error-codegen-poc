@@ -11,9 +11,9 @@ use tera::Tera;
 use super::Backend;
 use super::File;
 
-use crate::model::structure::flattened::flatten;
-use crate::model::structure::flattened::FlatModel;
-use crate::model::structure::Model;
+use zksync_error_model::structure::flattened::flatten;
+use zksync_error_model::structure::flattened::FlatModel;
+use zksync_error_model::structure::Model;
 use include_dir::include_dir;
 
 pub struct HtmlBackend {

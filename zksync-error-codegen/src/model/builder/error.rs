@@ -1,4 +1,5 @@
-use crate::{loader::error::LoadError, model::merger::error::MergeError};
+use zksync_error_model::merger::error::MergeError;
+use crate::loader::error::LoadError;
 
 #[derive(Debug)]
 pub struct MissingComponent {

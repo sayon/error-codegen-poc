@@ -5,7 +5,6 @@ license.workspace = true
 version.workspace = true
 edition.workspace = true
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
 doctest = false
@@ -20,3 +19,6 @@ tera = "1.20.0"
 toml = "0.8.19"
 
 cargo_metadata = "=0.18"
+
+# Model of errors, shared between generated code and the code generator.
+zksync-error-model = { path = "../zksync-error-model" }

@@ -3,7 +3,7 @@ use crate::codegen::mdbook::error::GenerationError as MarkdownGenerationError;
 use crate::codegen::rust::error::GenerationError as RustGenerationError;
 use crate::loader::error::LoadError;
 use crate::model::builder::error::ModelBuildingError;
-use crate::model::error::ModelError;
+use zksync_error_model::error::ModelError;
 
 #[derive(Debug)]
 pub enum ProgramError {

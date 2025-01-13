@@ -11,9 +11,9 @@ use tera::Tera;
 use super::Backend;
 use super::File;
 
-use crate::model::structure::flattened::flatten;
-use crate::model::structure::flattened::FlatModel;
-use crate::model::structure::Model;
+use zksync_error_model::structure::flattened::flatten;
+use zksync_error_model::structure::flattened::FlatModel;
+use zksync_error_model::structure::Model;
 use include_dir::include_dir;
 
 pub struct MDBookBackend {
@@ -115,7 +115,7 @@ impl MDBookBackend {
     fn generate_component(
         &mut self,
         tera: &Tera,
-        component: &crate::model::structure::flattened::ComponentMetadata,
+        component: &zksync_error_model::structure::flattened::ComponentMetadata,
         model: &FlatModel,
         _config: &MDBookBackendConfig,
     ) -> Result<File, GenerationError> {
@@ -137,7 +137,7 @@ impl MDBookBackend {
     fn generate_domain(
         &mut self,
         tera: &Tera,
-        domain: &crate::model::structure::flattened::DomainMetadata,
+        domain: &zksync_error_model::structure::flattened::DomainMetadata,
         model: &FlatModel,
         _config: &MDBookBackendConfig,
     ) -> Result<File, GenerationError> {
@@ -157,9 +157,9 @@ impl MDBookBackend {
     fn generate_error(
         &mut self,
         tera: &Tera,
-        domain: &crate::model::structure::flattened::DomainMetadata,
-        component: &crate::model::structure::flattened::ComponentMetadata,
-        error: &crate::model::structure::flattened::ErrorDescription,
+        domain: &zksync_error_model::structure::flattened::DomainMetadata,
+        component: &zksync_error_model::structure::flattened::ComponentMetadata,
+        error: &zksync_error_model::structure::flattened::ErrorDescription,
         model: &FlatModel,
         _config: &MDBookBackendConfig,
     ) -> Result<File, GenerationError> {

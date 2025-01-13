@@ -3,7 +3,6 @@ pub mod codegen;
 pub mod error;
 pub mod error_database;
 pub mod loader;
-pub mod model;
 
 use std::io::Write as _;
 use std::path::Path;
@@ -25,7 +24,7 @@ use crate::loader::error::FileFormatError;
 use crate::loader::error::LoadError;
 use crate::loader::load;
 use crate::loader::ErrorBasePart;
-use crate::model::builder::{translate_model, ModelTranslationContext};
+use crate::loader::builder::{translate_model, ModelTranslationContext};
 use zksync_error_model::validator::validate;
 
 pub fn default_load_and_generate(root_error_package_name: &str) {

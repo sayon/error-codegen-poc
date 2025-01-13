@@ -11,6 +11,7 @@ pub mod cargo;
 pub mod error;
 pub mod fetch;
 pub mod link;
+pub mod builder;
 
 pub enum ErrorBasePart {
     Root(crate::error_database::Root),

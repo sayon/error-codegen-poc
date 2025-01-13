@@ -50,6 +50,10 @@ name = "zksync_error"
 version = "0.1.0"
 edition = "2021"
 [lib]
+
+[features]
+documentation = []
+
 [dependencies]
 lazy_static = "1.5.0"
 serde = {{ version = "1.0.210", features = [ "derive", "rc" ] }}

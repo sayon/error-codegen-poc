@@ -5,25 +5,25 @@ use crate::inner::{
     ErrorMessageTemplate, ErrorName, FieldName, LanguageName, Model, Semver, TypeName,
 };
 
-#[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TargetLanguageType {
     pub name: String,
     pub path: String,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TypeMetadata {
     pub description: String,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TypeDescription {
     pub name: TypeName,
     pub meta: TypeMetadata,
     pub bindings: HashMap<LanguageName, TargetLanguageType>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DomainMetadata {
     pub name: DomainName,
     pub code: DomainCode,
@@ -32,7 +32,7 @@ pub struct DomainMetadata {
     pub identifier: String,
     pub description: String,
 }
-#[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FlatModel {
     pub types: HashMap<TypeName, TypeDescription>,
     pub domains: HashMap<DomainName, DomainMetadata>,
@@ -40,7 +40,7 @@ pub struct FlatModel {
     pub errors: HashMap<ErrorName, ErrorDescription>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ComponentMetadata {
     pub name: ComponentName,
     pub code: ComponentCode,
@@ -50,7 +50,7 @@ pub struct ComponentMetadata {
     pub description: String,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ErrorDescription {
     pub domain: DomainName,
     pub component: ComponentName,
@@ -63,20 +63,20 @@ pub struct ErrorDescription {
     pub bindings: HashMap<LanguageName, TargetLanguageType>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FieldDescription {
     pub name: FieldName,
     pub r#type: TypeName,
 }
 
-#[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ErrorDocumentation {
     pub description: String,
     pub short_description: String,
     pub likely_causes: Vec<LikelyCause>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct LikelyCause {
     pub cause: String,
     pub fixes: Vec<String>,
@@ -85,7 +85,7 @@ pub struct LikelyCause {
     pub references: Vec<String>,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct VersionedOwner {
     pub name: String,
     pub version: Semver,

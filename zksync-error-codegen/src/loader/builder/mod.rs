@@ -65,17 +65,17 @@ impl ErrorTranslationContext<'_> {
 }
 
 fn translate_type_bindings(
-    value: &crate::error_database::ErrorNameMapping,
+    value: &crate::description::ErrorNameMapping,
     error_name: &ErrorName,
 ) -> Result<TypeBindings<TargetLanguageType>, ModelBuildingError> {
     let mut result = TypeBindings::<TargetLanguageType>::default();
     let rust_name = match &value.rust {
-        Some(crate::error_database::ErrorType { name }) => name,
+        Some(crate::description::ErrorType { name }) => name,
         None => error_name,
     }
     .to_string();
     let typescript_name = match &value.typescript {
-        Some(crate::error_database::ErrorType { name }) => name,
+        Some(crate::description::ErrorType { name }) => name,
         None => error_name,
     }
     .to_string();
@@ -93,10 +93,10 @@ fn translate_type_bindings(
 }
 
 fn translate_type_mappings(
-    value: &crate::error_database::TypeMappings,
+    value: &crate::description::TypeMappings,
 ) -> Result<TypeBindings<FullyQualifiedTargetLanguageType>, ModelBuildingError> {
     let mut result: TypeBindings<FullyQualifiedTargetLanguageType> = Default::default();
-    if let Some(crate::error_database::FullyQualifiedType { name, path }) = &value.rust {
+    if let Some(crate::description::FullyQualifiedType { name, path }) = &value.rust {
         result.bindings.insert(
             "rust".into(),
             FullyQualifiedTargetLanguageType {
@@ -109,10 +109,10 @@ fn translate_type_mappings(
 }
 
 fn translate_type(
-    value: &crate::error_database::Type,
+    value: &crate::description::Type,
     _ctx: &TypeTranslationContext,
 ) -> Result<TypeDescription, ModelBuildingError> {
-    let crate::error_database::Type {
+    let crate::description::Type {
         name,
         description,
         bindings: codegen,
@@ -127,11 +127,11 @@ fn translate_type(
 }
 
 pub fn translate_model(
-    model: &crate::error_database::Root,
+    model: &crate::description::Root,
     ctx: ModelTranslationContext<'_>,
 ) -> Result<Model, ModelBuildingError> {
     let mut result = Model::default();
-    let crate::error_database::Root { types, domains } = model;
+    let crate::description::Root { types, domains } = model;
     for t in types {
         let ctx = TypeTranslationContext {
             type_name: &t.name,
@@ -154,9 +154,9 @@ pub fn translate_model(
 }
 
 fn translate_field(
-    value: &crate::error_database::Field,
+    value: &crate::description::Field,
 ) -> Result<FieldDescription, ModelBuildingError> {
-    let crate::error_database::Field { name, r#type } = value;
+    let crate::description::Field { name, r#type } = value;
     Ok(FieldDescription {
         name: name.clone(),
         r#type: r#type.clone(),
@@ -164,13 +164,13 @@ fn translate_field(
 }
 
 fn translate_likely_cause(
-    lc: &crate::error_database::LikelyCause,
+    lc: &crate::description::LikelyCause,
 ) -> Result<LikelyCause, ModelBuildingError> {
-    let crate::error_database::LikelyCause {
+    let crate::description::LikelyCause {
         cause,
         fixes,
         report,
-        owner: crate::error_database::VersionedOwner { name, version },
+        owner: crate::description::VersionedOwner { name, version },
         references,
     } = lc;
 
@@ -187,9 +187,9 @@ fn translate_likely_cause(
     })
 }
 fn translate_error_documentation(
-    doc: &crate::error_database::ErrorDocumentation,
+    doc: &crate::description::ErrorDocumentation,
 ) -> Result<ErrorDocumentation, ModelBuildingError> {
-    let &crate::error_database::ErrorDocumentation {
+    let &crate::description::ErrorDocumentation {
         description,
         short_description,
         likely_causes,
@@ -208,10 +208,10 @@ fn translate_error_documentation(
 }
 
 fn translate_error(
-    error: &crate::error_database::Error,
+    error: &crate::description::Error,
     ctx: &ErrorTranslationContext,
 ) -> Result<ErrorDescription, ModelBuildingError> {
-    let crate::error_database::Error {
+    let crate::description::Error {
         name,
         code,
         message,
@@ -246,7 +246,7 @@ fn fetch_named_component<'a>(
     ctx: &'a ComponentTranslationContext<'a>,
 ) -> Result<ComponentDescription, TakeFromError> {
     let error_base = load(address)?;
-    let component: crate::error_database::Component = match error_base {
+    let component: crate::description::Component = match error_base {
         ErrorBasePart::Root(root) => {
             root.get_component(&ctx.domain.name, name)
                 .cloned()
@@ -279,10 +279,10 @@ fn fetch_named_component<'a>(
     translate_component(&component, ctx).map_err(Into::<TakeFromError>::into)
 }
 fn translate_component<'a>(
-    component: &crate::error_database::Component,
+    component: &crate::description::Component,
     ctx: &'a ComponentTranslationContext<'a>,
 ) -> Result<ComponentDescription, ModelBuildingError> {
-    let crate::error_database::Component {
+    let crate::description::Component {
         component_name,
         component_code,
         identifier_encoding,
@@ -329,10 +329,10 @@ fn translate_component<'a>(
 }
 
 fn translate_domain<'a>(
-    value: &crate::error_database::Domain,
+    value: &crate::description::Domain,
     ctx: &'a DomainTranslationContext<'a>,
 ) -> Result<DomainDescription, ModelBuildingError> {
-    let crate::error_database::Domain {
+    let crate::description::Domain {
         domain_name,
         domain_code,
         identifier_encoding,

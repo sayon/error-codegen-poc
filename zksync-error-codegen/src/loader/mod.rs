@@ -14,9 +14,9 @@ pub mod link;
 pub mod builder;
 
 pub enum ErrorBasePart {
-    Root(crate::error_database::Root),
-    Domain(crate::error_database::Domain),
-    Component(crate::error_database::Component),
+    Root(crate::description::Root),
+    Domain(crate::description::Domain),
+    Component(crate::description::Component),
 }
 
 #[derive(Clone, Debug)]
@@ -83,21 +83,21 @@ pub fn load(link: impl Into<String>) -> Result<ErrorBasePart, LoadError> {
 }
 
 pub fn load_resolved(contents: &str) -> Result<ErrorBasePart, LoadError> {
-    match serde_json::from_str::<crate::error_database::Component>(contents)
-        .or(toml::from_str::<crate::error_database::Component>(contents))
+    match serde_json::from_str::<crate::description::Component>(contents)
+        .or(toml::from_str::<crate::description::Component>(contents))
     {
         Ok(contents) => Ok(ErrorBasePart::Component(contents)),
 
         Err(e) => {
             eprintln!("Error: {e}");
-            match serde_json::from_str::<crate::error_database::Domain>(contents)
-                .or(toml::from_str::<crate::error_database::Domain>(contents))
+            match serde_json::from_str::<crate::description::Domain>(contents)
+                .or(toml::from_str::<crate::description::Domain>(contents))
             {
                 Ok(contents) => Ok(ErrorBasePart::Domain(contents)),
                 Err(e) => {
                     eprintln!("Error: {e}");
-                    match serde_json::from_str::<crate::error_database::Root>(contents)
-                        .or(toml::from_str::<crate::error_database::Root>(contents))
+                    match serde_json::from_str::<crate::description::Root>(contents)
+                        .or(toml::from_str::<crate::description::Root>(contents))
                     {
                         Ok(contents) => Ok(ErrorBasePart::Root(contents)),
                         Err(error) => Err(LoadError::FileFormatError(FileFormatError::ParseError(

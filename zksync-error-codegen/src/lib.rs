@@ -1,7 +1,7 @@
 pub mod arguments;
 pub mod codegen;
 pub mod error;
-pub mod error_database;
+pub mod description;
 pub mod loader;
 
 use std::io::Write as _;

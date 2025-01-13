@@ -33,7 +33,7 @@ pub struct DomainMetadata {
     pub description: String,
 }
 #[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
-pub struct FlatModel {
+pub struct UnpackedModel {
     pub types: HashMap<TypeName, TypeDescription>,
     pub domains: HashMap<DomainName, DomainMetadata>,
     pub components: HashMap<ComponentName, ComponentMetadata>,
@@ -243,9 +243,9 @@ fn translate_type(typ: &crate::inner::TypeDescription) -> TypeDescription {
         bindings: new_bindings,
     }
 }
-pub fn flatten(model: &Model) -> FlatModel {
+pub fn flatten(model: &Model) -> UnpackedModel {
     let Model { types, domains } = model;
-    let mut result = FlatModel::default();
+    let mut result = UnpackedModel::default();
     for (name, typ) in types {
         result.types.insert(name.clone(), translate_type(typ));
     }

@@ -12,7 +12,7 @@ use super::Backend;
 use super::File;
 
 use zksync_error_model::unpacked::flatten;
-use zksync_error_model::unpacked::FlatModel;
+use zksync_error_model::unpacked::UnpackedModel;
 use zksync_error_model::inner::Model;
 use include_dir::include_dir;
 
@@ -97,7 +97,7 @@ impl MDBookBackend {
     fn generate_summary(
         &mut self,
         tera: &Tera,
-        model: &FlatModel,
+        model: &UnpackedModel,
         _config: &MDBookBackendConfig,
     ) -> Result<File, GenerationError> {
         let mut context = tera::Context::new();
@@ -116,7 +116,7 @@ impl MDBookBackend {
         &mut self,
         tera: &Tera,
         component: &zksync_error_model::unpacked::ComponentMetadata,
-        model: &FlatModel,
+        model: &UnpackedModel,
         _config: &MDBookBackendConfig,
     ) -> Result<File, GenerationError> {
         let mut context = tera::Context::new();
@@ -138,7 +138,7 @@ impl MDBookBackend {
         &mut self,
         tera: &Tera,
         domain: &zksync_error_model::unpacked::DomainMetadata,
-        model: &FlatModel,
+        model: &UnpackedModel,
         _config: &MDBookBackendConfig,
     ) -> Result<File, GenerationError> {
         let mut context = tera::Context::new();
@@ -160,7 +160,7 @@ impl MDBookBackend {
         domain: &zksync_error_model::unpacked::DomainMetadata,
         component: &zksync_error_model::unpacked::ComponentMetadata,
         error: &zksync_error_model::unpacked::ErrorDescription,
-        model: &FlatModel,
+        model: &UnpackedModel,
         _config: &MDBookBackendConfig,
     ) -> Result<File, GenerationError> {
         let mut context = tera::Context::new();

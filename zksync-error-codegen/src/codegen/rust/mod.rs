@@ -56,8 +56,7 @@ serde = {{ version = "1.0.210", features = [ "derive", "rc" ] }}
 serde_json = {{ version = "1.0.128" }}
 strum = "0.26.3"
 strum_macros = "0.26.4"
-zksync-error-model = {{ path = "../error-codegen-poc" }}
-#zksync-error-model = {{ git = "{}", branch = "main" }}" }}
+zksync-error-model = {{ git = "{}", branch = "cargo-dep-control" }}
 "#,
 RustBackend::SHARED_MODEL_CRATE_URL
                 ).into(),

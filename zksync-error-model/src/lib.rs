@@ -4,5 +4,3 @@ pub mod inner;
 pub mod unpacked;
 pub mod identifier;
 pub mod validator;
-
-pub use unpacked::UnpackedModel as ErrorModel;

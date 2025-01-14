@@ -2296,6 +2296,7 @@ dependencies = [
  "serde_json",
  "tera",
  "toml",
+ "zksync-error-description",
  "zksync-error-model",
 ]
 
@@ -2307,6 +2308,15 @@ dependencies = [
  "serde_json",
  "structopt",
  "zksync-error-codegen",
+]
+
+[[package]]
+name = "zksync-error-description"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "zksync-error-model",
 ]
 
 [[package]]

@@ -12,14 +12,14 @@ impl RustBackend {
         gen.push_line(
             r#"
 use lazy_static::lazy_static;
-use zksync_error_model::ErrorModel;
+use zksync_error_description::ErrorHierarchy;
 
 lazy_static! {
-   pub static ref model : ErrorModel = get_model();
+   pub static ref model : ErrorHierarchy = get_model();
 }
 
 
-fn get_model() -> ErrorModel {
+fn get_model() -> ErrorHierarchy {
     let serialized_model = include_str!("../resources/model.json");
     serde_json::from_str(serialized_model).expect("Always valid")
 

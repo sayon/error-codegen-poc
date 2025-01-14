@@ -16,7 +16,7 @@ impl RustBackend {
         result.push_line(&format!(
             r#"
 #[repr(i32)]
-#[derive(Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(AsRefStr, Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
 #[strum_discriminants(name({error_name}Code))]
 #[strum_discriminants(vis(pub))]
 #[non_exhaustive]
@@ -82,6 +82,7 @@ impl From<{error_name}> for crate::serialized::SerializedError {{
 #![allow(unused)]
 
 use crate::error::CustomErrorMessage;
+use strum_macros::AsRefStr;
 use strum_macros::EnumDiscriminants;
 "#,
         );

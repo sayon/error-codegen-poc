@@ -6,6 +6,7 @@ use std::path::PathBuf;
 
 use config::RustBackendConfig;
 use error::GenerationError;
+use zksync_error_model::unpacked::UnpackedModel;
 
 use crate::codegen::printer::PrettyPrinter;
 use zksync_error_model::error::ModelError;
@@ -31,7 +32,7 @@ impl Backend<RustBackendConfig> for RustBackend {
     }
 
     fn generate(&mut self, _config: &RustBackendConfig) -> Result<Vec<File>, Self::Error> {
-        let vec = vec![
+        Ok(vec![
             self.generate_file_error_definitions()?,
             self.generate_file_error_domains()?,
             self.generate_file_documentation()?,
@@ -52,7 +53,7 @@ edition = "2021"
 [lib]
 
 [features]
-documentation = []
+documentation = [ "dep:zksync-error-description" ]
 
 [dependencies]
 lazy_static = "1.5.0"
@@ -60,18 +61,20 @@ serde = {{ version = "1.0.210", features = [ "derive", "rc" ] }}
 serde_json = {{ version = "1.0.128" }}
 strum = "0.26.3"
 strum_macros = "0.26.4"
-zksync-error-model = {{ git = "{}", branch = "cargo-dep-control" }}
+zksync-error-description = {{ git = "{}", branch = "cargo-dep-control", optional = true }}
 "#,
 RustBackend::SHARED_MODEL_CRATE_URL
                 ).into(),
             },
             File {
                 relative_path: "resources/model.json".into(),
-                content: serde_json::to_string_pretty(&zksync_error_model::unpacked::flatten(&self.model))?,
+                content: {
+                    let unpacked : UnpackedModel = zksync_error_model::unpacked::flatten(&self.model);
+                    let user_facing_model: zksync_error_description::ErrorHierarchy = unpacked.into();
+                    serde_json::to_string_pretty(&user_facing_model)?
+                },
             }
-        ];
-        let vec = vec;
-        Ok(vec)
+        ])
     }
 
     fn get_language_name() -> &'static str {

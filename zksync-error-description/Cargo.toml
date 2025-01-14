@@ -1,0 +1,19 @@
+[package]
+name = "zksync-error-description"
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+
+
+serde = { version = "1.0.210", features = [ "derive", "rc" ] }
+serde_json = { version = "1.0.128" }
+
+
+zksync-error-model = { path = "../zksync-error-model", optional = true }
+
+
+[features]
+with_adapter = [ "dep:zksync-error-model" ]

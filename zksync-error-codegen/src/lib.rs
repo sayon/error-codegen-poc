@@ -1,7 +1,7 @@
 pub mod arguments;
 pub mod codegen;
-pub mod error;
 pub mod description;
+pub mod error;
 pub mod loader;
 
 use std::io::Write as _;
@@ -20,11 +20,11 @@ use crate::codegen::mdbook::MDBookBackend;
 use crate::codegen::rust::config::RustBackendConfig;
 use crate::codegen::rust::RustBackend;
 use crate::codegen::Backend as _;
+use crate::loader::builder::{translate_model, ModelTranslationContext};
 use crate::loader::error::FileFormatError;
 use crate::loader::error::LoadError;
 use crate::loader::load;
 use crate::loader::ErrorBasePart;
-use crate::loader::builder::{translate_model, ModelTranslationContext};
 use zksync_error_model::validator::validate;
 
 pub fn default_load_and_generate(root_error_package_name: &str) {

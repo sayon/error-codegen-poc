@@ -45,7 +45,8 @@ impl Backend<RustBackendConfig> for RustBackend {
             self.generate_file_untyped()?,
             File {
                 relative_path: PathBuf::from("Cargo.toml"),
-                content: format!(r#"
+                content: format!(
+                    r#"
 [package]
 name = "zksync_error"
 version = "0.1.0"
@@ -63,17 +64,19 @@ strum = "0.26.3"
 strum_macros = "0.26.4"
 zksync-error-description = {{ git = "{}", branch = "cargo-dep-control", optional = true }}
 "#,
-RustBackend::SHARED_MODEL_CRATE_URL
-                ).into(),
+                    RustBackend::SHARED_MODEL_CRATE_URL
+                ),
             },
             File {
                 relative_path: "resources/model.json".into(),
                 content: {
-                    let unpacked : UnpackedModel = zksync_error_model::unpacked::flatten(&self.model);
-                    let user_facing_model: zksync_error_description::ErrorHierarchy = unpacked.into();
+                    let unpacked: UnpackedModel =
+                        zksync_error_model::unpacked::flatten(&self.model);
+                    let user_facing_model: zksync_error_description::ErrorHierarchy =
+                        unpacked.into();
                     serde_json::to_string_pretty(&user_facing_model)?
                 },
-            }
+            },
         ])
     }
 
@@ -83,8 +86,7 @@ RustBackend::SHARED_MODEL_CRATE_URL
 }
 
 impl RustBackend {
-
-    pub const SHARED_MODEL_CRATE_URL : &str = r"https://github.com/sayon/error-codegen-poc";
+    pub const SHARED_MODEL_CRATE_URL: &str = r"https://github.com/sayon/error-codegen-poc";
 
     pub fn new(model: &Model) -> Self {
         Self {

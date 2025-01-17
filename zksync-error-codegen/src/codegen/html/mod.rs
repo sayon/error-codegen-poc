@@ -11,10 +11,10 @@ use tera::Tera;
 use super::Backend;
 use super::File;
 
+use include_dir::include_dir;
+use zksync_error_model::inner::Model;
 use zksync_error_model::unpacked::flatten;
 use zksync_error_model::unpacked::UnpackedModel;
-use zksync_error_model::inner::Model;
-use include_dir::include_dir;
 
 pub struct HtmlBackend {
     model: UnpackedModel,

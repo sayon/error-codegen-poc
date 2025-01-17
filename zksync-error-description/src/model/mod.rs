@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-
 pub type LanguageName = String;
 pub type TypeName = String;
 pub type FieldName = String;

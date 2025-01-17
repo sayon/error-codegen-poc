@@ -1,25 +1,27 @@
-use zksync_error_model::unpacked as inner;
 use crate::model;
+use zksync_error_model::unpacked as inner;
 
-impl Into<model::TargetLanguageType> for inner::TargetLanguageType
-{
-    fn into(self) -> model::TargetLanguageType {
-        let inner::TargetLanguageType{ name, path } = self;
+impl From<inner::TargetLanguageType> for model::TargetLanguageType {
+    fn from(val: inner::TargetLanguageType) -> Self {
+        let inner::TargetLanguageType { name, path } = val;
         model::TargetLanguageType { name, path }
-
     }
 }
 
-impl Into<model::TypeMetadata> for inner::TypeMetadata {
-    fn into(self) -> model::TypeMetadata {
-        let inner::TypeMetadata { description } = self;
+impl From<inner::TypeMetadata> for model::TypeMetadata {
+    fn from(val: inner::TypeMetadata) -> Self {
+        let inner::TypeMetadata { description } = val;
         model::TypeMetadata { description }
     }
 }
 
-impl Into<model::TypeDescription> for inner::TypeDescription {
-    fn into(self) -> model::TypeDescription {
-        let inner::TypeDescription { name, meta, bindings } = self;
+impl From<inner::TypeDescription> for model::TypeDescription {
+    fn from(val: inner::TypeDescription) -> Self {
+        let inner::TypeDescription {
+            name,
+            meta,
+            bindings,
+        } = val;
         model::TypeDescription {
             name,
             meta: meta.into(),
@@ -28,9 +30,16 @@ impl Into<model::TypeDescription> for inner::TypeDescription {
     }
 }
 
-impl Into<model::DomainMetadata> for inner::DomainMetadata {
-    fn into(self) -> model::DomainMetadata {
-        let inner::DomainMetadata { name, code, components, bindings, identifier, description } = self;
+impl From<inner::DomainMetadata> for model::DomainMetadata {
+    fn from(val: inner::DomainMetadata) -> Self {
+        let inner::DomainMetadata {
+            name,
+            code,
+            components,
+            bindings,
+            identifier,
+            description,
+        } = val;
         model::DomainMetadata {
             name,
             code,
@@ -42,9 +51,14 @@ impl Into<model::DomainMetadata> for inner::DomainMetadata {
     }
 }
 
-impl Into<model::ErrorHierarchy> for inner::UnpackedModel {
-    fn into(self) -> model::ErrorHierarchy {
-       let inner::UnpackedModel { types, domains, components, errors } = self;
+impl From<inner::UnpackedModel> for model::ErrorHierarchy {
+    fn from(val: inner::UnpackedModel) -> Self {
+        let inner::UnpackedModel {
+            types,
+            domains,
+            components,
+            errors,
+        } = val;
         model::ErrorHierarchy {
             types: types.into_iter().map(|(k, v)| (k, v.into())).collect(),
             domains: domains.into_iter().map(|(k, v)| (k, v.into())).collect(),
@@ -54,9 +68,16 @@ impl Into<model::ErrorHierarchy> for inner::UnpackedModel {
     }
 }
 
-impl Into<model::ComponentMetadata> for inner::ComponentMetadata {
-    fn into(self) -> model::ComponentMetadata {
-        let inner::ComponentMetadata { name, code, domain_name, bindings, identifier, description } = self;
+impl From<inner::ComponentMetadata> for model::ComponentMetadata {
+    fn from(val: inner::ComponentMetadata) -> Self {
+        let inner::ComponentMetadata {
+            name,
+            code,
+            domain_name,
+            bindings,
+            identifier,
+            description,
+        } = val;
         model::ComponentMetadata {
             name,
             code,
@@ -68,9 +89,19 @@ impl Into<model::ComponentMetadata> for inner::ComponentMetadata {
     }
 }
 
-impl Into<model::ErrorDescription>for inner::ErrorDescription {
-    fn into(self) -> model::ErrorDescription {
-        let inner::ErrorDescription { domain, component, name, code, identifier, message, fields, documentation, bindings } = self;
+impl From<inner::ErrorDescription> for model::ErrorDescription {
+    fn from(val: inner::ErrorDescription) -> Self {
+        let inner::ErrorDescription {
+            domain,
+            component,
+            name,
+            code,
+            identifier,
+            message,
+            fields,
+            documentation,
+            bindings,
+        } = val;
         model::ErrorDescription {
             domain,
             component,
@@ -85,16 +116,20 @@ impl Into<model::ErrorDescription>for inner::ErrorDescription {
     }
 }
 
-impl Into<model::FieldDescription> for inner::FieldDescription {
-    fn into(self) -> model::FieldDescription {
-        let inner::FieldDescription { name, r#type } = self;
+impl From<inner::FieldDescription> for model::FieldDescription {
+    fn from(val: inner::FieldDescription) -> Self {
+        let inner::FieldDescription { name, r#type } = val;
         model::FieldDescription { name, r#type }
     }
 }
 
-impl Into<model::ErrorDocumentation> for inner::ErrorDocumentation {
-    fn into(self) -> model::ErrorDocumentation {
-        let inner::ErrorDocumentation { description, short_description, likely_causes } = self;
+impl From<inner::ErrorDocumentation> for model::ErrorDocumentation {
+    fn from(val: inner::ErrorDocumentation) -> Self {
+        let inner::ErrorDocumentation {
+            description,
+            short_description,
+            likely_causes,
+        } = val;
         model::ErrorDocumentation {
             description,
             short_description,
@@ -103,9 +138,15 @@ impl Into<model::ErrorDocumentation> for inner::ErrorDocumentation {
     }
 }
 
-impl Into<model::LikelyCause> for inner::LikelyCause {
-    fn into(self) -> model::LikelyCause {
-        let inner::LikelyCause { cause, fixes, report, owner, references } = self;
+impl From<inner::LikelyCause> for model::LikelyCause {
+    fn from(val: inner::LikelyCause) -> Self {
+        let inner::LikelyCause {
+            cause,
+            fixes,
+            report,
+            owner,
+            references,
+        } = val;
         model::LikelyCause {
             cause,
             fixes,
@@ -116,9 +157,9 @@ impl Into<model::LikelyCause> for inner::LikelyCause {
     }
 }
 
-impl Into<model::VersionedOwner> for inner::VersionedOwner {
-    fn into(self) -> model::VersionedOwner {
-        let inner::VersionedOwner { name, version } = self;
+impl From<inner::VersionedOwner> for model::VersionedOwner {
+    fn from(val: inner::VersionedOwner) -> Self {
+        let inner::VersionedOwner { name, version } = val;
         model::VersionedOwner { name, version }
     }
 }

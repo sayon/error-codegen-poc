@@ -7,11 +7,11 @@ use link::Link;
 use link::{link_matches, parse_link};
 use std::path::PathBuf;
 
+pub mod builder;
 pub mod cargo;
 pub mod error;
 pub mod fetch;
 pub mod link;
-pub mod builder;
 
 pub enum ErrorBasePart {
     Root(crate::description::Root),
@@ -90,9 +90,11 @@ pub fn load_resolved(contents: &str) -> Result<ErrorBasePart, LoadError> {
 
         Err(e) => {
             eprintln!("Error: {e}");
-            match serde_json::from_str::<crate::description::Domain>(contents)
-                .or(toml::from_str::<crate::description::Domain>(contents))
-            {
+            match serde_json::from_str::<crate::description::Domain>(contents).or(toml::from_str::<
+                crate::description::Domain,
+            >(
+                contents
+            )) {
                 Ok(contents) => Ok(ErrorBasePart::Domain(contents)),
                 Err(e) => {
                     eprintln!("Error: {e}");

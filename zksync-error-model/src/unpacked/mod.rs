@@ -1,9 +1,9 @@
-use std::collections::HashMap;
 use crate::identifier::ErrorIdentifier;
 use crate::inner::{
-    ComponentCode, ComponentName, DomainCode, DomainName, ErrorCode,
-    ErrorMessageTemplate, ErrorName, FieldName, LanguageName, Model, Semver, TypeName,
+    ComponentCode, ComponentName, DomainCode, DomainName, ErrorCode, ErrorMessageTemplate,
+    ErrorName, FieldName, LanguageName, Model, Semver, TypeName,
 };
+use std::collections::HashMap;
 
 type ErrorIdentifierRepr = String;
 

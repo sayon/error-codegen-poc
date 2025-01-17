@@ -11,7 +11,6 @@ use maplit::hashmap;
 use crate::loader::load;
 use crate::loader::ErrorBasePart;
 
-use zksync_error_model::merger::Merge as _;
 use zksync_error_model::inner::ComponentDescription;
 use zksync_error_model::inner::ComponentMetadata;
 use zksync_error_model::inner::DomainDescription;
@@ -28,6 +27,7 @@ use zksync_error_model::inner::TypeBindings;
 use zksync_error_model::inner::TypeDescription;
 use zksync_error_model::inner::TypeMetadata;
 use zksync_error_model::inner::VersionedOwner;
+use zksync_error_model::merger::Merge as _;
 
 pub struct ModelTranslationContext<'a> {
     pub origin: &'a str,

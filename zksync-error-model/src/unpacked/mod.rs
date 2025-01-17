@@ -5,6 +5,8 @@ use crate::inner::{
     ErrorMessageTemplate, ErrorName, FieldName, LanguageName, Model, Semver, TypeName,
 };
 
+type ErrorIdentifierRepr = String;
+
 #[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct TargetLanguageType {
     pub name: String,
@@ -32,12 +34,13 @@ pub struct DomainMetadata {
     pub identifier: String,
     pub description: String,
 }
+
 #[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct UnpackedModel {
     pub types: HashMap<TypeName, TypeDescription>,
     pub domains: HashMap<DomainName, DomainMetadata>,
     pub components: HashMap<ComponentName, ComponentMetadata>,
-    pub errors: HashMap<ErrorName, ErrorDescription>,
+    pub errors: HashMap<ErrorIdentifierRepr, ErrorDescription>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
@@ -268,7 +271,7 @@ pub fn flatten(model: &Model) -> UnpackedModel {
                 component
                     .errors
                     .iter()
-                    .map(|e| (e.name.to_string(), translate_error(e))),
+                    .map(|e| (e.get_identifier().to_string(), translate_error(e))),
             )
         }
     }

@@ -7,6 +7,7 @@ pub type FieldName = String;
 pub type ComponentName = String;
 pub type DomainName = String;
 pub type ErrorName = String;
+pub type ErrorIdentifierRepr = String;
 pub type ErrorCode = u32;
 pub type ComponentCode = u32;
 pub type DomainCode = u32;
@@ -50,7 +51,7 @@ pub struct ErrorHierarchy {
     pub types: HashMap<TypeName, TypeDescription>,
     pub domains: HashMap<DomainName, DomainMetadata>,
     pub components: HashMap<ComponentName, ComponentMetadata>,
-    pub errors: HashMap<ErrorName, ErrorDescription>,
+    pub errors: HashMap<ErrorIdentifierRepr, ErrorDescription>,
 }
 
 #[non_exhaustive]

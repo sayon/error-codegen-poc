@@ -13,7 +13,7 @@ impl RustBackend {
             r#"
 use crate::{
     error::{IError, IUnifiedError},
-    identifier::Identifier,
+    identifier::{Identifier, StructuredErrorCode},
     kind::Kind,
     packed::PackedError,
     untyped::UntypedErrorObject,
@@ -21,7 +21,7 @@ use crate::{
 use std::error::Error;
 use std::fmt::Debug;
 
-pub type ErrorCode = i32;
+pub type ErrorCode = u32;
 
 #[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct SerializedError {
@@ -76,7 +76,7 @@ where
 
 pub fn unpack_untyped(se: &SerializedError) -> Result<UntypedErrorObject, serde_json::Error> {
     //FIXME unhandled errors
-    let identifier = Identifier::decode(se.code).unwrap();
+    let identifier = Identifier::decode(StructuredErrorCode::decode(se.code)).unwrap();
     let skip_domain = se.data.as_object().unwrap().values().nth(0).unwrap();
     let skip_subdomain = skip_domain.as_object().unwrap().values().nth(0).unwrap();
     let (name, value) = skip_subdomain.as_object().unwrap().iter().nth(0).unwrap();
@@ -101,7 +101,7 @@ impl Error for SerializedError {}
 impl IError<UntypedErrorObject> for SerializedError {
     fn get_identifier(&self) -> Identifier {
         //FIXME
-        Identifier::decode(self.code).unwrap()
+        Identifier::decode(StructuredErrorCode::decode(self.code)).unwrap()
     }
 
     fn get_message(&self) -> String {

@@ -74,7 +74,7 @@ pub struct ErrorDescription {
     pub identifier: String,
     pub message: ErrorMessageTemplate,
     pub fields: Vec<FieldDescription>,
-    pub documentation: ErrorDocumentation,
+    pub documentation: Option<ErrorDocumentation>,
     pub bindings: HashMap<LanguageName, TargetLanguageType>,
 }
 

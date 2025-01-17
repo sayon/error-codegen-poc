@@ -15,10 +15,11 @@ impl RustBackend {
         let mut result = PrettyPrinter::default();
         result.push_line(&format!(
             r#"
-#[repr(i32)]
+#[repr(u32)]
 #[derive(AsRefStr, Clone, Debug, Eq, EnumDiscriminants, PartialEq, serde::Serialize, serde::Deserialize)]
 #[strum_discriminants(name({error_name}Code))]
 #[strum_discriminants(vis(pub))]
+#[strum_discriminants(derive(AsRefStr, FromRepr))]
 #[non_exhaustive]
 pub enum {error_name} {{"#
         ));
@@ -33,6 +34,28 @@ pub enum {error_name} {{"#
         ));
         result.indentation.decrease();
 
+        result.push_line(&format!(
+            r#"
+impl NamedError for {error_name} {{
+    fn get_error_name(&self) -> String {{
+        self.as_ref().to_owned()
+    }}
+}}
+impl NamedError for {error_name}Code {{
+    fn get_error_name(&self) -> String {{
+        self.as_ref().to_owned()
+    }}
+}}
+
+impl Documented for {error_name} {{
+    type Documentation = &'static zksync_error_description::ErrorDocumentation;
+
+    fn get_documentation(&self) -> Result<Option<Self::Documentation>, crate::documentation::DocumentationError> {{
+        self.to_unified().get_identifier().get_documentation()
+    }}
+}}
+"#
+        ));
         result.push_line(&format!(
             r#"
 impl CustomErrorMessage for {error_name} {{
@@ -81,9 +104,14 @@ impl From<{error_name}> for crate::serialized::SerializedError {{
 
 #![allow(unused)]
 
+use crate::documentation::Documented;
 use crate::error::CustomErrorMessage;
+use crate::error::NamedError;
+use crate::error::ICustomError as _;
+use crate::error::IError as _;
 use strum_macros::AsRefStr;
 use strum_macros::EnumDiscriminants;
+use strum_macros::FromRepr;
 "#,
         );
 

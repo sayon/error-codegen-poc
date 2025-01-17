@@ -57,6 +57,10 @@ pub trait CustomErrorMessage {
     fn get_message(&self) -> String;
 }
 
+pub trait NamedError {
+    fn get_error_name(&self) -> String;
+}
+
 impl IError<ZksyncError> for ZksyncError {
     fn get_identifier(&self) -> Identifier {
         Identifier {

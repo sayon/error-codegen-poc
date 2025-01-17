@@ -62,7 +62,7 @@ pub struct ErrorDescription {
     pub identifier: String,
     pub message: ErrorMessageTemplate,
     pub fields: Vec<FieldDescription>,
-    pub documentation: ErrorDocumentation,
+    pub documentation: Option<ErrorDocumentation>,
     pub bindings: HashMap<LanguageName, TargetLanguageType>,
 }
 
@@ -179,8 +179,7 @@ fn translate_error(meta: &crate::inner::ErrorDescription) -> ErrorDescription {
         fields: fields.iter().map(translate_field).collect(),
         documentation: documentation
             .clone()
-            .map(|d| translate_documentation(&d))
-            .unwrap_or_default(),
+            .map(|d| translate_documentation(&d)),
         bindings: new_bindings,
     }
 }

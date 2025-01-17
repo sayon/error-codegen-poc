@@ -28,7 +28,7 @@ use strum_macros::{EnumDiscriminants, FromRepr};
 #[strum_discriminants(name(DomainCode))]
 #[strum_discriminants(derive(FromRepr))]
 #[strum_discriminants(vis(pub))]
-#[repr(i32)]
+#[repr(u32)]
 pub enum Kind {"#,
         );
         gen.indent_more();
@@ -50,11 +50,11 @@ pub enum Kind {"#,
             r#"}
 
 impl Kind {
-    pub fn domain_code(&self) -> i32 {
+    pub fn domain_code(&self) -> u32 {
         let domain: DomainCode = self.clone().into();
-        domain as i32
+        domain as u32
     }
-    pub fn component_code(&self) -> i32 {
+    pub fn component_code(&self) -> u32 {
         match self {"#,
         );
 
@@ -63,7 +63,7 @@ impl Kind {
         for domain_description in domains() {
             let domain = Self::domain_type_name(domain_description)?;
             gen.push_line(&format!(
-                "Kind::{domain}(component) => component.clone() as i32,"
+                "Kind::{domain}(component) => component.clone() as u32,"
             ));
         }
         gen.indent_less_by(3);

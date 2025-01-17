@@ -17,6 +17,7 @@ impl RustBackend {
 use crate::error::ICustomError;
 use crate::error::IUnifiedError;
 use crate::kind::Kind;
+use strum_macros::AsRefStr;
 use strum_macros::EnumDiscriminants;
 use strum_macros::FromRepr;
 ",
@@ -42,8 +43,8 @@ use strum_macros::FromRepr;
 
         gen.push_line(
             r#"
-#[repr(i32)]
-#[derive(Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[repr(u32)]
+#[derive(AsRefStr, Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum ZksyncError {"#,
         );
 
@@ -61,6 +62,7 @@ pub enum ZksyncError {"#,
         gen.push_line(
             r#"
 impl ZksyncError {
+
     pub fn get_kind(&self) -> crate::kind::Kind {
         match self {"#,
         );
@@ -87,7 +89,7 @@ impl ZksyncError {
 
         gen.push_line(
             r#"
-    pub fn get_code(&self) -> i32 {
+    pub fn get_code(&self) -> u32 {
         match self {"#,
         );
 
@@ -97,7 +99,7 @@ impl ZksyncError {
                 let domain = Self::domain_type_name(domain_description)?;
                 let component = Self::component_type_name(component_description)?;
                 let component_code = Self::component_code_type_name(component_description)?;
-                gen.push_line(&format!("ZksyncError::{domain}({domain}::{component}(error)) => {{ Into::<{component_code}>::into(error) as i32 }},"));
+                gen.push_line(&format!("ZksyncError::{domain}({domain}::{component}(error)) => {{ Into::<{component_code}>::into(error) as u32 }},"));
             }
         }
         for _ in 0..3 {
@@ -151,8 +153,8 @@ impl ICustomError<ZksyncError, ZksyncError> for {component} {{
 
         gen.push_line(&format!(
             r#"
-#[repr(i32)]
-#[derive(Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[repr(u32)]
+#[derive(AsRefStr, Clone, Debug, EnumDiscriminants, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[strum_discriminants(name({domain_code}))]
 #[strum_discriminants(derive(serde::Serialize, serde::Deserialize, FromRepr))]
 #[strum_discriminants(vis(pub))]
@@ -166,7 +168,18 @@ pub enum {domain} {{"#
             gen.push_line(&format!("{component_name}({component_name}),"));
         }
         gen.indent_less();
-        gen.push_line("}\n");
+        gen.push_line("}");
+
+        gen.push_line(&format!(
+            r#"
+impl {domain} {{
+    pub fn get_name(&self) -> &str {{
+        self.as_ref()
+    }}
+}}
+
+"#
+        ));
 
         Ok(gen.get_buffer())
     }

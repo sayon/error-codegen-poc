@@ -110,7 +110,7 @@ impl From<inner::ErrorDescription> for model::ErrorDescription {
             identifier,
             message,
             fields: fields.into_iter().map(|f| f.into()).collect(),
-            documentation: documentation.into(),
+            documentation: documentation.map(|d|d.into()),
             bindings: bindings.into_iter().map(|(k, v)| (k, v.into())).collect(),
         }
     }

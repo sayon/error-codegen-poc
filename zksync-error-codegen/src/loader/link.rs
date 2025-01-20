@@ -46,7 +46,10 @@ pub fn parse_link(link: impl Into<String>) -> Result<Link, LinkError> {
         Some((prefix, _)) if Link::NETWORK_FORMAT_PREFIXES.contains(&prefix) => Ok(Link::URL {
             url: string.to_string(),
         }),
-        _ => Err(LinkError::InvalidLinkFormat(string)),
+        None => Ok(Link::FileLink { path: string }),
+        Some(_) => {
+            Err(LinkError::InvalidLinkFormat(string))
+        },
     }
 }
 

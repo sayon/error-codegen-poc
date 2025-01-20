@@ -11,6 +11,9 @@ use std::path::PathBuf;
 use arguments::Backend;
 use arguments::GenerationArguments;
 use error::ProgramError;
+use loader::builder::build_model;
+use loader::link::Link;
+use zksync_error_model::merger::Merge as _;
 
 use crate::codegen::file::File;
 use crate::codegen::html::config::HtmlBackendConfig;
@@ -20,7 +23,7 @@ use crate::codegen::mdbook::MDBookBackend;
 use crate::codegen::rust::config::RustBackendConfig;
 use crate::codegen::rust::RustBackend;
 use crate::codegen::Backend as _;
-use crate::loader::builder::{translate_model, ModelTranslationContext};
+use crate::loader::builder::ModelTranslationContext;
 use crate::loader::error::FileFormatError;
 use crate::loader::error::LoadError;
 use crate::loader::load;
@@ -35,6 +38,7 @@ pub fn default_load_and_generate(root_error_package_name: &str) {
             ("../zksync_error".into(), Backend::Rust),
             ("../doc-mdbook".into(), Backend::MDBook),
         ],
+        input_links: vec![],
     }) {
         eprintln!("{e:#?}")
     };
@@ -44,71 +48,50 @@ pub fn load_and_generate(arguments: GenerationArguments) -> Result<(), ProgramEr
         verbose,
         root_link,
         outputs,
+        input_links,
     } = &arguments;
     if *verbose {
         eprintln!("Reading config from \"{root_link}\"");
     }
-    match load(root_link)? {
-        ErrorBasePart::Domain(_) => Err(LoadError::FileFormatError(
-            FileFormatError::ExpectedFullGotDomain(root_link.to_string()),
-        )
-        .into()),
-        ErrorBasePart::Component(_) => Err(LoadError::FileFormatError(
-            FileFormatError::ExpectedFullGotComponent(root_link.to_string()),
-        )
-        .into()),
-        ErrorBasePart::Root(config) => {
-            if *verbose {
-                eprintln!("Successfully parsed config from \"{root_link}\":\n{config:#?}");
-                eprintln!("Building model...");
-            }
 
-            let model = translate_model(&config, ModelTranslationContext { origin: root_link })?;
-            if *verbose {
-                eprintln!("Model: {model:#?}");
-                eprintln!("Model validation...");
-            }
-            validate(&model).unwrap();
-            if *verbose {
-                eprintln!("Model validation successful.");
-            }
+    let additions : Result<Vec<_>,_>= input_links.into_iter().map(Link::parse).collect();
+    let model = build_model(&Link::parse(root_link)?, &additions?, *verbose)?;
 
-            for (output_directory, backend_type) in outputs {
-                if *verbose {
-                    eprintln!("Selected backend: {backend_type:?}. \nGenerating files...");
-                }
-                let result = match backend_type {
-                    arguments::Backend::DocHtml => {
-                        let mut backend = HtmlBackend::new(&model);
-                        backend.generate(&HtmlBackendConfig {})?
-                    }
-                    arguments::Backend::Rust => {
-                        let mut backend = RustBackend::new(&model);
-                        backend.generate(&RustBackendConfig {})?
-                    }
-                    arguments::Backend::MDBook => {
-                        let mut backend = MDBookBackend::new(&model);
-                        backend.generate(&MDBookBackendConfig)?
-                    }
-                };
-
-                if *verbose {
-                    eprintln!("Generation successful. Files: ");
-                    for file in &result {
-                        eprintln!("- {}", file.relative_path.to_str().unwrap());
-                    }
-                    eprintln!("Writing files to disk...");
-                }
-
-                create_files_in_result_directory(output_directory, result)?;
-                if *verbose {
-                    eprintln!("Writing successful.");
-                }
+    for (output_directory, backend_type) in outputs {
+        if *verbose {
+            eprintln!("Selected backend: {backend_type:?}. \nGenerating files...");
+        }
+        let result = match backend_type {
+            arguments::Backend::DocHtml => {
+                let mut backend = HtmlBackend::new(&model);
+                backend.generate(&HtmlBackendConfig {})?
             }
-            Ok(())
+            arguments::Backend::Rust => {
+                let mut backend = RustBackend::new(&model);
+                backend.generate(&RustBackendConfig {})?
+            }
+            arguments::Backend::MDBook => {
+                let mut backend = MDBookBackend::new(&model);
+                backend.generate(&MDBookBackendConfig)?
+            }
+        };
+
+        if *verbose {
+            eprintln!("Generation successful. Files: ");
+            for file in &result {
+                eprintln!("- {}", file.relative_path.to_str().unwrap());
+            }
+            eprintln!("Writing files to disk...");
+        }
+
+        create_files_in_result_directory(output_directory, result)?;
+        if *verbose {
+            eprintln!("Writing successful.");
         }
     }
+    Ok(())
 }
+
 fn create_files_in_result_directory(result_dir: &PathBuf, files: Vec<File>) -> std::io::Result<()> {
     let result_dir = Path::new(result_dir);
 

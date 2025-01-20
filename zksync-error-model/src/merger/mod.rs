@@ -123,8 +123,6 @@ impl Merge for ComponentDescription {
             ));
         }
         // merge_maps(&mut self.meta.bindings, &other.meta.bindings)?;
-        // self.meta.identifier.merge(&other.meta.identifier)?;
-        // self.meta.description.merge(&other.meta.description)?;
         for error in &other.errors {
             if let Some(existing_error) = self.errors.iter_mut().find(|e| e.code == error.code) {
                 existing_error.merge(error)?;

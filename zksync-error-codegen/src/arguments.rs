@@ -3,6 +3,7 @@ use std::path::PathBuf;
 pub struct GenerationArguments {
     pub verbose: bool,
     pub root_link: String,
+    pub input_links: Vec<String>,
     pub outputs: Vec<(PathBuf, Backend)>,
 }
 

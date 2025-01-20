@@ -52,6 +52,7 @@ pub struct Domain {
     pub identifier_encoding: Option<String>,
     pub description: Option<String>,
     pub components: Vec<Component>,
+    #[serde(default)]
     pub bindings: NameBindings,
 }
 

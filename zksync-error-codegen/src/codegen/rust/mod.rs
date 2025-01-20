@@ -9,7 +9,7 @@ use error::GenerationError;
 use zksync_error_model::unpacked::UnpackedModel;
 
 use crate::codegen::printer::PrettyPrinter;
-use zksync_error_model::error::ModelError;
+use zksync_error_model::error::ModelValidationError;
 use zksync_error_model::inner::ComponentDescription;
 use zksync_error_model::inner::DomainDescription;
 use zksync_error_model::inner::ErrorDescription;
@@ -167,7 +167,7 @@ impl RustBackend {
             .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelError::UnmappedName(component.meta.name.clone()))?;
+            .ok_or(ModelValidationError::UnmappedName(component.meta.name.clone()))?;
 
         Ok(name.to_string())
     }
@@ -178,7 +178,7 @@ impl RustBackend {
             .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelError::UnmappedName(component.meta.name.clone()))?;
+            .ok_or(ModelValidationError::UnmappedName(component.meta.name.clone()))?;
 
         Ok(format!("{name}Code"))
     }
@@ -188,7 +188,7 @@ impl RustBackend {
             .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelError::UnmappedName(domain.meta.name.clone()))?;
+            .ok_or(ModelValidationError::UnmappedName(domain.meta.name.clone()))?;
 
         Ok(name.to_string())
     }
@@ -198,7 +198,7 @@ impl RustBackend {
             .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelError::UnmappedName(domain.meta.name.clone()))?;
+            .ok_or(ModelValidationError::UnmappedName(domain.meta.name.clone()))?;
 
         Ok(format!("{name}Code"))
     }

@@ -7,6 +7,7 @@ use error::MissingComponent;
 use error::ModelBuildingError;
 use error::TakeFromError;
 use maplit::hashmap;
+use zksync_error_model::validator::validate;
 
 use crate::loader::load;
 use crate::loader::ErrorBasePart;
@@ -29,15 +30,19 @@ use zksync_error_model::inner::TypeMetadata;
 use zksync_error_model::inner::VersionedOwner;
 use zksync_error_model::merger::Merge as _;
 
-pub struct ModelTranslationContext<'a> {
-    pub origin: &'a str,
+use super::error::FileFormatError;
+use super::error::LoadError;
+use super::link::Link;
+
+pub struct ModelTranslationContext {
+    pub origin: Link,
 }
 struct TypeTranslationContext<'a> {
     pub type_name: &'a str,
-    pub parent: &'a ModelTranslationContext<'a>,
+    pub parent: &'a ModelTranslationContext,
 }
 struct DomainTranslationContext<'a> {
-    pub parent: &'a ModelTranslationContext<'a>,
+    pub parent: &'a ModelTranslationContext,
 }
 
 struct ComponentTranslationContext<'a> {
@@ -126,9 +131,9 @@ fn translate_type(
     })
 }
 
-pub fn translate_model(
+fn translate_model(
     model: &crate::description::Root,
-    ctx: ModelTranslationContext<'_>,
+    ctx: ModelTranslationContext,
 ) -> Result<Model, ModelBuildingError> {
     let mut result = Model::default();
     let crate::description::Root { types, domains } = model;
@@ -245,7 +250,7 @@ fn fetch_named_component<'a>(
     name: &str,
     ctx: &'a ComponentTranslationContext<'a>,
 ) -> Result<ComponentDescription, TakeFromError> {
-    let error_base = load(address)?;
+    let error_base = load(&Link::parse(address)?)?;
     let component: crate::description::Component = match error_base {
         ErrorBasePart::Root(root) => {
             root.get_component(&ctx.domain.name, name)
@@ -364,4 +369,46 @@ fn translate_domain<'a>(
         meta: metadata,
         components: new_components,
     })
+}
+
+fn load_root_model(root_link: &Link) -> Result<Model, LoadError> {
+    match load(root_link)? {
+        ErrorBasePart::Domain(_) => Err(LoadError::from(LoadError::FileFormatError(
+            FileFormatError::ExpectedFullGotDomain(root_link.to_string()),
+        ))),
+        ErrorBasePart::Component(_) => Err(LoadError::FileFormatError(
+            FileFormatError::ExpectedFullGotComponent(root_link.to_string()),
+        )
+        .into()),
+        ErrorBasePart::Root(root) => {
+            Ok(translate_model(&root, ModelTranslationContext { origin: root_link.clone() })?)
+        }
+    }
+}
+
+pub fn build_model(
+    root_link: &Link,
+    additions: &Vec<Link>,
+    diagnostic: bool,
+) -> Result<Model, ModelBuildingError> {
+    let mut root_model = load_root_model(&root_link)?;
+
+    for input_link in additions {
+        let part = load_root_model(input_link)?;
+        root_model
+            .merge(&part)
+            .map_err(|error| ModelBuildingError::MergeError {
+                merge_error: error,
+                main_model_origin: root_link.clone(),
+                additional_model_origin: input_link.clone(),
+            })?
+    }
+
+    if diagnostic {
+        eprintln!("Model: {root_model:#?}");
+        eprintln!("Model validation...");
+    }
+
+    validate(&root_model)?;
+    Ok(root_model)
 }

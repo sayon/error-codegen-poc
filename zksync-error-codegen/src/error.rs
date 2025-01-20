@@ -2,12 +2,12 @@ use crate::codegen::html::error::GenerationError as HtmlGenerationError;
 use crate::codegen::mdbook::error::GenerationError as MarkdownGenerationError;
 use crate::codegen::rust::error::GenerationError as RustGenerationError;
 use crate::loader::builder::error::ModelBuildingError;
-use crate::loader::error::LoadError;
-use zksync_error_model::error::ModelError;
+use crate::loader::error::{LinkError, LoadError};
+use zksync_error_model::error::ModelValidationError;
 
 #[derive(Debug)]
 pub enum ProgramError {
-    ModelError(ModelError),
+    ModelError(ModelValidationError),
     ModelBuildingError(ModelBuildingError),
     JsonDeserializationError(serde_json::Error),
     RustGenerationError(RustGenerationError),
@@ -15,6 +15,13 @@ pub enum ProgramError {
     MarkdownGenerationError(MarkdownGenerationError),
     IOError(std::io::Error),
     LoadError(LoadError),
+    LinkError(LinkError),
+}
+
+impl From<LinkError> for ProgramError {
+    fn from(v: LinkError) -> Self {
+        Self::LinkError(v)
+    }
 }
 
 impl From<MarkdownGenerationError> for ProgramError {
@@ -47,8 +54,8 @@ impl From<serde_json::Error> for ProgramError {
     }
 }
 
-impl From<ModelError> for ProgramError {
-    fn from(v: ModelError) -> Self {
+impl From<ModelValidationError> for ProgramError {
+    fn from(v: ModelValidationError) -> Self {
         Self::ModelError(v)
     }
 }

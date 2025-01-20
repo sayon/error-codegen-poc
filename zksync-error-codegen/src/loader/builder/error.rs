@@ -1,5 +1,5 @@
-use crate::loader::error::LoadError;
-use zksync_error_model::merger::error::MergeError;
+use crate::loader::{error::{LinkError, LoadError}, link::Link};
+use zksync_error_model::{error::ModelValidationError, merger::error::MergeError};
 
 #[derive(Debug)]
 pub struct MissingComponent {
@@ -14,6 +14,13 @@ pub enum TakeFromError {
     MissingComponent(MissingComponent),
     ModelBuildingError(Box<ModelBuildingError>),
     MergeError(MergeError),
+    LinkError(LinkError),
+}
+
+impl From<LinkError> for TakeFromError {
+    fn from(v: LinkError) -> Self {
+        Self::LinkError(v)
+    }
 }
 
 impl From<MergeError> for TakeFromError {
@@ -58,6 +65,25 @@ pub enum ModelBuildingError {
         address: String,
         inner: TakeFromError,
     },
+    MergeError {
+        merge_error: MergeError,
+        main_model_origin: Link,
+        additional_model_origin: Link,
+    },
+    ModelValidationError(ModelValidationError),
+    LoadError(LoadError),
+}
+
+impl From<LoadError> for ModelBuildingError {
+    fn from(v: LoadError) -> Self {
+        Self::LoadError(v)
+    }
+}
+
+impl From<ModelValidationError> for ModelBuildingError {
+    fn from(v: ModelValidationError) -> Self {
+        Self::ModelValidationError(v)
+    }
 }
 
 impl std::fmt::Display for TakeFromError {
@@ -79,6 +105,9 @@ impl std::fmt::Display for TakeFromError {
             TakeFromError::MergeError(error) => f.write_fmt(format_args!(
                 "Error while merging with the error base fetched from `takeFrom` link: {error}"
             )),
+            TakeFromError::LinkError(link_error) => f.write_fmt(format_args!(
+                "Error parsing link while following a `takeFrom` link: {link_error}"
+            )),
         }
     }
 }
@@ -88,6 +117,11 @@ impl std::fmt::Display for ModelBuildingError {
             ModelBuildingError::TakeFrom { address, inner } => {
                 f.write_fmt(format_args!("Failed to import a file {address}: {inner}"))
             }
+            ModelBuildingError::MergeError{merge_error, main_model_origin, additional_model_origin } => f.write_fmt(format_args!(
+                "Error merging models {main_model_origin} and {additional_model_origin}: {merge_error}"
+            )),
+            ModelBuildingError::ModelValidationError(model_validation_error) => f.write_fmt(format_args!("Error validating combined model: {model_validation_error}")),
+            ModelBuildingError::LoadError(load_error) => load_error.fmt(f),
         }
     }
 }

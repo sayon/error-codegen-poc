@@ -105,14 +105,16 @@ trait Identifying {
    fn get_identifier_repr(&self)-> String;
 }
 
-"#);
+"#,
+        );
 
-        gen.push_str(r#"
+        gen.push_str(
+            r#"
 impl Identifying for Kind {
   fn get_identifier_repr(&self) -> String {
     match self {
-"#);
-
+"#,
+        );
 
         gen.indent_more_by(3);
 
@@ -131,11 +133,12 @@ impl Identifying for Kind {
 
         gen.indent_less_by(3);
         gen.push_str(
-        r#"
+            r#"
     }.into()
   }
 }
-"#);
+"#,
+        );
         gen.push_str(
             r#"
 impl Identifying for Identifier {
@@ -143,7 +146,8 @@ impl Identifying for Identifier {
        format!("[{}-{}]", self.kind.get_identifier_repr(), self.code)
   }
 }
-"#);
+"#,
+        );
 
         gen.push_str(
             r#"

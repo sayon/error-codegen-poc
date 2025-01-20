@@ -1,6 +1,6 @@
 use std::{collections::HashMap, rc::Rc};
 
-use super::error::ModelError;
+use super::error::ModelValidationError;
 
 pub type LanguageName = String;
 pub type TypeName = String;
@@ -133,16 +133,16 @@ impl Model {
         &self,
         language: &str,
         name: &str,
-    ) -> Result<&FullyQualifiedTargetLanguageType, ModelError> {
+    ) -> Result<&FullyQualifiedTargetLanguageType, ModelValidationError> {
         let type_description = self
             .types
             .get(name)
-            .ok_or(ModelError::UnknownType(name.to_string()))?;
+            .ok_or(ModelValidationError::UnknownType(name.to_string()))?;
         let mapped_type = type_description
             .bindings
             .bindings
             .get(language)
-            .ok_or(ModelError::UnmappedType(name.to_string()))?;
+            .ok_or(ModelValidationError::UnmappedType(name.to_string()))?;
         Ok(mapped_type)
     }
 }

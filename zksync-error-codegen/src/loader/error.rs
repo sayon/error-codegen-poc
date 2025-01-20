@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use super::{link::Link, ResolutionContext};
+use super::{builder::error::ModelBuildingError, link::Link, ResolutionContext};
 
 #[derive(Debug)]
 pub enum ResolutionError {
@@ -70,6 +70,13 @@ pub enum LoadError {
     LinkError(LinkError),
     ResolutionError(ResolutionError),
     MissingFileError(String),
+    ModelBuildingError(Box<ModelBuildingError>),
+}
+
+impl From<ModelBuildingError> for LoadError {
+    fn from(v: ModelBuildingError) -> Self {
+        Self::ModelBuildingError(Box::new(v))
+    }
 }
 
 impl From<ResolutionError> for LoadError {
@@ -92,7 +99,7 @@ impl From<FileFormatError> for LoadError {
 
 impl Display for LoadError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("{self:?}"))
+        f.write_fmt(format_args!("{self:#?}"))
     }
 }
 impl From<reqwest::Error> for LoadError {

@@ -1,8 +1,8 @@
-use zksync_error_model::error::ModelError;
+use zksync_error_model::error::ModelValidationError;
 
 #[derive(Debug)]
 pub enum GenerationError {
-    ModelError(ModelError),
+    ModelError(ModelValidationError),
     ModelSerialization(serde_json::Error),
 }
 
@@ -19,8 +19,8 @@ impl std::fmt::Display for GenerationError {
 }
 impl std::error::Error for GenerationError {}
 
-impl From<ModelError> for GenerationError {
-    fn from(value: ModelError) -> Self {
+impl From<ModelValidationError> for GenerationError {
+    fn from(value: ModelValidationError) -> Self {
         GenerationError::ModelError(value)
     }
 }

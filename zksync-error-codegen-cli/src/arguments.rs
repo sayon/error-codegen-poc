@@ -6,9 +6,13 @@ use structopt::StructOpt;
     global_settings = &[structopt::clap::AppSettings::ArgRequiredElseHelp],
 )]
 pub struct Arguments {
-    /// Path to the master JSON file.
-    #[structopt(long = "definitions")]
-    pub definitions: String,
+    /// Link to the master JSON file.
+    #[structopt(long = "root-definitions")]
+    pub root: String,
+
+    /// Links to additional JSON file.
+    #[structopt(long = "additional-definitions")]
+    pub additional_inputs: Vec<String>,
 
     /// Selected backend.
     #[structopt(long = "backend", possible_values=&["rust", "doc-html", "markdown-mdbook"])]

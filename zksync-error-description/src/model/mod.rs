@@ -99,7 +99,7 @@ pub struct LikelyCause {
     pub cause: String,
     pub fixes: Vec<String>,
     pub report: String,
-    pub owner: VersionedOwner,
+    pub owner: Option<VersionedOwner>,
     pub references: Vec<String>,
 }
 

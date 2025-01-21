@@ -151,7 +151,7 @@ impl From<inner::LikelyCause> for model::LikelyCause {
             cause,
             fixes,
             report,
-            owner: owner.into(),
+            owner: owner.clone().map(|o|o.into()),
             references,
         }
     }

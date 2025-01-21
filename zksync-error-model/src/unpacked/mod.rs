@@ -84,7 +84,7 @@ pub struct LikelyCause {
     pub cause: String,
     pub fixes: Vec<String>,
     pub report: String,
-    pub owner: VersionedOwner,
+    pub owner: Option<VersionedOwner>,
     pub references: Vec<String>,
 }
 
@@ -182,9 +182,11 @@ fn translate_error(meta: &crate::inner::ErrorDescription) -> ErrorDescription {
     }
 }
 
-fn translate_owner(doc: &crate::inner::VersionedOwner) -> VersionedOwner {
-    let crate::inner::VersionedOwner { name, version } = doc.clone();
-    VersionedOwner { name, version }
+fn translate_owner(doc: &Option<crate::inner::VersionedOwner>) -> Option<VersionedOwner> {
+    if let Some(crate::inner::VersionedOwner { name, version }) = doc.clone() {
+    Some(VersionedOwner { name, version })
+    }
+    else { None }
 }
 fn translate_likely_cause(doc: &crate::inner::LikelyCause) -> LikelyCause {
     let crate::inner::LikelyCause {

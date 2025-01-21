@@ -105,7 +105,7 @@ pub struct LikelyCause {
     pub fixes: Vec<String>,
     #[serde(default)]
     pub report: String,
-    pub owner: VersionedOwner,
+    pub owner: Option<VersionedOwner>,
     #[serde(default)]
     pub references: Vec<String>,
 }

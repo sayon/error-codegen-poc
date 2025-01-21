@@ -168,6 +168,15 @@ fn translate_field(
     })
 }
 
+fn translate_versioned_owner(
+    owner: &Option<crate::description::VersionedOwner>,
+) -> Result<Option<VersionedOwner>, ModelBuildingError> {
+    Ok(match owner.clone() {
+        Some(crate::description::VersionedOwner { name, version } ) =>
+            Some(VersionedOwner{ name, version }),
+        None => None,
+    })
+}
 fn translate_likely_cause(
     lc: &crate::description::LikelyCause,
 ) -> Result<LikelyCause, ModelBuildingError> {
@@ -175,19 +184,14 @@ fn translate_likely_cause(
         cause,
         fixes,
         report,
-        owner: crate::description::VersionedOwner { name, version },
+        owner,
         references,
     } = lc;
-
-    let owner = VersionedOwner {
-        name: name.clone(),
-        version: version.clone(),
-    };
     Ok(LikelyCause {
         cause: cause.clone(),
         fixes: fixes.clone(),
         report: report.clone(),
-        owner,
+        owner: translate_versioned_owner(owner)?,
         references: references.clone(),
     })
 }

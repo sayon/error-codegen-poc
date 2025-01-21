@@ -39,7 +39,7 @@
             "identifier_encoding": "core",
             "description": "Errors in core ZKsync components such as sequencer or mempool.",
             "bindings": {
-                "rust": "core"
+                "rust": "Core"
             },
             "components" : [
                 {
@@ -156,6 +156,16 @@
             ]
         },
         {
+            "domain_name": "Anvil",
+            "domain_code": 5,
+            "identifier_encoding": "anvil",
+            "description": "Errors originating in Anvil for ZKsync.",
+            "bindings": {
+                "rust": "Anvil"
+            },
+            "components" : []
+        },
+        {
             "domain_name": "Hardhat",
             "domain_code": 3,
             "identifier_encoding": "hardhat",
@@ -169,7 +179,7 @@
                     "component_code": 1,
                     "identifier_encoding": "upstream",
                     "bindings": {
-                        "rust": "Upstream"
+                        "rust": "HardhatUpstream"
                     },
                     "description": "Errors originating in the upstream Hardhat implementation.",
                     "errors" : []
@@ -179,7 +189,7 @@
                     "component_code": 2,
                     "identifier_encoding": "zksync",
                     "bindings": {
-                        "rust": "Zksync"
+                        "rust": "HardhatZksync"
                     },
                     "description": "Errors originating in the ZKsync codebase for HardHat.",
                     "errors" : []
@@ -200,7 +210,7 @@
                     "component_code": 1,
                     "identifier_encoding": "upstream",
                     "bindings": {
-                        "rust": "Upstream"
+                        "rust": "FoundryUpstream"
                     },
                     "description": "Errors originating in the upstream Foundry implementation.",
                     "errors" : []
@@ -210,35 +220,13 @@
                     "component_code": 2,
                     "identifier_encoding": "zksync",
                     "bindings": {
-                        "rust": "Zksync"
+                        "rust": "FoundryZksync"
                     },
                     "description": "Errors originating in the ZKsync codebase for Foundry.",
                     "errors" : []
                 }
             ]
-        },
-        {
-            "domain_name": "Anvil",
-            "domain_code": 5,
-            "identifier_encoding": "anvil",
-            "description": "Errors originating in Anvil for ZKsync.",
-            "bindings": {
-                "rust": "Anvil"
-            },
-            "components" : [
-                {
-                    "component_name": "AnvilGeneric",
-                    "component_code": 1,
-                    "identifier_encoding": "gen",
-                    "bindings": {
-                        "rust": "AnvilGeneric"
-                    },
-                    "description": "Unattributed errors.",
-                    "errors" : []
-                }
-            ]
         }
-
 
     ]
 }

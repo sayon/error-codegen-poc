@@ -36,18 +36,21 @@ pub use crate::error::domains::ZksyncError;
         fn sanitize(s: &str) -> String { replace_non_alphanumeric(s.into(), '_') }
 
         for domain in self.model.domains.values() {
-            gen.push_line(&format!("pub mod {} {{", sanitize(&domain.meta.identifier)));
+            let outer_module = sanitize(&domain.meta.identifier);
+            gen.push_line(&format!("pub mod {outer_module} {{"));
             gen.indent_more();
             for component in domain.components.values() {
-                gen.push_line(&format!("pub mod {} {{", sanitize(&component.meta.identifier)));
+                let inner_module = sanitize(&component.meta.identifier);
+                gen.push_line(&format!("pub mod {inner_module} {{", ));
                 gen.indent_more();
 
+                let enum_name = component
+                    .meta
+                    .bindings
+                    .get("rust")
+                    .expect("Internal model error");
+
                 for error in &component.errors {
-                    let enum_name = component
-                        .meta
-                        .bindings
-                        .get("rust")
-                        .expect("Internal model error");
                     let enum_variant = sanitize(
                         &error
                             .bindings
@@ -60,13 +63,15 @@ pub use crate::error::domains::ZksyncError;
                     ));
                 }
 
-                gen.push_block(r#"
-macro_rules! generic_error {
-    ($($arg:tt)*) => {
-        GenericError { message: format!($($arg)*) }
-    };
-}
-"#);
+                gen.push_block(&format!(r#"
+#[macro_export]
+macro_rules! {outer_module}_{inner_module}_generic_error {{
+    ($($arg:tt)*) => {{
+        zksync_error::error::definitions::{enum_name}::GenericError {{ message: format!($($arg)*) }}
+    }};
+}}
+pub use crate::{outer_module}_{inner_module}_generic_error as generic_error;
+"#));
 
                 gen.push_line("}");
                 gen.indent_less();

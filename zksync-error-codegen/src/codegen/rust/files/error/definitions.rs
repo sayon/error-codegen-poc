@@ -47,6 +47,12 @@ impl NamedError for {error_name}Code {{
     }}
 }}
 
+impl Into<crate::ZksyncError> for {error_name} {{
+    fn into(self) -> crate::ZksyncError {{
+        self.to_unified()
+    }}
+}}
+
 impl Documented for {error_name} {{
     type Documentation = &'static zksync_error_description::ErrorDocumentation;
 

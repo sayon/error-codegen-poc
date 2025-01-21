@@ -60,6 +60,35 @@ pub enum ZksyncError {"#,
 
         gen.push_line("}");
 
+
+
+gen.push_line(r#"
+impl crate::documentation::Documented for ZksyncError {
+    type Documentation = &'static zksync_error_description::ErrorDocumentation;
+
+    fn get_documentation(&self) -> Result<Option<Self::Documentation>, crate::documentation::DocumentationError> {
+        match self {
+"#);
+        gen.indent_more_by(3);
+
+        for domain_description in domains() {
+            for component_description in domain_description.components.values() {
+                let domain = Self::domain_type_name(domain_description)?;
+                let component = Self::component_type_name(component_description)?;
+                let _component_code = Self::component_code_type_name(component_description)?;
+                let domain_code = Self::domain_code_type_name(domain_description)?;
+
+                gen.push_line(&format!(
+                    "ZksyncError::{domain}({domain}::{component}(error)) => error.get_documentation() ,"
+                ));
+            }
+        }
+
+        for _ in 0..3 {
+            gen.indent_less();
+            gen.push_line("}");
+        }
+
         gen.push_line(
             r#"
 impl ZksyncError {

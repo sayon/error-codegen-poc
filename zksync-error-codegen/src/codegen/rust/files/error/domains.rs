@@ -14,6 +14,7 @@ impl RustBackend {
 
         gen.push_str(
             "
+#![allow(non_camel_case_types)]
 use crate::error::ICustomError;
 use crate::error::IUnifiedError;
 use crate::kind::Kind;

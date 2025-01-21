@@ -123,10 +123,26 @@ impl RustBackend {
 
     fn error_kind(&self, error: &ErrorDescription) -> Result<String, GenerationError> {
         let ErrorDescription {
-            name, code, fields, ..
+            name, code, fields, bindings, ..
         } = error;
         let mut result = PrettyPrinter::new(1024);
-        result.push_line(&format!("{name} {{ "));
+
+        if let Some(documentation) = &error.documentation {
+            if let Some(short_description) = &documentation.short_description {
+                result.push_line(r#"/// # Short description"#);
+                result.push_line(&format!(r#"/// {}"#, short_description));
+            }
+            if !documentation.description.is_empty() {
+            result.push_line(r#"///"#);
+            result.push_line(r#"/// # Description"#);
+            for line in documentation.description.lines() {
+                result.push_line(&format!(r#"/// {line}"#));
+            }
+        }
+        }
+
+        let rust_name = &bindings.bindings.get("rust").expect("Internal model error: missing Rust name for error").name;
+        result.push_line(&format!("{rust_name} {{ "));
         result.indentation.increase();
         for field in fields {
             result.push_line(&self.error_field(field)?);

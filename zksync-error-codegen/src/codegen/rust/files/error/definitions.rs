@@ -13,6 +13,12 @@ impl RustBackend {
     ) -> Result<String, GenerationError> {
         let error_name = Self::component_type_name(component)?;
         let mut result = PrettyPrinter::default();
+
+        if !component.meta.description.is_empty() {
+            for line in component.meta.description.lines() {
+                result.push_line(&format!(r#"/// {line}"#));
+            }
+        }
         result.push_line(&format!(
             r#"
 #[repr(u32)]

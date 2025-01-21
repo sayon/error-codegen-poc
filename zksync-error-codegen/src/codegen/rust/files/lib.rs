@@ -17,7 +17,6 @@ pub mod kind;
 pub mod packed;
 pub mod serialized;
 pub mod untyped;
-#[cfg(feature = "documentation")]
 pub mod documentation;
 "#,
         );

@@ -53,16 +53,13 @@ version = "0.1.0"
 edition = "2021"
 [lib]
 
-[features]
-documentation = [ "dep:zksync-error-description" ]
-
 [dependencies]
 lazy_static = "1.5.0"
 serde = {{ version = "1.0.210", features = [ "derive", "rc" ] }}
 serde_json = {{ version = "1.0.128" }}
 strum = "0.26.3"
 strum_macros = "0.26.4"
-zksync-error-description = {{ git = "{}", branch = "cargo-dep-control", optional = true }}
+zksync-error-description = {{ git = "{}", branch = "main"}}
 "#,
                     RustBackend::SHARED_MODEL_CRATE_URL
                 ),

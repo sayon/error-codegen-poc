@@ -386,6 +386,31 @@ fn load_root_model(root_link: &Link) -> Result<Model, LoadError> {
     }
 }
 
+fn add_default_error(model: &mut Model) {
+    for domain in model.domains.values_mut() {
+        for component in domain.components.values_mut() {
+            if component.errors.iter().find( |e| e.code == 0).is_none() {
+                component.errors.push(ErrorDescription {
+                    domain: domain.meta.clone(),
+                    component: component.meta.clone(),
+                    name: "Generic".into(),
+                    code: 0,
+                    message: "Generic error: {message}".into(),
+                    fields: vec![FieldDescription {
+                        name: "message".into(),
+                        r#type: "string".into(),
+                    }],
+                    documentation: None,
+                    bindings: TypeBindings {
+                        bindings: hashmap! {
+                            "rust".into() => TargetLanguageType { name: "Generic".into()} ,
+                            "typescript".into() => TargetLanguageType { name: "Generic".into()} ,
+                        } },
+                    });
+            }
+        }
+    }
+}
 pub fn build_model(
     root_link: &Link,
     additions: &Vec<Link>,
@@ -404,6 +429,7 @@ pub fn build_model(
             })?
     }
 
+    add_default_error(&mut root_model);
     if diagnostic {
         eprintln!("Model: {root_model:#?}");
         eprintln!("Model validation...");

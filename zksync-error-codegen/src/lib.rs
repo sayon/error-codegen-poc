@@ -30,15 +30,14 @@ use crate::loader::load;
 use crate::loader::ErrorBasePart;
 use zksync_error_model::validator::validate;
 
-pub fn default_load_and_generate(root_error_package_name: &str) {
+pub fn default_load_and_generate(root_link: &str, input_links: Vec<&str>) {
     if let Err(e) = load_and_generate(GenerationArguments {
         verbose: true,
-        root_link: format!("cargo://{root_error_package_name}@@errors.json"),
+        root_link: root_link.to_owned(),
         outputs: vec![
             ("../zksync_error".into(), Backend::Rust),
-            ("../doc-mdbook".into(), Backend::MDBook),
         ],
-        input_links: vec![],
+        input_links: input_links.into_iter().map(Into::into).collect(),
     }) {
         eprintln!("{e:#?}")
     };

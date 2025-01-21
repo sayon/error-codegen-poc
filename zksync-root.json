@@ -165,7 +165,7 @@
             },
             "components" : [
                 {
-                    "component_name": "Upstream",
+                    "component_name": "HardhatUpstream",
                     "component_code": 1,
                     "identifier_encoding": "upstream",
                     "bindings": {
@@ -175,7 +175,7 @@
                     "errors" : []
                 },
                 {
-                    "component_name": "Zksync",
+                    "component_name": "HardhatZksync",
                     "component_code": 2,
                     "identifier_encoding": "zksync",
                     "bindings": {
@@ -196,7 +196,7 @@
             },
             "components" : [
                 {
-                    "component_name": "Upstream",
+                    "component_name": "FoundryUpstream",
                     "component_code": 1,
                     "identifier_encoding": "upstream",
                     "bindings": {
@@ -206,7 +206,7 @@
                     "errors" : []
                 },
                 {
-                    "component_name": "Zksync",
+                    "component_name": "FoundryZksync",
                     "component_code": 2,
                     "identifier_encoding": "zksync",
                     "bindings": {
@@ -227,11 +227,11 @@
             },
             "components" : [
                 {
-                    "component_name": "Generic",
+                    "component_name": "AnvilGeneric",
                     "component_code": 1,
                     "identifier_encoding": "gen",
                     "bindings": {
-                        "rust": "Generic"
+                        "rust": "AnvilGeneric"
                     },
                     "description": "Unattributed errors.",
                     "errors" : []

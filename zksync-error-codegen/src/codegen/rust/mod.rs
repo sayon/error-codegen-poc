@@ -164,7 +164,9 @@ impl RustBackend {
             .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelValidationError::UnmappedName(component.meta.name.clone()))?;
+            .ok_or(ModelValidationError::UnmappedName(
+                component.meta.name.clone(),
+            ))?;
 
         Ok(name.to_string())
     }
@@ -175,7 +177,9 @@ impl RustBackend {
             .meta
             .bindings
             .get(Self::get_language_name())
-            .ok_or(ModelValidationError::UnmappedName(component.meta.name.clone()))?;
+            .ok_or(ModelValidationError::UnmappedName(
+                component.meta.name.clone(),
+            ))?;
 
         Ok(format!("{name}Code"))
     }

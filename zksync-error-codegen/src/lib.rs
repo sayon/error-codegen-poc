@@ -13,7 +13,6 @@ use arguments::GenerationArguments;
 use error::ProgramError;
 use loader::builder::build_model;
 use loader::link::Link;
-use zksync_error_model::merger::Merge as _;
 
 use crate::codegen::file::File;
 use crate::codegen::html::config::HtmlBackendConfig;
@@ -23,20 +22,12 @@ use crate::codegen::mdbook::MDBookBackend;
 use crate::codegen::rust::config::RustBackendConfig;
 use crate::codegen::rust::RustBackend;
 use crate::codegen::Backend as _;
-use crate::loader::builder::ModelTranslationContext;
-use crate::loader::error::FileFormatError;
-use crate::loader::error::LoadError;
-use crate::loader::load;
-use crate::loader::ErrorBasePart;
-use zksync_error_model::validator::validate;
 
 pub fn default_load_and_generate(root_link: &str, input_links: Vec<&str>) {
     if let Err(e) = load_and_generate(GenerationArguments {
         verbose: true,
         root_link: root_link.to_owned(),
-        outputs: vec![
-            ("../zksync_error".into(), Backend::Rust),
-        ],
+        outputs: vec![("../zksync_error".into(), Backend::Rust)],
         input_links: input_links.into_iter().map(Into::into).collect(),
     }) {
         eprintln!("{e:#?}")
@@ -53,7 +44,7 @@ pub fn load_and_generate(arguments: GenerationArguments) -> Result<(), ProgramEr
         eprintln!("Reading config from \"{root_link}\"");
     }
 
-    let additions : Result<Vec<_>,_>= input_links.into_iter().map(Link::parse).collect();
+    let additions: Result<Vec<_>, _> = input_links.iter().map(Link::parse).collect();
     let model = build_model(&Link::parse(root_link)?, &additions?, *verbose)?;
 
     for (output_directory, backend_type) in outputs {

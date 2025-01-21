@@ -177,9 +177,7 @@ fn translate_error(meta: &crate::inner::ErrorDescription) -> ErrorDescription {
         identifier,
         message: message.clone(),
         fields: fields.iter().map(translate_field).collect(),
-        documentation: documentation
-            .clone()
-            .map(|d| translate_documentation(&d)),
+        documentation: documentation.clone().map(|d| translate_documentation(&d)),
         bindings: new_bindings,
     }
 }

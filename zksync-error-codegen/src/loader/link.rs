@@ -19,13 +19,15 @@ impl Link {
         let string: String = link.into();
 
         match string.split_once("://") {
-            Some((Link::CARGO_FORMAT_PREFIX, path)) => match path.split_once(Link::PACKAGE_SEPARATOR) {
-                Some((package, filename)) => Ok(Link::PackageLink {
-                    package: package.to_owned(),
-                    filename: filename.to_owned(),
-                }),
-                None => Err(LinkError::InvalidLinkFormat(string)),
-            },
+            Some((Link::CARGO_FORMAT_PREFIX, path)) => {
+                match path.split_once(Link::PACKAGE_SEPARATOR) {
+                    Some((package, filename)) => Ok(Link::PackageLink {
+                        package: package.to_owned(),
+                        filename: filename.to_owned(),
+                    }),
+                    None => Err(LinkError::InvalidLinkFormat(string)),
+                }
+            }
             Some((Link::FILE_FORMAT_PREFIX, path)) => Ok(Link::FileLink {
                 path: path.to_owned(),
             }),
@@ -56,7 +58,6 @@ impl Link {
             false
         }
     }
-
 }
 
 impl std::fmt::Display for Link {

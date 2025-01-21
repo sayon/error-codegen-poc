@@ -64,13 +64,10 @@ pub enum ResolvedLink {
 //     }
 // }
 impl Link {
-    fn resolve(
-        query_link: &Link,
-        context: &ResolutionContext,
-    ) -> Result<ResolvedLink, LinkError> {
+    fn resolve(query_link: &Link, context: &ResolutionContext) -> Result<ResolvedLink, LinkError> {
         match query_link {
             link @ Link::PackageLink { .. } => {
-                if let Some(df) = context.files.iter().find(|file| Link::matches(&link, file)) {
+                if let Some(df) = context.files.iter().find(|file| Link::matches(link, file)) {
                     Ok(ResolvedLink::DescriptionFile(df.clone()))
                 } else {
                     Err(LinkError::FailedResolution(

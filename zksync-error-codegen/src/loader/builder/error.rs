@@ -1,4 +1,7 @@
-use crate::loader::{error::{LinkError, LoadError}, link::Link};
+use crate::loader::{
+    error::{LinkError, LoadError},
+    link::Link,
+};
 use zksync_error_model::{error::ModelValidationError, merger::error::MergeError};
 
 #[derive(Debug)]

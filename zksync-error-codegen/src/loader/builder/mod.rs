@@ -304,12 +304,11 @@ fn translate_component<'a>(
             "rust".into() => bindings.rust.clone().unwrap_or(component_name.clone()),
             "typescript".into() => bindings.typescript.clone().unwrap_or(component_name.clone()),
         },
-        identifier: identifier_encoding
-            .clone()
-            .unwrap_or_default(),
+        identifier: identifier_encoding.clone().unwrap_or_default(),
         description: description.clone().unwrap_or_default(),
     });
     let mut transformed_errors = Vec::default();
+
     for error in errors {
         let ctx = ErrorTranslationContext {
             parent: ctx,
@@ -373,16 +372,18 @@ fn translate_domain<'a>(
 
 fn load_root_model(root_link: &Link) -> Result<Model, LoadError> {
     match load(root_link)? {
-        ErrorBasePart::Domain(_) => Err(LoadError::from(LoadError::FileFormatError(
+        ErrorBasePart::Domain(_) => Err(LoadError::FileFormatError(
             FileFormatError::ExpectedFullGotDomain(root_link.to_string()),
-        ))),
+        )),
         ErrorBasePart::Component(_) => Err(LoadError::FileFormatError(
             FileFormatError::ExpectedFullGotComponent(root_link.to_string()),
-        )
-        .into()),
-        ErrorBasePart::Root(root) => {
-            Ok(translate_model(&root, ModelTranslationContext { origin: root_link.clone() })?)
-        }
+        )),
+        ErrorBasePart::Root(root) => Ok(translate_model(
+            &root,
+            ModelTranslationContext {
+                origin: root_link.clone(),
+            },
+        )?),
     }
 }
 
@@ -405,8 +406,9 @@ fn add_default_error(model: &mut Model) {
                         bindings: hashmap! {
                             "rust".into() => TargetLanguageType { name: "Generic".into()} ,
                             "typescript".into() => TargetLanguageType { name: "Generic".into()} ,
-                        } },
-                    });
+                        },
+                    },
+                });
             }
         }
     }
@@ -416,7 +418,7 @@ pub fn build_model(
     additions: &Vec<Link>,
     diagnostic: bool,
 ) -> Result<Model, ModelBuildingError> {
-    let mut root_model = load_root_model(&root_link)?;
+    let mut root_model = load_root_model(root_link)?;
 
     for input_link in additions {
         let part = load_root_model(input_link)?;

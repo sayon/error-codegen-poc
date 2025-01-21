@@ -306,7 +306,7 @@ fn translate_component<'a>(
         },
         identifier: identifier_encoding
             .clone()
-            .unwrap_or(component_name.clone()),
+            .unwrap_or_default(),
         description: description.clone().unwrap_or_default(),
     });
     let mut transformed_errors = Vec::default();
@@ -349,7 +349,7 @@ fn translate_domain<'a>(
     let metadata = Rc::new(DomainMetadata {
         name: domain_name.clone(),
         code: *domain_code,
-        identifier: identifier_encoding.clone().unwrap_or(domain_name.clone()),
+        identifier: identifier_encoding.clone().unwrap_or_default(),
         description: description.clone().unwrap_or_default(),
         bindings: hashmap! {
             "rust".into() => bindings.rust.clone().unwrap_or(domain_name.clone()),

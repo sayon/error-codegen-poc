@@ -103,6 +103,7 @@ impl From<{error_name}> for crate::serialized::SerializedError {{
             r#"
 
 #![allow(unused)]
+#![allow(non_camel_case_types)]
 
 use crate::documentation::Documented;
 use crate::error::CustomErrorMessage;

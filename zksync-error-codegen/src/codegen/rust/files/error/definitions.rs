@@ -47,9 +47,9 @@ impl NamedError for {error_name}Code {{
     }}
 }}
 
-impl Into<crate::ZksyncError> for {error_name} {{
-    fn into(self) -> crate::ZksyncError {{
-        self.to_unified()
+impl From<{error_name}> for crate::ZksyncError {{
+    fn from(val: {error_name}) -> Self {{
+        val.to_unified()
     }}
 }}
 

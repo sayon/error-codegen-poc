@@ -1,16 +1,16 @@
 pub mod error;
 
 use error::MergeError;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use super::inner::{
     ComponentDescription, DomainDescription, ErrorDescription, ErrorDocumentation, Model,
     TypeBindings, TypeDescription,
 };
 
-fn merge_maps<K, V>(main: &mut HashMap<K, V>, other: &HashMap<K, V>) -> Result<(), MergeError>
+fn merge_maps<K, V>(main: &mut BTreeMap<K, V>, other: &BTreeMap<K, V>) -> Result<(), MergeError>
 where
-    K: Eq + PartialEq + std::hash::Hash + Clone,
+    K: Eq + PartialEq + Ord + Clone,
     V: Merge + Clone,
 {
     for (key, value) in other {

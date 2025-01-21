@@ -1,4 +1,4 @@
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::BTreeMap, rc::Rc};
 
 use super::error::ModelValidationError;
 
@@ -34,7 +34,7 @@ pub struct TypeBindings<T>
 where
     T: Eq,
 {
-    pub bindings: HashMap<LanguageName, T>,
+    pub bindings: BTreeMap<LanguageName, T>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
@@ -46,14 +46,14 @@ pub struct TypeDescription {
 
 #[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct Model {
-    pub types: HashMap<TypeName, TypeDescription>,
-    pub domains: HashMap<DomainName, DomainDescription>,
+    pub types: BTreeMap<TypeName, TypeDescription>,
+    pub domains: BTreeMap<DomainName, DomainDescription>,
 }
 
 impl Model {
     pub fn new(
-        types: HashMap<TypeName, TypeDescription>,
-        domains: HashMap<DomainName, DomainDescription>,
+        types: BTreeMap<TypeName, TypeDescription>,
+        domains: BTreeMap<DomainName, DomainDescription>,
     ) -> Self {
         Self { types, domains }
     }
@@ -63,21 +63,21 @@ impl Model {
 pub struct DomainMetadata {
     pub name: DomainName,
     pub code: DomainCode,
-    pub bindings: HashMap<LanguageName, String>,
+    pub bindings: BTreeMap<LanguageName, String>,
     pub identifier: String,
     pub description: String,
 }
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct DomainDescription {
     pub meta: Rc<DomainMetadata>,
-    pub components: HashMap<ComponentName, ComponentDescription>,
+    pub components: BTreeMap<ComponentName, ComponentDescription>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct ComponentMetadata {
     pub name: ComponentName,
     pub code: ComponentCode,
-    pub bindings: HashMap<LanguageName, String>,
+    pub bindings: BTreeMap<LanguageName, String>,
     pub identifier: String,
     pub description: String,
 }

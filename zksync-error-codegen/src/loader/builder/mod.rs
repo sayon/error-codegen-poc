@@ -1,12 +1,12 @@
 pub mod error;
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::rc::Rc;
 
 use error::MissingComponent;
 use error::ModelBuildingError;
 use error::TakeFromError;
-use maplit::hashmap;
+use maplit::btreemap;
 use zksync_error_model::validator::validate;
 
 use crate::loader::load;
@@ -304,7 +304,7 @@ fn translate_component<'a>(
     let component_meta: Rc<ComponentMetadata> = Rc::new(ComponentMetadata {
         name: component_name.clone(),
         code: *component_code,
-        bindings: maplit::hashmap! {
+        bindings: maplit::btreemap! {
             "rust".into() => bindings.rust.clone().unwrap_or(component_name.clone()),
             "typescript".into() => bindings.typescript.clone().unwrap_or(component_name.clone()),
         },
@@ -348,13 +348,13 @@ fn translate_domain<'a>(
         components,
         bindings,
     } = value;
-    let mut new_components: HashMap<_, _> = HashMap::default();
+    let mut new_components: BTreeMap<_, _> = BTreeMap::default();
     let metadata = Rc::new(DomainMetadata {
         name: domain_name.clone(),
         code: *domain_code,
         identifier: identifier_encoding.clone().unwrap_or_default(),
         description: description.clone().unwrap_or_default(),
-        bindings: hashmap! {
+        bindings: btreemap! {
             "rust".into() => bindings.rust.clone().unwrap_or(domain_name.clone()),
             "typescript".into() => bindings.typescript.clone().unwrap_or(domain_name.clone()),
         },
@@ -407,7 +407,7 @@ fn add_default_error(model: &mut Model) {
                     }],
                     documentation: None,
                     bindings: TypeBindings {
-                        bindings: hashmap! {
+                        bindings: btreemap! {
                             "rust".into() => TargetLanguageType { name: "GenericError".into()} ,
                             "typescript".into() => TargetLanguageType { name: "GenericError".into()} ,
                         },

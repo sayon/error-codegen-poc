@@ -3,7 +3,7 @@ use crate::inner::{
     ComponentCode, ComponentName, DomainCode, DomainName, ErrorCode, ErrorMessageTemplate,
     ErrorName, FieldName, LanguageName, Model, Semver, TypeName,
 };
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 type ErrorIdentifierRepr = String;
 
@@ -22,7 +22,7 @@ pub struct TypeMetadata {
 pub struct TypeDescription {
     pub name: TypeName,
     pub meta: TypeMetadata,
-    pub bindings: HashMap<LanguageName, TargetLanguageType>,
+    pub bindings: BTreeMap<LanguageName, TargetLanguageType>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
@@ -30,17 +30,17 @@ pub struct DomainMetadata {
     pub name: DomainName,
     pub code: DomainCode,
     pub components: Vec<ComponentName>,
-    pub bindings: HashMap<LanguageName, String>,
+    pub bindings: BTreeMap<LanguageName, String>,
     pub identifier: String,
     pub description: String,
 }
 
 #[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct UnpackedModel {
-    pub types: HashMap<TypeName, TypeDescription>,
-    pub domains: HashMap<DomainName, DomainMetadata>,
-    pub components: HashMap<ComponentName, ComponentMetadata>,
-    pub errors: HashMap<ErrorIdentifierRepr, ErrorDescription>,
+    pub types: BTreeMap<TypeName, TypeDescription>,
+    pub domains: BTreeMap<DomainName, DomainMetadata>,
+    pub components: BTreeMap<ComponentName, ComponentMetadata>,
+    pub errors: BTreeMap<ErrorIdentifierRepr, ErrorDescription>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
@@ -48,7 +48,7 @@ pub struct ComponentMetadata {
     pub name: ComponentName,
     pub code: ComponentCode,
     pub domain_name: DomainName,
-    pub bindings: HashMap<LanguageName, String>,
+    pub bindings: BTreeMap<LanguageName, String>,
     pub identifier: String,
     pub description: String,
 }
@@ -63,7 +63,7 @@ pub struct ErrorDescription {
     pub message: ErrorMessageTemplate,
     pub fields: Vec<FieldDescription>,
     pub documentation: Option<ErrorDocumentation>,
-    pub bindings: HashMap<LanguageName, TargetLanguageType>,
+    pub bindings: BTreeMap<LanguageName, TargetLanguageType>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
@@ -150,7 +150,7 @@ fn translate_error(meta: &crate::inner::ErrorDescription) -> ErrorDescription {
         documentation,
         bindings,
     } = meta;
-    let new_bindings: HashMap<_, _> = bindings
+    let new_bindings: BTreeMap<_, _> = bindings
         .bindings
         .iter()
         .map(|(k, v)| {
@@ -226,7 +226,7 @@ fn translate_type(typ: &crate::inner::TypeDescription) -> TypeDescription {
         bindings,
     } = typ.clone();
 
-    let new_bindings: HashMap<_, _> = bindings
+    let new_bindings: BTreeMap<_, _> = bindings
         .bindings
         .iter()
         .map(|(k, v)| {

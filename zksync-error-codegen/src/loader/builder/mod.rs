@@ -390,11 +390,11 @@ fn load_root_model(root_link: &Link) -> Result<Model, LoadError> {
 fn add_default_error(model: &mut Model) {
     for domain in model.domains.values_mut() {
         for component in domain.components.values_mut() {
-            if component.errors.iter().find( |e| e.code == 0).is_none() {
+            if component.errors.iter().find(|e| e.code == 0).is_none() {
                 component.errors.push(ErrorDescription {
                     domain: domain.meta.clone(),
                     component: component.meta.clone(),
-                    name: "Generic".into(),
+                    name: "GenericError".into(),
                     code: 0,
                     message: "Generic error: {message}".into(),
                     fields: vec![FieldDescription {
@@ -404,8 +404,8 @@ fn add_default_error(model: &mut Model) {
                     documentation: None,
                     bindings: TypeBindings {
                         bindings: hashmap! {
-                            "rust".into() => TargetLanguageType { name: "Generic".into()} ,
-                            "typescript".into() => TargetLanguageType { name: "Generic".into()} ,
+                            "rust".into() => TargetLanguageType { name: "GenericError".into()} ,
+                            "typescript".into() => TargetLanguageType { name: "GenericError".into()} ,
                         },
                     },
                 });

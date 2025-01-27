@@ -29,19 +29,11 @@ pub struct TypeMetadata {
     pub description: String,
 }
 
-#[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize)]
-pub struct TypeBindings<T>
-where
-    T: Eq,
-{
-    pub bindings: BTreeMap<LanguageName, T>,
-}
-
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct TypeDescription {
     pub name: TypeName,
     pub meta: TypeMetadata,
-    pub bindings: TypeBindings<FullyQualifiedTargetLanguageType>,
+    pub bindings: BTreeMap<LanguageName, FullyQualifiedTargetLanguageType>,
 }
 
 #[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize)]
@@ -97,7 +89,22 @@ pub struct ErrorDescription {
     pub message: ErrorMessageTemplate,
     pub fields: Vec<FieldDescription>,
     pub documentation: Option<ErrorDocumentation>,
-    pub bindings: TypeBindings<TargetLanguageType>,
+    pub bindings: BTreeMap<LanguageName, TargetLanguageType>,
+}
+
+impl From<TargetLanguageType> for FullyQualifiedTargetLanguageType {
+    fn from(value: TargetLanguageType) -> Self {
+        Self::from(value.name.as_str())
+    }
+}
+
+impl From<&str> for FullyQualifiedTargetLanguageType {
+    fn from(value: &str) -> Self {
+        FullyQualifiedTargetLanguageType {
+            name: value.into(),
+            path: "".into(),
+        }
+    }
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
@@ -106,7 +113,7 @@ pub struct FieldDescription {
     pub r#type: TypeName,
 }
 
-#[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
+#[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct ErrorDocumentation {
     pub description: String,
     pub summary: Option<String>,
@@ -139,7 +146,6 @@ impl Model {
             .get(name)
             .ok_or(ModelValidationError::UnknownType(name.to_string()))?;
         let mapped_type = type_description
-            .bindings
             .bindings
             .get(language)
             .ok_or(ModelValidationError::UnmappedType(name.to_string()))?;

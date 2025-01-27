@@ -4,8 +4,7 @@ use error::MergeError;
 use std::collections::BTreeMap;
 
 use super::inner::{
-    ComponentDescription, DomainDescription, ErrorDescription, ErrorDocumentation, Model,
-    TypeBindings, TypeDescription,
+    ComponentDescription, DomainDescription, ErrorDescription, ErrorDocumentation, Model, TypeDescription,
 };
 
 fn merge_maps<K, V>(main: &mut BTreeMap<K, V>, other: &BTreeMap<K, V>) -> Result<(), MergeError>
@@ -27,25 +26,6 @@ where
 
 pub trait Merge {
     fn merge(&mut self, other: &Self) -> Result<(), MergeError>;
-}
-
-impl<T> Merge for TypeBindings<T>
-where
-    T: Merge + Eq + Clone,
-{
-    fn merge(&mut self, other: &TypeBindings<T>) -> Result<(), MergeError> {
-        for (lang, binding) in &other.bindings {
-            if let Some(value) = self.bindings.get(lang) {
-                if value != binding {
-                    return Err(MergeError::DuplicateTypeBinding(lang.clone()));
-                }
-            } else {
-                self.bindings.insert(lang.clone(), binding.clone());
-            }
-        }
-
-        Ok(())
-    }
 }
 
 impl Merge for String {
@@ -83,7 +63,7 @@ impl Merge for TypeDescription {
             } else if !self.meta.description.is_empty() && !other.meta.description.is_empty() {
                 return Err(MergeError::ConflictingTypeDescriptions(self.name.clone()));
             }
-            merge_maps(&mut self.bindings.bindings, &other.bindings.bindings)
+            merge_maps(&mut self.bindings, &other.bindings)
         } else {
             Err(MergeError::ConflictingTypeDescriptions(self.name.clone()))
         }
@@ -94,6 +74,7 @@ impl Merge for Model {
     fn merge(&mut self, other: &Model) -> Result<(), MergeError> {
         merge_maps(&mut self.types, &other.types)?;
         merge_maps(&mut self.domains, &other.domains)
+
     }
 }
 
@@ -149,7 +130,7 @@ impl Merge for ErrorDescription {
         }
         let _ = self.documentation.merge(&other.documentation);
         let _ = self.message.merge(&other.message);
-        self.bindings.merge(&other.bindings)
+        merge_maps(&mut self.bindings, &other.bindings)
     }
 }
 

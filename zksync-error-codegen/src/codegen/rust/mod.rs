@@ -145,7 +145,6 @@ impl RustBackend {
         }
 
         let rust_name = &bindings
-            .bindings
             .get("rust")
             .expect("Internal model error: missing Rust name for error")
             .name;

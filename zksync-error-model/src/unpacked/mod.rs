@@ -151,7 +151,6 @@ fn translate_error(meta: &crate::inner::ErrorDescription) -> ErrorDescription {
         bindings,
     } = meta;
     let new_bindings: BTreeMap<_, _> = bindings
-        .bindings
         .iter()
         .map(|(k, v)| {
             (
@@ -228,7 +227,6 @@ fn translate_type(typ: &crate::inner::TypeDescription) -> TypeDescription {
     } = typ.clone();
 
     let new_bindings: BTreeMap<_, _> = bindings
-        .bindings
         .iter()
         .map(|(k, v)| {
             (

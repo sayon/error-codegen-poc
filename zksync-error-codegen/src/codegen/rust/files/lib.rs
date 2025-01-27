@@ -56,7 +56,6 @@ pub use crate::error::domains::ZksyncError;
                     let enum_variant = sanitize(
                         &error
                             .bindings
-                            .bindings
                             .get("rust")
                             .expect("Internal model error")
                             .name,

@@ -24,7 +24,6 @@ use zksync_error_model::inner::FullyQualifiedTargetLanguageType;
 use zksync_error_model::inner::LikelyCause;
 use zksync_error_model::inner::Model;
 use zksync_error_model::inner::TargetLanguageType;
-use zksync_error_model::inner::TypeBindings;
 use zksync_error_model::inner::TypeDescription;
 use zksync_error_model::inner::TypeMetadata;
 use zksync_error_model::inner::VersionedOwner;
@@ -60,6 +59,7 @@ struct ErrorTranslationContext<'a> {
     pub component: Rc<ComponentMetadata>,
     pub parent: &'a ComponentTranslationContext<'a>,
 }
+
 impl ErrorTranslationContext<'_> {
     fn get_component(&self) -> String {
         self.component.name.to_string()
@@ -72,8 +72,9 @@ impl ErrorTranslationContext<'_> {
 fn translate_type_bindings(
     value: &crate::description::ErrorNameMapping,
     error_name: &ErrorName,
-) -> Result<TypeBindings<TargetLanguageType>, ModelBuildingError> {
-    let mut result = TypeBindings::<TargetLanguageType>::default();
+) -> Result<BTreeMap<zksync_error_model::inner::LanguageName, TargetLanguageType>, ModelBuildingError>
+{
+    let mut result: BTreeMap<_, TargetLanguageType> = Default::default();
     let rust_name = match &value.rust {
         Some(crate::description::ErrorType { name }) => name,
         None => error_name,
@@ -85,10 +86,8 @@ fn translate_type_bindings(
     }
     .to_string();
 
-    result
-        .bindings
-        .insert("rust".into(), TargetLanguageType { name: rust_name });
-    result.bindings.insert(
+    result.insert("rust".into(), TargetLanguageType { name: rust_name });
+    result.insert(
         "typescript".into(),
         TargetLanguageType {
             name: typescript_name,
@@ -99,10 +98,13 @@ fn translate_type_bindings(
 
 fn translate_type_mappings(
     value: &crate::description::TypeMappings,
-) -> Result<TypeBindings<FullyQualifiedTargetLanguageType>, ModelBuildingError> {
-    let mut result: TypeBindings<FullyQualifiedTargetLanguageType> = Default::default();
+) -> Result<
+    BTreeMap<zksync_error_model::inner::LanguageName, FullyQualifiedTargetLanguageType>,
+    ModelBuildingError,
+> {
+    let mut result: BTreeMap<_, FullyQualifiedTargetLanguageType> = Default::default();
     if let Some(crate::description::FullyQualifiedType { name, path }) = &value.rust {
-        result.bindings.insert(
+        result.insert(
             "rust".into(),
             FullyQualifiedTargetLanguageType {
                 name: name.clone(),
@@ -244,8 +246,7 @@ fn translate_error(
         doc,
     } = error;
     let transformed_fields: Result<_, _> = fields.iter().map(translate_field).collect();
-    let transformed_bindings: TypeBindings<TargetLanguageType> =
-        translate_type_bindings(bindings, &error.name)?;
+    let transformed_bindings = translate_type_bindings(bindings, &error.name)?;
 
     let documentation = if let Some(doc) = doc {
         Some(translate_error_documentation(doc)?)
@@ -421,17 +422,41 @@ fn add_default_error(model: &mut Model) {
                         r#type: "string".into(),
                     }],
                     documentation: None,
-                    bindings: TypeBindings {
-                        bindings: btreemap! {
-                            "rust".into() => TargetLanguageType { name: "GenericError".into()} ,
-                            "typescript".into() => TargetLanguageType { name: "GenericError".into()} ,
-                        },
+                    bindings: btreemap! {
+                        "rust".into() => TargetLanguageType { name: "GenericError".into()} ,
+                        "typescript".into() => TargetLanguageType { name: "GenericError".into()} ,
                     },
                 });
             }
         }
     }
 }
+
+fn bind_error_types(model: &mut Model) {
+    fn error_name(component_name: &str) -> String {
+        format!("Box<{component_name}>")
+    }
+    for domain in model.domains.values() {
+        for component in domain.components.values() {
+            let bindings: BTreeMap<_, zksync_error_model::inner::FullyQualifiedTargetLanguageType> =
+                component
+                    .meta
+                    .bindings
+                    .iter()
+                    .map(|(k, v)| (k.to_owned(), error_name(v).as_str().into()))
+                    .collect();
+            let value = TypeDescription {
+                name: component.meta.name.clone(),
+                meta: TypeMetadata {
+                    description: component.meta.description.clone(),
+                },
+                bindings,
+            };
+            model.types.insert(component.meta.name.clone(), value);
+        }
+    }
+}
+
 pub fn build_model(
     root_link: &Link,
     additions: &Vec<Link>,
@@ -451,6 +476,7 @@ pub fn build_model(
     }
 
     add_default_error(&mut root_model);
+    bind_error_types(&mut root_model);
     if diagnostic {
         eprintln!("Model: {root_model:#?}");
         eprintln!("Model validation...");

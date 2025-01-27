@@ -68,6 +68,17 @@ impl Documented for {error_name} {{
 }}
 "#
         ));
+
+        result.push_line(&format!(
+            r#"
+impl std::fmt::Display for {error_name} {{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {{
+       f.write_fmt(format_args!("{{self:?}}"))
+    }}
+}}
+"#
+        ));
+
         result.push_line(&format!(
             r#"
 impl CustomErrorMessage for {error_name} {{

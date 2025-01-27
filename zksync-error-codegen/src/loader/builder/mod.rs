@@ -175,24 +175,41 @@ fn translate_versioned_owner(
         |crate::description::VersionedOwner { name, version }| VersionedOwner { name, version },
     ))
 }
+
+fn structurize_likely_cause(cause: &str) -> crate::description::StructuredLikelyCause {
+    crate::description::StructuredLikelyCause {
+        cause: cause.to_owned(),
+        fixes: vec![],
+        report: "".into(),
+        owner: None,
+        references: vec![],
+    }
+}
+
 fn translate_likely_cause(
     lc: &crate::description::LikelyCause,
 ) -> Result<LikelyCause, ModelBuildingError> {
-    let crate::description::LikelyCause {
+    let crate::description::StructuredLikelyCause {
         cause,
         fixes,
         report,
         owner,
         references,
-    } = lc;
+    } = match lc {
+        crate::description::LikelyCause::Simple(str) => structurize_likely_cause(str),
+        crate::description::LikelyCause::Structured(structured_likely_cause) => {
+            structured_likely_cause.clone()
+        }
+    };
     Ok(LikelyCause {
-        cause: cause.clone(),
-        fixes: fixes.clone(),
-        report: report.clone(),
-        owner: translate_versioned_owner(owner)?,
-        references: references.clone(),
+        cause,
+        fixes,
+        report,
+        owner: translate_versioned_owner(&owner)?,
+        references,
     })
 }
+
 fn translate_error_documentation(
     doc: &crate::description::ErrorDocumentation,
 ) -> Result<ErrorDocumentation, ModelBuildingError> {

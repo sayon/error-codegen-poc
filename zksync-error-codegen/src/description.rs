@@ -101,11 +101,19 @@ pub struct ErrorDocumentation {
 }
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct LikelyCause {
+#[serde(untagged)]
+pub enum LikelyCause {
+    Simple(String),
+    Structured(StructuredLikelyCause),
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct StructuredLikelyCause {
     pub cause: String,
     pub fixes: Vec<String>,
     #[serde(default)]
     pub report: String,
+    #[serde(default)]
     pub owner: Option<VersionedOwner>,
     #[serde(default)]
     pub references: Vec<String>,

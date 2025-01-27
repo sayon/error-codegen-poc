@@ -12,6 +12,17 @@
             }
         },
         {
+            "name": "int",
+            "description": "Signed 32-bit integer",
+            "bindings": {
+                "rust":
+                {
+                    "name": "i32",
+                    "path": ""
+                }
+            }
+        },
+        {
             "name": "string",
             "description": "Unicode zero-terminated string",
             "bindings": {
@@ -22,11 +33,31 @@
             }
         },
         {
+            "name": "map",
+            "description": "String to string mapping.",
+            "bindings": {
+                "rust": {
+                    "name": "Vec<(String,String)>",
+                    "path": ""
+                }
+            }
+        },
+        {
             "name": "WrappedError",
             "description": "Any wrapped error",
             "bindings": {
                 "rust": {
                     "name": "serde_json::Value",
+                    "path": ""
+                }
+            }
+        },
+        {
+            "name": "bytes",
+            "description": "Sequence of bytes",
+            "bindings": {
+                "rust": {
+                    "name": "Vec<u8>",
                     "path": ""
                 }
             }
@@ -50,7 +81,19 @@
                         "rust": "Sequencer"
                     },
                     "description": "Errors in the sequencer node",
-                    "errors" : []
+                    "errors" : [
+                        {
+                            "name": "GenericSequencerError",
+                            "code": 1,
+                            "message": "Generic error: {message}",
+                            "fields": [
+                                {
+                                    "name": "message",
+                                    "type": "string"
+                                }
+                            ]
+                        }
+                    ]
                 },
                 {
                     "component_name": "EraVM",

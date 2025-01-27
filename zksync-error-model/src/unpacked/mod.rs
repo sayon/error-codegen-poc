@@ -184,9 +184,10 @@ fn translate_error(meta: &crate::inner::ErrorDescription) -> ErrorDescription {
 
 fn translate_owner(doc: &Option<crate::inner::VersionedOwner>) -> Option<VersionedOwner> {
     if let Some(crate::inner::VersionedOwner { name, version }) = doc.clone() {
-    Some(VersionedOwner { name, version })
+        Some(VersionedOwner { name, version })
+    } else {
+        None
     }
-    else { None }
 }
 fn translate_likely_cause(doc: &crate::inner::LikelyCause) -> LikelyCause {
     let crate::inner::LikelyCause {

@@ -171,11 +171,9 @@ fn translate_field(
 fn translate_versioned_owner(
     owner: &Option<crate::description::VersionedOwner>,
 ) -> Result<Option<VersionedOwner>, ModelBuildingError> {
-    Ok(match owner.clone() {
-        Some(crate::description::VersionedOwner { name, version } ) =>
-            Some(VersionedOwner{ name, version }),
-        None => None,
-    })
+    Ok(owner.clone().map(
+        |crate::description::VersionedOwner { name, version }| VersionedOwner { name, version },
+    ))
 }
 fn translate_likely_cause(
     lc: &crate::description::LikelyCause,
@@ -394,7 +392,7 @@ fn load_root_model(root_link: &Link) -> Result<Model, LoadError> {
 fn add_default_error(model: &mut Model) {
     for domain in model.domains.values_mut() {
         for component in domain.components.values_mut() {
-            if component.errors.iter().find(|e| e.code == 0).is_none() {
+            if !component.errors.iter().any(|e| e.code == 0) {
                 component.errors.push(ErrorDescription {
                     domain: domain.meta.clone(),
                     component: component.meta.clone(),

@@ -65,13 +65,13 @@ zksync-error-description = {{ git = "{}", branch = "main"}}
                 ),
             },
             File {
-                relative_path: "resources/model.json".into(),
+                relative_path: "resources/error-model-dump.json".into(),
                 content: {
                     let unpacked: UnpackedModel =
                         zksync_error_model::unpacked::flatten(&self.model);
                     let user_facing_model: zksync_error_description::ErrorHierarchy =
                         unpacked.into();
-                    serde_json::to_string_pretty(&user_facing_model)?
+                    serde_json::to_string_pretty(&user_facing_model.wrap())?
                 },
             },
         ])
@@ -123,7 +123,10 @@ impl RustBackend {
 
     fn error_kind(&self, error: &ErrorDescription) -> Result<String, GenerationError> {
         let ErrorDescription {
-            name, code, fields, bindings, ..
+            code,
+            fields,
+            bindings,
+            ..
         } = error;
         let mut result = PrettyPrinter::new(1024);
 
@@ -133,15 +136,19 @@ impl RustBackend {
                 result.push_line(&format!(r#"/// {}"#, short_description));
             }
             if !documentation.description.is_empty() {
-            result.push_line(r#"///"#);
-            result.push_line(r#"/// # Description"#);
-            for line in documentation.description.lines() {
-                result.push_line(&format!(r#"/// {line}"#));
+                result.push_line(r#"///"#);
+                result.push_line(r#"/// # Description"#);
+                for line in documentation.description.lines() {
+                    result.push_line(&format!(r#"/// {line}"#));
+                }
             }
         }
-        }
 
-        let rust_name = &bindings.bindings.get("rust").expect("Internal model error: missing Rust name for error").name;
+        let rust_name = &bindings
+            .bindings
+            .get("rust")
+            .expect("Internal model error: missing Rust name for error")
+            .name;
         result.push_line(&format!("{rust_name} {{ "));
         result.indentation.increase();
         for field in fields {

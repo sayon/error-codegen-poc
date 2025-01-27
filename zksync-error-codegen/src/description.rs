@@ -78,6 +78,7 @@ pub struct Error {
     pub name: String,
     pub code: u32,
     pub message: String,
+    #[serde(default)]
     pub fields: Vec<Field>,
 
     #[serde(default)]

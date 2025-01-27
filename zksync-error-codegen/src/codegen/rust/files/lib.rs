@@ -33,7 +33,9 @@ pub use crate::error::domains::ZksyncError;
 "#,
         );
 
-        fn sanitize(s: &str) -> String { replace_non_alphanumeric(s.into(), '_') }
+        fn sanitize(s: &str) -> String {
+            replace_non_alphanumeric(s, '_')
+        }
 
         for domain in self.model.domains.values() {
             let outer_module = sanitize(&domain.meta.identifier);
@@ -41,7 +43,7 @@ pub use crate::error::domains::ZksyncError;
             gen.indent_more();
             for component in domain.components.values() {
                 let inner_module = sanitize(&component.meta.identifier);
-                gen.push_line(&format!("pub mod {inner_module} {{", ));
+                gen.push_line(&format!("pub mod {inner_module} {{",));
                 gen.indent_more();
 
                 let enum_name = component
@@ -57,13 +59,15 @@ pub use crate::error::domains::ZksyncError;
                             .bindings
                             .get("rust")
                             .expect("Internal model error")
-                            .name);
+                            .name,
+                    );
                     gen.push_line(&format!(
                         "pub use crate::error::definitions::{enum_name}::{enum_variant};"
                     ));
                 }
 
-                gen.push_block(&format!(r#"
+                gen.push_block(&format!(
+                    r#"
 #[macro_export]
 macro_rules! {outer_module}_{inner_module}_generic_error {{
     ($($arg:tt)*) => {{
@@ -71,7 +75,8 @@ macro_rules! {outer_module}_{inner_module}_generic_error {{
     }};
 }}
 pub use crate::{outer_module}_{inner_module}_generic_error as generic_error;
-"#));
+"#
+                ));
 
                 gen.push_line("}");
                 gen.indent_less();

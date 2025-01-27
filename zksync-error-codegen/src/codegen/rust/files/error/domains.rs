@@ -60,9 +60,7 @@ pub enum ZksyncError {"#,
 
         gen.push_line("}");
 
-
-
-gen.push_line(r#"
+        gen.push_line(r#"
 impl crate::documentation::Documented for ZksyncError {
     type Documentation = &'static zksync_error_description::ErrorDocumentation;
 

@@ -118,7 +118,7 @@
                             ],
                             "doc" : {
                                 "description": "The compiler is unable to find the file with the source code that it needs",
-                                "short_description": "No input file",
+                                "summary": "No input file",
                                 "likely_causes": [
                                     {
                                         "cause": "You did not provide a file to compile",

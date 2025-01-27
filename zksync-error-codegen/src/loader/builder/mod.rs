@@ -215,7 +215,7 @@ fn translate_error_documentation(
 ) -> Result<ErrorDocumentation, ModelBuildingError> {
     let &crate::description::ErrorDocumentation {
         description,
-        short_description,
+        summary: short_description,
         likely_causes,
     } = &doc;
 
@@ -226,7 +226,7 @@ fn translate_error_documentation(
 
     Ok(ErrorDocumentation {
         description: description.clone(),
-        short_description: short_description.clone(),
+        summary: short_description.clone(),
         likely_causes,
     })
 }

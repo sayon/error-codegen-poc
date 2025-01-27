@@ -96,7 +96,7 @@ pub struct Field {
 #[derive(Clone, Debug, Deserialize)]
 pub struct ErrorDocumentation {
     pub description: String,
-    pub short_description: Option<String>,
+    pub summary: Option<String>,
     pub likely_causes: Vec<LikelyCause>,
 }
 

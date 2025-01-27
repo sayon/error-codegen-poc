@@ -89,7 +89,7 @@ pub struct FieldDescription {
 #[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ErrorDocumentation {
     pub description: String,
-    pub short_description: String,
+    pub summary: String,
     pub likely_causes: Vec<LikelyCause>,
 }
 

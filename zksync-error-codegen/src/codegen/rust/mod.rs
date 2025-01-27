@@ -131,7 +131,7 @@ impl RustBackend {
         let mut result = PrettyPrinter::new(1024);
 
         if let Some(documentation) = &error.documentation {
-            if let Some(short_description) = &documentation.short_description {
+            if let Some(short_description) = &documentation.summary {
                 result.push_line(r#"/// # Short description"#);
                 result.push_line(&format!(r#"/// {}"#, short_description));
             }

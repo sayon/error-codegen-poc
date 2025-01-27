@@ -75,7 +75,7 @@ pub struct FieldDescription {
 #[derive(Debug, Default, Eq, PartialEq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ErrorDocumentation {
     pub description: String,
-    pub short_description: String,
+    pub summary: String,
     pub likely_causes: Vec<LikelyCause>,
 }
 
@@ -209,13 +209,13 @@ fn translate_likely_cause(doc: &crate::inner::LikelyCause) -> LikelyCause {
 fn translate_documentation(doc: &crate::inner::ErrorDocumentation) -> ErrorDocumentation {
     let crate::inner::ErrorDocumentation {
         description,
-        short_description,
+        summary,
         likely_causes,
     } = doc.clone();
 
     ErrorDocumentation {
         description,
-        short_description: short_description.unwrap_or_default(),
+        summary: summary.unwrap_or_default(),
         likely_causes: likely_causes.iter().map(translate_likely_cause).collect(),
     }
 }

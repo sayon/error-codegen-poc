@@ -88,7 +88,7 @@ type = "uint"
 
 [errors.doc]
 description = "The compiler is unable to find the file with the source code that it needs"
-short_description = "No input file"
+summary = "No input file"
 references = [ "https://matter-labs.io", "https://github.com" ]
 
 [[errors.doc.likely_causes]]

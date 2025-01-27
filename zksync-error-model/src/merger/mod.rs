@@ -156,7 +156,7 @@ impl Merge for ErrorDescription {
 impl Merge for ErrorDocumentation {
     fn merge(&mut self, other: &ErrorDocumentation) -> Result<(), MergeError> {
         let _ = self.description.merge(&other.description);
-        let _ = self.short_description.merge(&other.short_description);
+        let _ = self.summary.merge(&other.summary);
         //FIXME: merge likely causes properly too
         self.likely_causes
             .extend(other.likely_causes.iter().cloned());

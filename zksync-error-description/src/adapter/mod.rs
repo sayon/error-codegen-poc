@@ -127,12 +127,12 @@ impl From<inner::ErrorDocumentation> for model::ErrorDocumentation {
     fn from(val: inner::ErrorDocumentation) -> Self {
         let inner::ErrorDocumentation {
             description,
-            short_description,
+            summary: short_description,
             likely_causes,
         } = val;
         model::ErrorDocumentation {
             description,
-            short_description,
+            summary: short_description,
             likely_causes: likely_causes.into_iter().map(|lc| lc.into()).collect(),
         }
     }

@@ -15,7 +15,7 @@
 
             "doc" : {
                 "description": "This error is defined in a small, non-intimidating file.",
-                "short_description": "",
+                "summary": "",
                 "likely_causes": [],
                 "references": ["https://matter-labs.io", "https://github.com"]
             }
@@ -32,7 +32,7 @@
             ],
 
             "doc" : {
-                "short_description": "This error is also defined in a small, non-intimidating file.",
+                "summary": "This error is also defined in a small, non-intimidating file.",
                 "description": "",
                 "likely_causes": [],
                 "references": ["https://matter-labs.io", "https://github.com"]

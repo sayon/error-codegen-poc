@@ -52,6 +52,10 @@ pub use crate::error::domains::ZksyncError;
                     .get("rust")
                     .expect("Internal model error");
 
+                gen.push_line(&format!(
+                    "pub use crate::error::definitions::{enum_name} as {enum_name}Error;"
+                ));
+
                 for error in &component.errors {
                     let enum_variant = sanitize(
                         &error

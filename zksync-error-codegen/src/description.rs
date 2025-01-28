@@ -97,6 +97,7 @@ pub struct Field {
 pub struct ErrorDocumentation {
     pub description: String,
     pub summary: Option<String>,
+    #[serde(default)]
     pub likely_causes: Vec<LikelyCause>,
 }
 

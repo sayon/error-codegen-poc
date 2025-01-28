@@ -1,10 +1,11 @@
 use std::path::PathBuf;
+use vector_map::VecMap;
 
 pub struct GenerationArguments {
     pub verbose: bool,
     pub root_link: String,
     pub input_links: Vec<String>,
-    pub outputs: Vec<(PathBuf, Backend)>,
+    pub outputs: Vec<(PathBuf, Backend, VecMap<String, String>)>,
 }
 
 #[derive(Debug)]

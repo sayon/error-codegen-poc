@@ -23,3 +23,4 @@ cargo_metadata = "=0.18"
 # Model of errors, shared between generated code and the code generator.
 zksync-error-model = { path = "../zksync-error-model" }
 zksync-error-description = { path = "../zksync-error-description", features = ["with_adapter"] }
+vector-map = "1.0.1"

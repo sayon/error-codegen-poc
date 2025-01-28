@@ -1,4 +1,7 @@
 use crate::codegen::IBackendConfig;
 
-pub struct RustBackendConfig;
-impl IBackendConfig for RustBackendConfig {}
+pub struct Config {
+    pub use_anyhow: bool,
+}
+
+impl IBackendConfig for Config {}

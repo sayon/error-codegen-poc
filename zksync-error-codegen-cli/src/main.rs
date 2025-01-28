@@ -6,6 +6,7 @@ use zksync_error_codegen::error::ProgramError;
 use zksync_error_codegen::load_and_generate;
 
 use structopt::StructOpt as _;
+use vector_map::VecMap;
 
 impl From<Arguments> for GenerationArguments {
     fn from(val: Arguments) -> Self {
@@ -15,11 +16,12 @@ impl From<Arguments> for GenerationArguments {
             verbose,
             output_directory,
             additional_inputs,
+            backend_args,
         } = val;
         GenerationArguments {
             verbose,
             root_link: definitions,
-            outputs: vec![(output_directory.into(), backend)],
+            outputs: vec![(output_directory.into(), backend, backend_args.into_iter().collect())],
             input_links: additional_inputs,
         }
     }

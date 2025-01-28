@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::codegen::printer::PrettyPrinter;
+use crate::codegen::rust::config::Config;
 use crate::codegen::rust::error::GenerationError;
 use crate::codegen::rust::RustBackend;
 use crate::codegen::File;
@@ -10,6 +11,7 @@ impl RustBackend {
     fn define_errors_of_component(
         &self,
         component: &ComponentDescription,
+        config: &Config,
     ) -> Result<String, GenerationError> {
         let error_name = Self::component_type_name(component)?;
         let mut result = PrettyPrinter::default();
@@ -42,6 +44,8 @@ pub enum {error_name} {{"#
 
         result.push_line(&format!(
             r#"
+impl std::error::Error for {error_name} {{}}
+
 impl NamedError for {error_name} {{
     fn get_error_name(&self) -> String {{
         self.as_ref().to_owned()
@@ -58,7 +62,22 @@ impl From<{error_name}> for crate::ZksyncError {{
         val.to_unified()
     }}
 }}
+"#
+        ));
 
+        if config.use_anyhow {
+            result.push_line(&format!(
+                r#"
+impl From<anyhow::Error> for {error_name} {{
+    fn from(value: anyhow::Error) -> Self {{
+        let message = format!("{{value:#?}}");
+        {error_name}::GenericError {{ message }}
+    }}
+}}
+"#
+            ));
+        }
+        result.push_line(&format!(r#"
 impl Documented for {error_name} {{
     type Documentation = &'static zksync_error_description::ErrorDocumentation;
 
@@ -117,7 +136,10 @@ impl From<{error_name}> for crate::serialized::SerializedError {{
         Ok(result.get_buffer())
     }
 
-    pub fn generate_file_error_definitions(&mut self) -> Result<File, GenerationError> {
+    pub fn generate_file_error_definitions(
+        &mut self,
+        config: &Config,
+    ) -> Result<File, GenerationError> {
         let mut gen = PrettyPrinter::default();
 
         Self::preamble(&mut gen);
@@ -145,7 +167,7 @@ use strum_macros::FromRepr;
             .values()
             .flat_map(|domain| domain.components.values())
         {
-            gen.push_str(&self.define_errors_of_component(component)?)
+            gen.push_str(&self.define_errors_of_component(component, config)?)
         }
 
         Ok(File {

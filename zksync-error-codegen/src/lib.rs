@@ -13,21 +13,22 @@ use arguments::GenerationArguments;
 use error::ProgramError;
 use loader::builder::build_model;
 use loader::link::Link;
+use vector_map::VecMap;
 
 use crate::codegen::file::File;
 use crate::codegen::html::config::HtmlBackendConfig;
 use crate::codegen::html::HtmlBackend;
 use crate::codegen::mdbook::config::MDBookBackendConfig;
 use crate::codegen::mdbook::MDBookBackend;
-use crate::codegen::rust::config::RustBackendConfig;
 use crate::codegen::rust::RustBackend;
+use crate::codegen::rust::RustBackendConfig;
 use crate::codegen::Backend as _;
 
 pub fn default_load_and_generate(root_link: &str, input_links: Vec<&str>) {
     if let Err(e) = load_and_generate(GenerationArguments {
         verbose: true,
         root_link: root_link.to_owned(),
-        outputs: vec![("../zksync_error".into(), Backend::Rust)],
+        outputs: vec![("../zksync_error".into(), Backend::Rust, VecMap::new())],
         input_links: input_links.into_iter().map(Into::into).collect(),
     }) {
         eprintln!("{e:#?}")
@@ -47,7 +48,7 @@ pub fn load_and_generate(arguments: GenerationArguments) -> Result<(), ProgramEr
     let additions: Result<Vec<_>, _> = input_links.iter().map(Link::parse).collect();
     let model = build_model(&Link::parse(root_link)?, &additions?, *verbose)?;
 
-    for (output_directory, backend_type) in outputs {
+    for (output_directory, backend_type, backend_arguments) in outputs {
         if *verbose {
             eprintln!("Selected backend: {backend_type:?}. \nGenerating files...");
         }
@@ -58,7 +59,14 @@ pub fn load_and_generate(arguments: GenerationArguments) -> Result<(), ProgramEr
             }
             arguments::Backend::Rust => {
                 let mut backend = RustBackend::new(&model);
-                backend.generate(&RustBackendConfig {})?
+                backend.generate(&RustBackendConfig {
+                    use_anyhow: std::str::FromStr::from_str(
+                        backend_arguments
+                            .get(&String::from("use_anyhow"))
+                            .unwrap_or(&String::from("false")),
+                    )
+                    .unwrap(),
+                })?
             }
             arguments::Backend::MDBook => {
                 let mut backend = MDBookBackend::new(&model);

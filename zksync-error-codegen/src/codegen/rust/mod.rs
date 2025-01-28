@@ -4,7 +4,7 @@ pub mod files;
 
 use std::path::PathBuf;
 
-use config::RustBackendConfig;
+pub use config::Config as RustBackendConfig;
 use error::GenerationError;
 use zksync_error_model::unpacked::UnpackedModel;
 
@@ -31,9 +31,9 @@ impl Backend<RustBackendConfig> for RustBackend {
         "rust"
     }
 
-    fn generate(&mut self, _config: &RustBackendConfig) -> Result<Vec<File>, Self::Error> {
+    fn generate(&mut self, config: &RustBackendConfig) -> Result<Vec<File>, Self::Error> {
         Ok(vec![
-            self.generate_file_error_definitions()?,
+            self.generate_file_error_definitions(config)?,
             self.generate_file_error_domains()?,
             self.generate_file_documentation()?,
             self.generate_file_error_mod()?,
@@ -60,8 +60,14 @@ serde_json = {{ version = "1.0.128" }}
 strum = "0.26.3"
 strum_macros = "0.26.4"
 zksync-error-description = {{ git = "{}", branch = "main"}}
+{}
 "#,
-                    RustBackend::SHARED_MODEL_CRATE_URL
+                    RustBackend::SHARED_MODEL_CRATE_URL,
+                    if config.use_anyhow {
+                        "anyhow = \"1.0\""
+                    } else {
+                        ""
+                    }
                 ),
             },
             File {
@@ -148,14 +154,19 @@ impl RustBackend {
             .get("rust")
             .expect("Internal model error: missing Rust name for error")
             .name;
-        result.push_line(&format!("{rust_name} {{ "));
+        result.push_str(&format!("{rust_name} "));
+        if !fields.is_empty() {
+            result.push_line("{")
+        }
         result.indentation.increase();
         for field in fields {
             result.push_line(&self.error_field(field)?);
         }
         result.indentation.decrease();
-
-        result.push_line(&format!("}} = {code}, "));
+        if !fields.is_empty() {
+            result.push_str("}")
+        }
+        result.push_line(&format!(" = {code}, "));
         Ok(result.get_buffer())
     }
 

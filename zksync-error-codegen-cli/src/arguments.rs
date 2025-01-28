@@ -1,5 +1,19 @@
 use structopt::StructOpt;
+use std::error::Error;
 
+/// Parse a single key-value pair
+fn parse_key_val<T, U>(s: &str) -> Result<(T, U), Box<dyn Error>>
+where
+    T: std::str::FromStr,
+    T::Err: Error + 'static,
+    U: std::str::FromStr,
+    U::Err: Error + 'static,
+{
+    let pos = s
+        .find('=')
+        .ok_or_else(|| format!("invalid KEY=value: no `=` found in `{}`", s))?;
+    Ok((s[..pos].parse()?, s[pos + 1..].parse()?))
+}
 #[derive(Debug, StructOpt)]
 #[structopt(
     name = "Generator of the error handling code in ZKsync components.",
@@ -25,4 +39,8 @@ pub struct Arguments {
     /// Output files in this directory.
     #[structopt(long = "output", default_value = "zksync-error")]
     pub output_directory: String,
+
+    /// Backend-specific arguments.
+    #[structopt(long = "backend-arg", parse(try_from_str = parse_key_val),)]
+    pub backend_args: Vec<(String,String)>,
 }

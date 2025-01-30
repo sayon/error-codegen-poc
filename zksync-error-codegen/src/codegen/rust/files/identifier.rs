@@ -101,7 +101,7 @@ impl Identifier {
 
         gen.push_str(
             r#"
-trait Identifying {
+pub trait Identifying {
    fn get_identifier_repr(&self)-> String;
 }
 
